@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/notebook1_small_right">
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="33dp"
+        android:layout_marginLeft="42dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="15dp">
+
+        <ImageButton
+            android:id="@+id/btn_back_tools"
+            android:layout_width="55dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="left"
+            android:background="@drawable/left"/>
+
+        <TextView
+            android:id="@+id/btn_tools"
+            android:layout_width="160dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+            android:background="@drawable/btn_tasks"
+            android:gravity="center|center_horizontal"
+            android:text="@string/tools"
+            android:textColor="#FFF"
+            android:textSize="17sp"/>
+    </FrameLayout>
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="13dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="13dp"
+        android:layout_marginTop="45dp"
+        android:background="@drawable/white_background">
+
+
+        <FrameLayout
+            android:id="@+id/main_tools_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/white_background_shadow">
+
+            <ru.mgvk.prostoege.PaintView
+                android:id="@+id/paintView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp">
+            </ru.mgvk.prostoege.PaintView>
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/tools_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/back_tools"
+
+                android:gravity="center_horizontal|center_vertical"
+                android:orientation="horizontal"
+                android:paddingBottom="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="8dp"
+                android:layout_marginLeft="5dp"
+                android:textColor="@color/task_text"
+                android:textSize="22sp">
+
+                <ru.mgvk.prostoege.ui.ToolButton
+                    android:id="@+id/btn_tools_pen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/pen"/>
+
+                <Space android:layout_width="10dp"
+                       android:layout_height="match_parent"/>
+
+                <ru.mgvk.prostoege.ui.ToolButton
+                    android:id="@+id/btn_tools_color"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/colors"
+                    android:alpha="0.5"/>
+
+                <Space android:layout_width="10dp"
+                       android:layout_height="match_parent"/>
+
+
+                <ru.mgvk.prostoege.ui.ToolButton
+                    android:id="@+id/btn_tools_erase"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/eraser"
+                    android:alpha="0.5"/>
+
+                <Space android:layout_width="10dp"
+                       android:layout_height="match_parent"/>
+
+                <ru.mgvk.prostoege.ui.ToolButton
+                    android:id="@+id/btn_tools_basket"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/basket"
+                    android:alpha="0.5"/>
+
+            </LinearLayout>
+
+            <ru.mgvk.prostoege.PenResizer
+                android:id="@+id/penResizer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:background="@drawable/white_background_shadow"/>
+
+            <ru.mgvk.prostoege.ColorChooser
+                android:id="@+id/colorChooser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:gravity="center_horizontal|center_vertical"
+                android:background="@drawable/white_background_shadow"/>
+
+        </LinearLayout>
+
+
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/rings_tools"
+        android:layout_width="35dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:layout_marginBottom="45dp"
+        android:layout_marginTop="90dp"
+        android:background="@drawable/rings_right"
+        android:visibility="visible"/>
+
+</FrameLayout>

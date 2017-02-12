@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">Просто(Й) ЕГЭ</string>
+    <string name="task_title">Задание</string>
+    <string name="task_description">Задачи на арифметику</string>
+    <string name="task_points">балл</string>
+    <string name="task_list_title">ЕГЭ 2017 профиль\nсписок заданий</string>
+    <string name="video_list_title">Задание 1</string>
+    <string name="exercises_list_title">Задачи к заданию</string>
+    <string name="tasks">" ЗАДАЧИ "</string>
+    <string name="videos">" ВИДЕО "</string>
+
+    <string name="exercises_answer_label">Ответ:</string>
+    <string name="tools">ИНСТРУМЕНТЫ</string>
+    <string name="ezi">1 Рубль = 1 Ёж</string>
+    <string name="default_coins">100</string>
+    <string name="balance_title">"Ежовый счёт: "</string>
+    <string name="balance_label">Люди смертны. Ежи - не люди.\nЕжи бессмертны!</string>
+    <string name="video_list_title_2">Задачи на арифметику</string>
+    <string name="error_acc">Ошибка определения аккаунта, используется аккаунт по-умолчанию
+        (default)
+    </string>
+    <string name="share_description">Приложение для качественной подготовки
+        к профильной математике. Ярко, просто и понятно.
+        Доступно в AppStore и Google Play.
+        Подробнее тут: @prostojege (ПростоЙ ЕГЭ)
+    </string>
+    <string name="help_share">У вас есть возможность бесплатно получить 55 ежей прямо сейчас! \nДля
+        этого зайдите в меню :)\n
+    </string>
+</resources>

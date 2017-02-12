@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item android:drawable="@drawable/hint_back_p"
+        android:bottom="2dp"
+        android:top="2dp"
+        android:left="2dp"
+        android:right="2dp">
+
+    </item>
+
+    <item>
+
+
+        <shape>
+
+            <corners android:radius="3dp">
+
+            </corners>
+
+            <stroke android:color="#0074ff"
+                android:width="3dp">
+            </stroke>
+
+
+
+        </shape>
+    </item>
+
+</layer-list>

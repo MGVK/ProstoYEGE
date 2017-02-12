@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_0"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    tools:context="ru.mgvk.prostoege.MainActivity"
+    >
+
+
+    <ru.mgvk.prostoege.ui.MainScrollView
+        android:id="@+id/mainScroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <LinearLayout
+            android:id="@+id/main_linear"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:background="@drawable/tree_background_small_part">
+
+            <FrameLayout
+                android:id="@+id/root_1"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingTop="5dp"
+                android:paddingLeft="5dp"
+                android:paddingBottom="5dp"
+                >
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/root_2"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingTop="5dp"
+                android:paddingRight="5dp"
+                android:paddingBottom="5dp">
+
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+    </ru.mgvk.prostoege.ui.MainScrollView>
+
+</FrameLayout>

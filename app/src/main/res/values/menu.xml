@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="btn_balance">Баланс</string>
+    <string name="btn_greeting">Приветствие\nавтора</string>
+    <string name="btn_share">Поделиться</string>
+    <string name="btn_rate">Оценить\nприложение</string>
+    <string name="btn_restore">Восстановить\nсписок заданий</string>
+    <string name="btn_wifi">Загружать\nвидео только по Wi-Fi</string>
+    <string name="btn_orientation">Выбрать\nориентацию</string>
+
+</resources>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+
+    <item android:drawable="@drawable/beige_background"
+          android:top="1dp"
+          android:right="1dp"
+          android:left="1dp"
+          android:bottom="1dp">
+
+        <shape>
+            <corners android:radius="3dp">
+            </corners>
+        </shape>
+
+    </item>
+
+
+    <item
+        android:top="1dp"
+        android:right="1dp"
+        android:left="1dp"
+        android:bottom="1dp">
+
+        <shape>
+
+            <stroke android:color="#3a1701"
+                    android:width="3dp">
+            </stroke>
+
+            <corners android:radius="3dp">
+
+            </corners>
+
+        </shape>
+
+    </item>
+
+   <!-- <item
+        android:id="@+id/tl"
+        android:drawable="@drawable/top_left"
+        android:height="5dp"
+        android:width="4dp">
+
+    </item>
+    <item
+        android:id="@+id/tr"
+        android:drawable="@drawable/top_right"
+        android:height="5dp"
+        android:width="4dp"
+        android:gravity="right">
+    </item>
+
+    <item
+        android:id="@+id/bl"
+        android:drawable="@drawable/bottom_left"
+        android:height="5dp"
+        android:width="4dp"
+        android:gravity="bottom|left">
+
+    </item>
+
+    <item
+        android:id="@+id/br"
+        android:drawable="@drawable/bottom_right"
+        android:height="5dp"
+        android:width="4dp"
+        android:gravity="bottom|right">
+
+    </item>-->
+
+</layer-list>
