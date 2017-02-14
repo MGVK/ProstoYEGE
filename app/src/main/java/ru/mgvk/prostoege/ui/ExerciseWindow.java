@@ -8,18 +8,8 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import ru.mgvk.prostoege.DataLoader;
-import ru.mgvk.prostoege.MainActivity;
-import ru.mgvk.prostoege.Profile;
-import ru.mgvk.prostoege.R;
-import ru.mgvk.prostoege.Task;
+import android.widget.*;
+import ru.mgvk.prostoege.*;
 
 /**
  * Created by mihail on 16.10.16.
@@ -29,7 +19,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
     public final static byte NOT_DECIDED = 0, WRONG_ANSWER = 1, PROMPTED = 2, DECIDED = 3, ANSWER_SHOWED = 4;
     public final static int[] indicators = {R.drawable.button_yellow, R.drawable.button_red,
             R.drawable.button_blue, R.drawable.button_green, R.drawable.button_red,
-            R.drawable.button_red,R.drawable.button_blue};
+            R.drawable.button_red, R.drawable.button_blue};
     private static final boolean APPEAR = true, DISAPPEAR = false;
 
     int QUESTION_ID = 0;
@@ -179,7 +169,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
     }
 
     public void setStatus(int status) {
-        if(status==ANSWER_SHOWED&&Status==PROMPTED){
+        if (status == ANSWER_SHOWED && Status == PROMPTED) {
             // TODO: 05.02.17 исправить статусы!
         }
         this.Status = status;
@@ -188,7 +178,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
     }
 
     private void showAnswer() {
-        if(Status==NOT_DECIDED||Status==PROMPTED) {
+        if (Status == NOT_DECIDED || Status == PROMPTED) {
             setStatus(ANSWER_SHOWED);
         }
         ((MainActivity) context).ui.openExerciseAnswerShowWindow(answer);
@@ -196,10 +186,10 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
 
     private void checkAnswer() {
         if (answerTextView.getText() != null && answerTextView.getText().equals(answer)) {
-            if(Status!=ANSWER_SHOWED) {
-                if (Status == PROMPTED||Status==WRONG_ANSWER) {
+            if (Status != ANSWER_SHOWED) {
+                if (Status == PROMPTED || Status == WRONG_ANSWER) {
                     setStatus(PROMPTED);
-                }else{
+                } else {
                     setStatus(DECIDED);
                 }
             }
@@ -207,7 +197,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
             openNextExercise();
 
         } else {
-            if (Status==NOT_DECIDED) {
+            if (Status == NOT_DECIDED) {
                 setStatus(WRONG_ANSWER);
             }
             ((MainActivity) context).ui.openExerciseResultWindow(false);
@@ -361,7 +351,16 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
         public DescriptionWebView() {
             super(context);
             getSettings().setJavaScriptEnabled(true);
+            setDrawingCacheEnabled(true);
+            getSettings().setAppCacheEnabled(true);
 
+            this.setOnLongClickListener(new OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(context, context.getString(R.string.mess_text_copy_not_allowed), Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
         }
 
 

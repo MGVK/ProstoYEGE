@@ -27,4 +27,5 @@
     <string name="help_share">У вас есть возможность бесплатно получить 55 ежей прямо сейчас! \nДля
         этого зайдите в меню :)\n
     </string>
+    <string name="mess_text_copy_not_allowed">Копировать текст запрещено!:)</string>
 </resources>
