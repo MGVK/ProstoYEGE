@@ -161,7 +161,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
 
         closeExercise();
 
-        LayoutParams lp = new LayoutParams(-1, -1);
+        LayoutParams lp = new LayoutParams(-1, -2);
         lp.setMargins(UI.calcSize(9), UI.calcSize(8),
                 UI.calcSize(9), UI.calcSize(5));
         mainLayout.setLayoutParams(lp);

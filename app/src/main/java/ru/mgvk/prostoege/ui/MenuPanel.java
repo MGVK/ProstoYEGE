@@ -2,22 +2,15 @@ package ru.mgvk.prostoege.ui;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Space;
-import android.widget.TextView;
-
-import com.google.android.youtube.player.internal.c;
-
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
-import ru.mgvk.prostoege.Task;
 
 /**
  * Created by mihail on 30.09.16.
