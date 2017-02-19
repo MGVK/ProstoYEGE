@@ -14,25 +14,20 @@ import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.os.StrictMode;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.Toast;
-
 import com.google.gson.Gson;
+import ru.mgvk.prostoege.ui.UI;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.ConnectException;
 import java.util.Stack;
 
-import ru.mgvk.prostoege.ui.UI;
-
 public class MainActivity extends Activity {
 
+    static final String APP_SETTINGS = "SETTINGS_EGE";
     public static String PID = "default";
     public UI ui;
     public volatile Profile profile;
@@ -40,8 +35,6 @@ public class MainActivity extends Activity {
     public Pays pays;
     Context context;
     OnConfigurationUpdate onConfigurationUpdate;
-    private ImageView loadingBackground;
-    private ImageView loadingImage;
     private boolean restoring = false;
     private Stack<Runnable> backStack = new Stack<>();
 
@@ -119,33 +112,33 @@ public class MainActivity extends Activity {
         }
     }
 
-    void setBootScreen() {
-        int h = getResources().getDisplayMetrics().heightPixels;
-        int w = getResources().getDisplayMetrics().widthPixels;
-        int h_i = (int) (0.8 * h);
-        int w_i = (int) (0.72 * h_i);
-
-        if (w / (double) h < 0.75) {
-            w = (int) (3 / 4.0 * h);
-        } else if (w / (double) h > 0.75) {
-            h = (int) (4 / 3.0 * w);
-        }
-        loadingBackground.setLayoutParams(new ViewGroup.LayoutParams(w, h));
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(w_i, h_i);
-        lp.gravity = Gravity.CENTER;
-        loadingImage.setLayoutParams(lp);
-
-        try {
-            ((ViewGroup) getWindow().getDecorView().getRootView()).addView(loadingBackground);
-            ((ViewGroup) getWindow().getDecorView().getRootView()).addView(loadingImage);
-        } catch (Exception e) {
-            ((ViewGroup) getWindow().getDecorView().getRootView()).removeView(loadingBackground);
-            ((ViewGroup) getWindow().getDecorView().getRootView()).removeView(loadingImage);
-            ((ViewGroup) getWindow().getDecorView().getRootView()).addView(loadingBackground);
-            ((ViewGroup) getWindow().getDecorView().getRootView()).addView(loadingImage);
-        }
-
-    }
+//    void setBootScreen() {
+//        int h = getResources().getDisplayMetrics().heightPixels;
+//        int w = getResources().getDisplayMetrics().widthPixels;
+//        int h_i = (int) (0.8 * h);
+//        int w_i = (int) (0.72 * h_i);
+//
+//        if (w / (double) h < 0.75) {
+//            w = (int) (3 / 4.0 * h);
+//        } else if (w / (double) h > 0.75) {
+//            h = (int) (4 / 3.0 * w);
+//        }
+//        loadingBackground.setLayoutParams(new ViewGroup.LayoutParams(w, h));
+//        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(w_i, h_i);
+//        lp.gravity = Gravity.CENTER;
+//        loadingImage.setLayoutParams(lp);
+//
+//        try {
+//            ((ViewGroup) getWindow().getDecorView().getRootView()).addView(loadingBackground);
+//            ((ViewGroup) getWindow().getDecorView().getRootView()).addView(loadingImage);
+//        } catch (Exception e) {
+//            ((ViewGroup) getWindow().getDecorView().getRootView()).removeView(loadingBackground);
+//            ((ViewGroup) getWindow().getDecorView().getRootView()).removeView(loadingImage);
+//            ((ViewGroup) getWindow().getDecorView().getRootView()).addView(loadingBackground);
+//            ((ViewGroup) getWindow().getDecorView().getRootView()).addView(loadingImage);
+//        }
+//
+//    }
 
     public void clearBackStack() {
         backStack.clear();

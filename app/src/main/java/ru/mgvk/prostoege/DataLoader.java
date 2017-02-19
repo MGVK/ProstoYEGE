@@ -7,7 +7,6 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -19,11 +18,15 @@ public class DataLoader {
 
     public final static String ExcerciseDescriptionRequest = "http://213.159.214.5/script/mobile/1/question_load.php?ID=";
     public final static String ExcerciseHintRequest = "http://213.159.214.5/script/mobile/1/hint_load.php?ID=";
+    public final static String PolicyURL = "http://213.159.214.5/policy.html";
+    private final static String POLICY_SETTINGS = "POLICY";
     private final static Object b = new Object();
     static ArrayList<Task> taskList = new ArrayList<>();
     static int tasks_ready = 0;
     static Context context;
+    static boolean loadingInThread = true;
     private static String url = null;
+
     DataLoader(Context context) {
 
     }
@@ -70,8 +73,6 @@ public class DataLoader {
 
         return taskList;
     }
-
-    static boolean loadingInThread = true;
 
     public static ArrayList<Task> _loadTasks(Context pcontext) {
         context = pcontext;
@@ -206,7 +207,7 @@ public class DataLoader {
         return result;
     }
 
-    static String getVideoURI(final String ID) {
+    public static String getVideoURI(final String ID) {
 
         Log.d("DataLoader", "Parsing video: " + ID);
 
@@ -261,6 +262,54 @@ public class DataLoader {
 
         return "0_0";
 
+    }
+
+    public static boolean acceptLicense(Context context) {
+//        String filePath = context.getPackageResourcePath()+"license";
+//        File file;
+//        boolean res=false;
+//        try {
+//            file = new File(filePath);
+//            if(!file.exists()&&!file.createNewFile()){
+//                return false;
+//            }
+//            BufferedWriter writer= new BufferedWriter(new FileWriter(file));
+//            writer.write(new char[]{'1'});
+//            writer.close();
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        context.getSharedPreferences(MainActivity.APP_SETTINGS, Context.MODE_PRIVATE)
+                .edit().putInt(POLICY_SETTINGS, 1).apply();
+
+        return isLicenseAccepted(context);
+    }
+
+    public static boolean isLicenseAccepted(Context context) {
+
+//        String filePath = context.getPackageResourcePath()+"license";
+//        boolean res=false;
+//        try {
+//            BufferedReader reader = new BufferedReader(new FileReader(new File(filePath)));
+//            char[] c = new char[1];
+//            if(reader.read(c)!=-1){
+//                res = (c==new char[]{'1'});
+//            }
+//
+//            reader.close();
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        try {
+            return 1 == context.getSharedPreferences(MainActivity.APP_SETTINGS, Context.MODE_PRIVATE)
+                    .getInt(POLICY_SETTINGS, 0);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 

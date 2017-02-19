@@ -6,21 +6,19 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import ru.mgvk.prostoege.InstanceController;
-import ru.mgvk.prostoege.MainActivity;
-import ru.mgvk.prostoege.Pays;
-import ru.mgvk.prostoege.R;
-import ru.mgvk.prostoege.Task;
+import ru.mgvk.prostoege.*;
 import ru.mgvk.prostoege.ru.mgvk.prostoege.fragments.ExercisesListFragment;
 import ru.mgvk.prostoege.ru.mgvk.prostoege.fragments.TaskListFragment;
 import ru.mgvk.prostoege.ru.mgvk.prostoege.fragments.ToolsFragment;
@@ -55,6 +53,10 @@ public class UI {
         mainActivity = (MainActivity) (this.context = context);
         realDPI = mainActivity.getResources().getDisplayMetrics().densityDpi;
 
+        if (!DataLoader.isLicenseAccepted(context)) {
+            openPolicyWindow();
+        }
+
         initSizes();
         initFragments(restoring);
 //        addFragments();
@@ -63,6 +65,8 @@ public class UI {
         updateSizes(context.getResources().getConfiguration().orientation);
 
         openTaskListFragment();
+
+
     }
 
     public static float calcSize(float size) {
@@ -116,6 +120,45 @@ public class UI {
         }
 
         return price + s;
+
+    }
+
+    private void openPolicyWindow() {
+
+        WebView webView = new WebView(context);
+        webView.loadUrl(DataLoader.PolicyURL);
+        webView.clearCache(true);
+        webView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                return true;
+            }
+        });
+//        webView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {}
+//        });
+
+        new AlertDialog.Builder(context)
+                .setMessage("Пользовательское соглашение")
+                .setCancelable(false)
+                .setView(webView)
+                .setPositiveButton("Принимаю", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        DataLoader.acceptLicense(context);
+                    }
+                })
+                .setNegativeButton("Не принимаю", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mainActivity.finish();
+                    }
+                }).create().show();
+
+
+//        LicenseWindow window = new LicenseWindow(context);
+//        window.open();
 
     }
 
@@ -306,9 +349,9 @@ public class UI {
         currentFragment = taskListFragment;
 
         if (task) {
-            mainScroll.switchLeft();
+            mainScroll.toLeft();
         } else {
-            mainScroll.switchRight();
+            mainScroll.toRight();
         }
 
     }
@@ -350,9 +393,9 @@ public class UI {
         tr.commit();
         currentFragment = exercisesListFragment;
         if (exercises) {
-            mainScroll.switchLeft();
+            mainScroll.toLeft();
         } else {
-            mainScroll.switchRight();
+            mainScroll.toRight();
         }
 
 

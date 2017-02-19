@@ -14,17 +14,12 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import ru.mgvk.prostoege.ui.*;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
-
-import ru.mgvk.prostoege.ui.ExerciseNumberImage;
-import ru.mgvk.prostoege.ui.ExerciseWindow;
-import ru.mgvk.prostoege.ui.SwipedLinearLayout;
-import ru.mgvk.prostoege.ui.UI;
-import ru.mgvk.prostoege.ui.VideoPlayer;
 
 /**
  * Created by mihail on 09.08.16.
@@ -271,11 +266,11 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if (isChoosed()) {
-            ((MainActivity) context).ui.mainScroll.switchRight();
+            ((MainActivity) context).ui.mainScroll.toRight();
             ((MainActivity) context).addToBackStack(new Runnable() {
                 @Override
                 public void run() {
-                    ((MainActivity) context).ui.mainScroll.switchLeft();
+                    ((MainActivity) context).ui.mainScroll.toLeft();
                 }
             });
         } else {
@@ -333,6 +328,14 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         description.setTextColor(context.getResources().getColor(R.color.task_text));
     }
 
+    public Exercise getNextExercise(Exercise exercise) {
+        try {
+            return exercisesList.get(exercisesList.indexOf(exercise) + 1);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public class Video extends FrameLayout {
 
         int videoID = 0;
@@ -340,12 +343,14 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         LinearLayout mainLayout;
         FrameLayout numberLayout;
         VideoLayout videoLayout;
+        ImageView buyingIndicator;
         private String youtubeID = "";
         private String Description = "";
         private VideoPlayer player;
         private boolean buyed = false;
         private int number=1;
         private int price=0;
+
         /**
          *
          */
@@ -480,7 +485,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
                 });
             }
         }
-        ImageView buyingIndicator;
+
         private void initViews() {
             mainLayout = new LinearLayout(context);
             mainLayout.setLayoutParams(new LayoutParams(-1, -1));
@@ -598,15 +603,6 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
             }
         }
     }
-
-    public Exercise getNextExercise(Exercise exercise){
-        try {
-            return exercisesList.get(exercisesList.indexOf(exercise) + 1);
-        }catch (Exception e){
-            return null;
-        }
-    }
-
 
     public class Exercise extends FrameLayout implements OnClickListener {
 

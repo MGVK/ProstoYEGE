@@ -8,10 +8,9 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
+import ru.mgvk.prostoege.MainActivity;
 
 import java.util.ArrayList;
-
-import ru.mgvk.prostoege.MainActivity;
 
 /**
  * Created by mihail on 09.09.16.
@@ -19,10 +18,10 @@ import ru.mgvk.prostoege.MainActivity;
 public class MainScrollView extends HorizontalScrollView{
 
 
+    float scrollLevel = 0.29f;
     private int halfWidth=0;
     private boolean scrollEnabled=true;
     private int screenState = FOCUS_LEFT;
-
     private ArrayList<OnScreenSwitchedListener> onScreenSwitchedListeners = new ArrayList<>();
 
     public MainScrollView(Context context) {
@@ -41,8 +40,6 @@ public class MainScrollView extends HorizontalScrollView{
     public MainScrollView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
-
-    float scrollLevel= 0.29f;
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
@@ -76,22 +73,39 @@ public class MainScrollView extends HorizontalScrollView{
         return isScrollEnabled() && super.onInterceptTouchEvent(ev);
     }
 
-    public void setScrollEnabled(boolean scrollEnabled) {
-        this.scrollEnabled = scrollEnabled;
-    }
-
     public boolean isScrollEnabled() {
         return scrollEnabled;
     }
 
-    public void switchRight(){
+    public void setScrollEnabled(boolean scrollEnabled) {
+        this.scrollEnabled = scrollEnabled;
+    }
+
+    private void switchRight() {
         fullScroll(screenState = FOCUS_RIGHT);
         for (OnScreenSwitchedListener onScreenSwitch : onScreenSwitchedListeners) {
             onScreenSwitch.switchedRight();
         }
     }
 
-    public  void switchLeft(){
+
+    /**
+     * ATTENTION!!!!
+     * THIS VOID DON'T CALL {@link OnScreenSwitchedListener} INTERFACE
+     */
+    public void toRight() {
+        fullScroll(screenState = FOCUS_RIGHT);
+    }
+
+    /**
+     * ATTENTION!!!!
+     * THIS VOID DON'T CALL {@link OnScreenSwitchedListener} INTERFACE
+     */
+    public void toLeft() {
+        fullScroll(screenState = FOCUS_LEFT);
+    }
+
+    private void switchLeft() {
         fullScroll(screenState = FOCUS_LEFT);
         for (OnScreenSwitchedListener onScreenSwitch : onScreenSwitchedListeners) {
             onScreenSwitch.switchedLeft();
@@ -103,15 +117,6 @@ public class MainScrollView extends HorizontalScrollView{
     }
     public void removeOnScreenSwitchedListener(OnScreenSwitchedListener onScreenSwitchedListener){
         this.onScreenSwitchedListeners.remove(onScreenSwitchedListener);
-    }
-
-
-    public interface OnScreenSwitchedListener {
-
-        public void switchedRight();
-
-        public void switchedLeft();
-
     }
 
     @Override
@@ -135,6 +140,14 @@ public class MainScrollView extends HorizontalScrollView{
             }
         }).start();
 
+
+    }
+
+    public interface OnScreenSwitchedListener {
+
+        public void switchedRight();
+
+        public void switchedLeft();
 
     }
 }

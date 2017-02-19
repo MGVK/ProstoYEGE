@@ -11,21 +11,14 @@ import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.Space;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.IOException;
-import java.net.URL;
-
+import android.widget.*;
 import ru.mgvk.prostoege.DataLoader;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
 import ru.mgvk.prostoege.Task;
+
+import java.io.IOException;
+import java.net.URL;
 
 /**
  * Created by mihail on 27.10.16.
@@ -34,7 +27,7 @@ public class VideoPurchaseWindow extends DialogWindow {
 
     Context context;
     int width = 0;
-    int max_video_w,max_video_h;
+    int max_video_w, max_video_h;
     AttachedLayout layout;
     Task.Video video;
     private FrameLayout mainLayout;
@@ -58,8 +51,8 @@ public class VideoPurchaseWindow extends DialogWindow {
         setBackground();
         mainLayout.addView(layout);
         super.addView(mainLayout);
-
     }
+
     void setBackground() {
 
         mainLayout.setBackgroundResource(R.drawable.beige_window_back);
@@ -82,17 +75,16 @@ public class VideoPurchaseWindow extends DialogWindow {
 
     void initSizes() {
         width = ((MainActivity) context).ui.deviceWidth;
-        max_video_w = (int) (0.87*width);
-        max_video_h = (int) (max_video_w/1.7);
+        max_video_w = (int) (0.87 * width);
+        max_video_h = (int) (max_video_w / 1.7);
     }
-
-
 
 
     class AttachedLayout extends LinearLayout {
 
         LinearLayout balanceLayout;
         ImageView imageView;
+        Bitmap b;
 
 
         public AttachedLayout(Context context) {
@@ -103,7 +95,6 @@ public class VideoPurchaseWindow extends DialogWindow {
             initSizes();
             initViews();
         }
-
 
         void initViews() {
             setBalanceLayout();
@@ -119,7 +110,7 @@ public class VideoPurchaseWindow extends DialogWindow {
 
         void setBalanceLayout() {
             balanceLayout = new LinearLayout(context);
-            balanceLayout.setPadding(UI.calcSize(10),0,UI.calcSize(20),0);
+            balanceLayout.setPadding(UI.calcSize(10), 0, UI.calcSize(20), 0);
             balanceLayout.setOrientation(LinearLayout.HORIZONTAL);
             balanceLayout.setLayoutParams(new FrameLayout.LayoutParams(-2, -2));
 
@@ -139,7 +130,7 @@ public class VideoPurchaseWindow extends DialogWindow {
             balanceBtn.setTextColor(Color.WHITE);
             balanceBtn.setTypeface(DataLoader.getFont(context, "comic"));
             balanceBtn.setGravity(Gravity.CENTER);
-            balanceBtn.setPadding(UI.calcSize(5),0,UI.calcSize(5),0);
+            balanceBtn.setPadding(UI.calcSize(5), 0, UI.calcSize(5), 0);
             balanceBtn.setTextSize(13);
             balanceBtn.setOnClickListener(new OnClickListener() {
                 @Override
@@ -154,7 +145,7 @@ public class VideoPurchaseWindow extends DialogWindow {
             this.addView(balanceLayout);
 
         }
-        Bitmap b;
+
         void setVideoTitle() {
             ScrollView scrollView = new ScrollView(context);
             scrollView.setPadding(UI.calcSize(10), 0, UI.calcSize(20), 0);
@@ -180,7 +171,7 @@ public class VideoPurchaseWindow extends DialogWindow {
             imageView.setAdjustViewBounds(true);
 //            imageView.setMaxHeight(max_video_h);
 //            imageView.setMaxWidth(max_video_w);
-            LinearLayout.LayoutParams lp = new LayoutParams(max_video_w,max_video_h);
+            LinearLayout.LayoutParams lp = new LayoutParams(max_video_w, max_video_h);
             lp.gravity = Gravity.CENTER;
             imageView.setLayoutParams(lp);
 //            imageView.setLayoutParams(new LayoutParams(-1,-1));
@@ -205,17 +196,18 @@ public class VideoPurchaseWindow extends DialogWindow {
             }).start();
             this.addView(imageView);
         }
-        void animateVideoPicture(boolean in, final Drawable picture){
+
+        void animateVideoPicture(boolean in, final Drawable picture) {
             ObjectAnimator a = new ObjectAnimator();
             a.setTarget(imageView);
             a.setPropertyName("alpha");
             a.setDuration(200);
-            if(in) {
+            if (in) {
                 imageView.setImageDrawable(picture);
                 imageView.setBackgroundColor(Color.TRANSPARENT);
                 a.setFloatValues(0, 1);
-            }else{
-                a.setFloatValues(1,0);
+            } else {
+                a.setFloatValues(1, 0);
                 a.addListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animation) {
@@ -224,7 +216,7 @@ public class VideoPurchaseWindow extends DialogWindow {
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        animateVideoPicture(true,picture);
+                        animateVideoPicture(true, picture);
                     }
 
                     @Override
@@ -241,10 +233,10 @@ public class VideoPurchaseWindow extends DialogWindow {
             a.start();
         }
 
-        void setPrice(){
+        void setPrice() {
             TextView text = new TextView(context);
-            LinearLayout.LayoutParams lp = new LayoutParams(-1,-2);
-            lp.setMargins(UI.calcSize(10),0,UI.calcSize(20),0);
+            LinearLayout.LayoutParams lp = new LayoutParams(-1, -2);
+            lp.setMargins(UI.calcSize(10), 0, UI.calcSize(20), 0);
             lp.gravity = Gravity.CENTER_HORIZONTAL;
             text.setLayoutParams(lp);
             text.setTextSize(17);
@@ -254,23 +246,23 @@ public class VideoPurchaseWindow extends DialogWindow {
             this.addView(text);
         }
 
-        void setDonateBtn(){
+        void setDonateBtn() {
             TextView textView = new TextView(context);
             textView.setText("РАЗБЛОКИРОВАТЬ");
             textView.setTextColor(Color.WHITE);
-            LinearLayout.LayoutParams lp =new LayoutParams(-2,UI.calcSize(26));
+            LinearLayout.LayoutParams lp = new LayoutParams(-2, UI.calcSize(26));
             lp.gravity = Gravity.CENTER_HORIZONTAL;
             textView.setTextSize(17);
-            textView.setPadding(UI.calcSize(5),0,UI.calcSize(5),0);
+            textView.setPadding(UI.calcSize(5), 0, UI.calcSize(5), 0);
             textView.setLayoutParams(lp);
             textView.setBackgroundResource(R.drawable.btn_videodonate_donate);
             textView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (((MainActivity) context).profile.Coins >= video.getPrice()) {
-                        try{
+                        try {
                             video.setYoutubeID(((MainActivity) context).pays.buyVideo(video.getVideoID()));
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             ((MainActivity) context).ui.makeErrorMessage("Ошибка соединения с сервером!");
                         }
                         video.setBuyed(true);
@@ -280,7 +272,7 @@ public class VideoPurchaseWindow extends DialogWindow {
                         ((MainActivity) context).ui.openLowCoinsWindow();
                     }
 
-                    if(((MainActivity) context).profile.Repost!=1){
+                    if (((MainActivity) context).profile.Repost != 1) {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -304,9 +296,9 @@ public class VideoPurchaseWindow extends DialogWindow {
             this.addView(textView);
         }
 
-        void addSpace(int h){
+        void addSpace(int h) {
             Space space = new Space(context);
-            space.setLayoutParams(new LayoutParams(-1,UI.calcSize(h)));
+            space.setLayoutParams(new LayoutParams(-1, UI.calcSize(h)));
             this.addView(space);
         }
 

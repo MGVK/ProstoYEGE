@@ -10,18 +10,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
-
-import ru.mgvk.prostoege.DataLoader;
-import ru.mgvk.prostoege.InstanceController;
-import ru.mgvk.prostoege.MainActivity;
-import ru.mgvk.prostoege.R;
-import ru.mgvk.prostoege.Task;
+import android.widget.*;
+import ru.mgvk.prostoege.*;
 import ru.mgvk.prostoege.ui.MainScrollView;
 import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.prostoege.ui.VideoPlayer;
@@ -237,7 +227,7 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
                     @Override
                     public void run() {
                         if (isAnyVideoPlaying()) {
-                            mainActivity.ui.mainScroll.switchRight();
+                            mainActivity.ui.mainScroll.toRight();
                         }
                         try {
                             for (Task.Video video : currentTask.getVideoList()) {
@@ -283,7 +273,8 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
             }
             case R.id.btn_back: {
 //                mainActivity.ui.openTaskListFragment();
-                mainActivity.onBackPressed();
+//                mainActivity.onBackPressed();
+                mainActivity.ui.mainScroll.toLeft();
                 break;
             }
         }

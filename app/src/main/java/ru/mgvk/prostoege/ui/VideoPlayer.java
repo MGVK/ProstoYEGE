@@ -8,26 +8,17 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
-import android.net.NetworkInfo;
 import android.net.Uri;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.SeekBar;
+import android.view.*;
+import android.widget.*;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.widget.Toast;
+import ru.mgvk.prostoege.InstanceController;
+import ru.mgvk.prostoege.MainActivity;
+import ru.mgvk.prostoege.R;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -36,10 +27,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
-
-import ru.mgvk.prostoege.InstanceController;
-import ru.mgvk.prostoege.MainActivity;
-import ru.mgvk.prostoege.R;
 
 /**
  * Created by mihail on 21.08.16.
@@ -441,7 +428,6 @@ public class VideoPlayer {
         }
 
     }
-
     public class Display extends FrameLayout implements View.OnClickListener {
 
         DisplaySurface display;
