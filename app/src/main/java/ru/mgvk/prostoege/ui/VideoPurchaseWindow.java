@@ -16,8 +16,8 @@ import ru.mgvk.prostoege.DataLoader;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
 import ru.mgvk.prostoege.Task;
+import ru.mgvk.util.Reporter;
 
-import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -185,12 +185,16 @@ public class VideoPurchaseWindow extends DialogWindow {
                         ((MainActivity) context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                try {
 //                                imageView.setImageDrawable(new BitmapDrawable(getResources(), b));
-                                animateVideoPicture(false, new BitmapDrawable(getResources(), b));
+                                    animateVideoPicture(false, new BitmapDrawable(getResources(), b));
+                                } catch (Exception e) {
+                                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                }
                             }
                         });
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (Exception e) {
+                        Reporter.report(context, e, ((MainActivity) context).reportSubject);
                     }
                 }
             }).start();
@@ -216,7 +220,11 @@ public class VideoPurchaseWindow extends DialogWindow {
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        animateVideoPicture(true, picture);
+                        try {
+                            animateVideoPicture(true, picture);
+                        } catch (Exception e) {
+                            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                        }
                     }
 
                     @Override
@@ -259,37 +267,45 @@ public class VideoPurchaseWindow extends DialogWindow {
             textView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (((MainActivity) context).profile.Coins >= video.getPrice()) {
-                        try {
-                            video.setYoutubeID(((MainActivity) context).pays.buyVideo(video.getVideoID()));
-                        } catch (Exception e) {
-                            ((MainActivity) context).ui.makeErrorMessage("Ошибка соединения с сервером!");
-                        }
-                        video.setBuyed(true);
-                        ((MainActivity) context).updateCoins(-1 * video.getPrice());
-                        close();
-                    } else {
-                        ((MainActivity) context).ui.openLowCoinsWindow();
-                    }
-
-                    if (((MainActivity) context).profile.Repost != 1) {
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    Thread.sleep(500);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-
-                                ((MainActivity) context).runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        ((MainActivity) context).ui.makeShareHelpMessage();
-                                    }
-                                });
+                    try {
+                        if (((MainActivity) context).profile.Coins >= video.getPrice()) {
+                            try {
+                                video.setYoutubeID(((MainActivity) context).pays.buyVideo(video.getVideoID()));
+                            } catch (Exception e) {
+                                UI.makeErrorMessage(context, "Ошибка соединения с сервером!");
                             }
-                        }).start();
+                            video.setBuyed(true);
+                            ((MainActivity) context).updateCoins(-1 * video.getPrice());
+                            close();
+                        } else {
+                            ((MainActivity) context).ui.openLowCoinsWindow();
+                        }
+
+                        if (((MainActivity) context).profile.Repost != 1) {
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        Thread.sleep(500);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    ((MainActivity) context).runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try {
+                                                ((MainActivity) context).ui.makeShareHelpMessage();
+                                            } catch (Exception e) {
+                                                Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                            }
+                                        }
+                                    });
+                                }
+                            }).start();
+                        }
+                    } catch (Exception e) {
+                        Reporter.report(context, e, ((MainActivity) context).reportSubject);
                     }
                 }
             });

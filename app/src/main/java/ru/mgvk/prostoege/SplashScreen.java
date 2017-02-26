@@ -5,16 +5,36 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
+import ru.mgvk.prostoege.ui.AnimatedCounter;
 
 import java.io.IOException;
 import java.net.Socket;
 
 public class SplashScreen extends Activity {
 
+
+    AnimatedCounter counter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
+
+        final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        new InstanceController();
+
+        counter = (AnimatedCounter) findViewById(R.id.counter);
+
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+//        counter.startCounting();
 
 
         new Thread(new Runnable() {
@@ -27,6 +47,7 @@ public class SplashScreen extends Activity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+
                             startActivity(new Intent(SplashScreen.this, MainActivity.class));
 
                             finish();
@@ -56,6 +77,9 @@ public class SplashScreen extends Activity {
 
 
             }
-        }).start();
+        })
+                .start()
+        ;
+
     }
 }

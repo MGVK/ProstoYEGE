@@ -23,6 +23,7 @@ import ru.mgvk.prostoege.ru.mgvk.prostoege.fragments.ExercisesListFragment;
 import ru.mgvk.prostoege.ru.mgvk.prostoege.fragments.TaskListFragment;
 import ru.mgvk.prostoege.ru.mgvk.prostoege.fragments.ToolsFragment;
 import ru.mgvk.prostoege.ru.mgvk.prostoege.fragments.VideoListFragment;
+import ru.mgvk.util.Reporter;
 
 /**
  * Created by Michael_Admin on 08.08.2016.
@@ -50,7 +51,11 @@ public class UI {
 
     public UI(Context context, boolean restoring) {
 
+
         mainActivity = (MainActivity) (this.context = context);
+
+        mainActivity.stopwatch.checkpoint("UI_start");
+
         realDPI = mainActivity.getResources().getDisplayMetrics().densityDpi;
 
         if (!DataLoader.isLicenseAccepted(context)) {
@@ -65,7 +70,7 @@ public class UI {
         updateSizes(context.getResources().getConfiguration().orientation);
 
         openTaskListFragment();
-
+        mainActivity.stopwatch.checkpoint("UI_finish");
 
     }
 
@@ -123,6 +128,18 @@ public class UI {
 
     }
 
+    public static void makeErrorMessage(Context context, String s) {
+
+        HintWindow window = new HintWindow(context);
+        TextView text = new TextView(context);
+        text.setText(s);
+        window.layout.setBackgroundResource(R.drawable.answer_incorrect);
+        text.setTextColor(Color.WHITE);
+        window.addView(text);
+
+        window.open();
+    }
+
     private void openPolicyWindow() {
 
         WebView webView = new WebView(context);
@@ -160,18 +177,6 @@ public class UI {
 //        LicenseWindow window = new LicenseWindow(context);
 //        window.open();
 
-    }
-
-    public void makeErrorMessage(String s) {
-
-        HintWindow window = new HintWindow(context);
-        TextView text = new TextView(context);
-        text.setText(s);
-        window.layout.setBackgroundResource(R.drawable.answer_incorrect);
-        text.setTextColor(Color.WHITE);
-        window.addView(text);
-
-        window.open();
     }
 
     void initSizes() {
@@ -416,7 +421,7 @@ public class UI {
         }
     }
 
-    public void setCurrentTask(Task task) {
+    public void setCurrentTask(Task task) throws Exception {
         videoListFragment.setCurrentTask(task);
         if (exercisesListFragment == null) {
             exercisesListFragment = new ExercisesListFragment(context);
@@ -428,7 +433,7 @@ public class UI {
         toolsFragment.setTask(task);
     }
 
-    public void openVideoListFragment(Task task) {
+    public void openVideoListFragment(Task task) throws Exception {
 
         setCurrentTask(task);
 
@@ -523,7 +528,7 @@ public class UI {
                         exercisesListFragment.getExerciseWindow().setStatus(ExerciseWindow.PROMPTED);
                         openHintWindow(exercise);
                     } else {
-                        makeErrorMessage("Произошла ошибка:(\nПопробуйте еще раз.");
+                        makeErrorMessage(context, "Произошла ошибка:(\nПопробуйте еще раз.");
                     }
                 }
             }
@@ -655,14 +660,18 @@ public class UI {
         mainActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                taskListFragment.updateCoins();
+                try {
+                    taskListFragment.updateCoins();
+                } catch (Exception e) {
+                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                }
             }
         });
 
     }
 
     public void openWifiOnlyDialog() {
-        makeErrorMessage("Включен режим \"Только WiFi\"!");
+        makeErrorMessage(context, "Включен режим \"Только WiFi\"!");
     }
 
     public void makeShareHelpMessage() {
@@ -708,7 +717,11 @@ public class UI {
                         mainActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                openTaskOrVideoFragment(true);
+                                try {
+                                    openTaskOrVideoFragment(true);
+                                } catch (Exception e) {
+                                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                }
                             }
                         });
                         try {
@@ -719,7 +732,11 @@ public class UI {
                         mainActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                openMenu(mainMenu);
+                                try {
+                                    openMenu(mainMenu);
+                                } catch (Exception e) {
+                                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                }
                             }
                         });
                     }

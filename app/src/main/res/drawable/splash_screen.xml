@@ -4,9 +4,10 @@
     <item android:drawable="@drawable/loading_b">
     </item>
 
-    <item >
-        <bitmap android:src="@drawable/loading_i"
-                android:gravity="center"/>
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/loading_i"/>
     </item>
 
 </layer-list>

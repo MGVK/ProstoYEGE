@@ -12,13 +12,13 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import ru.mgvk.prostoege.InstanceController;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
+import ru.mgvk.util.Reporter;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -73,15 +73,23 @@ public class VideoPlayer {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                fullScreenDisplay = new Display(context);
-                fullScreenDisplay.setFullScreenDisplay(true);
-                fullScreenDisplay.deactivate();
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((ViewGroup) activity.getWindow().getDecorView().getRootView()).addView(fullScreenDisplay);
-                    }
-                });
+                try {
+                    fullScreenDisplay = new Display(context);
+                    fullScreenDisplay.setFullScreenDisplay(true);
+                    fullScreenDisplay.deactivate();
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                ((ViewGroup) activity.getWindow().getDecorView().getRootView()).addView(fullScreenDisplay);
+                            } catch (Exception e) {
+                                Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                }
             }
         }).start();
         smallDisplay = new Display(context);
@@ -135,16 +143,21 @@ public class VideoPlayer {
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (mediaPlayer != null && currDisplay != null) {
-                            mediaPlayer.setDisplay(currDisplay.getHolder());
+                        try {
+                            if (mediaPlayer != null && currDisplay != null) {
+                                mediaPlayer.setDisplay(currDisplay.getHolder());
 //                            mediaPlayer.start();
-                            if(continuePlaying){
-                                start(currDisplay);
-                            }else {
-                                pause();
-                            }
+                                if (continuePlaying) {
+                                    start(currDisplay);
+                                } else {
+                                    pause();
+                                }
 //                            activateSeekBar();
 
+                            }
+
+                        } catch (Exception e) {
+                            Reporter.report(context, e, ((MainActivity) context).reportSubject);
                         }
                     }
                 });
@@ -239,7 +252,7 @@ public class VideoPlayer {
             mediaPlayer.prepareAsync();
 
         } catch (Exception e) {
-            ((MainActivity) activity).ui.makeErrorMessage("Ошибка загрузки видео!");
+            UI.makeErrorMessage(context, "Ошибка загрузки видео!");
         }
     }
 
@@ -428,6 +441,7 @@ public class VideoPlayer {
         }
 
     }
+
     public class Display extends FrameLayout implements View.OnClickListener {
 
         DisplaySurface display;
@@ -619,6 +633,8 @@ public class VideoPlayer {
 
         @Override
         public void onClick(View v) {
+            try {
+
 //            ((MainActivity) activity).setOnConfigurationUpdate(new MainActivity.OnConfigurationUpdate() {
 //                @Override
 //                public void onUpdate() {
@@ -626,23 +642,23 @@ public class VideoPlayer {
 //                }
 //            });
 
-            if (v == fullScreenButton) {
-                changeDisplay((!isFullScreen()));
-                callOnFullScreen();
-            }
+                if (v == fullScreenButton) {
+                    changeDisplay((!isFullScreen()));
+                    callOnFullScreen();
+                }
 
-            if (v == playPauseButton) {
+                if (v == playPauseButton) {
 
-                if (isPlaying()) {
-                    mediaPlayer.pause();
-                    callOnPause();
-                    playPauseButton.setBackgroundDrawable(
-                            context.getResources().getDrawable(R.drawable.icon_play));
-                } else {
-                    if (((boolean) InstanceController.getObject("WIFI_only"))) {
+                    if (isPlaying()) {
+                        mediaPlayer.pause();
+                        callOnPause();
+                        playPauseButton.setBackgroundDrawable(
+                                context.getResources().getDrawable(R.drawable.icon_play));
+                    } else {
+                        if (((boolean) InstanceController.getObject("WIFI_only"))) {
 
-                        WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-                        if (!manager.isWifiEnabled()) {
+                            WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                            if (!manager.isWifiEnabled()) {
 //                            WifiInfo wifiInfo = manager.getConnectionInfo();
 ////                            Log.d("Wifi",""+wifiInfo);
 //                            Toast.makeText(context,"wifinfo: "+wifiInfo,Toast.LENGTH_SHORT).show();
@@ -650,28 +666,30 @@ public class VideoPlayer {
 //                                ((MainActivity) activity).ui.openWifiOnlyDialog();
 //                                return;
 //                            }
-                            ((MainActivity) activity).ui.openWifiOnlyDialog();
-                            return;
-                        }
+                                ((MainActivity) activity).ui.openWifiOnlyDialog();
+                                return;
+                            }
 //                        else{
 //                            ((MainActivity) activity).ui.openWifiOnlyDialog();
 //                            return;
 //                        }
+                        }
+
+                        start(this);
+                        playPauseButton.setBackgroundDrawable(
+                                context.getResources().getDrawable(R.drawable.icon_pause));
+
                     }
 
-                    start(this);
-                    playPauseButton.setBackgroundDrawable(
-                            context.getResources().getDrawable(R.drawable.icon_pause));
 
                 }
+                if (v == display) {
+                    toggleButtonsVisibility();
 
-
+                }
+            } catch (Exception e) {
+                Reporter.report(context, e, ((MainActivity) context).reportSubject);
             }
-            if (v == display) {
-                toggleButtonsVisibility();
-
-            }
-
         }
 
 
@@ -686,7 +704,6 @@ public class VideoPlayer {
                 fullScreenButton.setVisibility(VISIBLE);
             }
         }
-
 
 
         class DisplaySurface extends SurfaceView {
@@ -769,11 +786,15 @@ public class VideoPlayer {
 
         @Override
         public boolean onTouchEvent(MotionEvent event) {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                ((MainActivity) activity).ui.videoListFragment.setScrollViewEnabled(touched = false);
-            }
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                ((MainActivity) activity).ui.videoListFragment.setScrollViewEnabled(touched = true);
+            try {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    ((MainActivity) activity).ui.videoListFragment.setScrollViewEnabled(touched = false);
+                }
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    ((MainActivity) activity).ui.videoListFragment.setScrollViewEnabled(touched = true);
+                }
+            } catch (Exception e) {
+                Reporter.report(context, e, ((MainActivity) context).reportSubject);
             }
             return super.onTouchEvent(event);
 
@@ -782,29 +803,40 @@ public class VideoPlayer {
 
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            if (mediaPlayer != null && touched && mediaPlayer.isPlaying()) {
-                mediaPlayer.seekTo(progress);
+            try {
+                if (mediaPlayer != null && touched && mediaPlayer.isPlaying()) {
+                    mediaPlayer.seekTo(progress);
+                }
+            } catch (Exception e) {
+                Reporter.report(context, e, ((MainActivity) context).reportSubject);
             }
         }
 
         @Override
         public void onStartTrackingTouch(SeekBar seekBar) {
-            ((MainActivity) activity).ui.mainScroll.setScrollEnabled(false);
-            if (mediaPlayer != null) {
-                mediaPlayer.pause();
+            try {
+                ((MainActivity) activity).ui.mainScroll.setScrollEnabled(false);
+                if (mediaPlayer != null) {
+                    mediaPlayer.pause();
+                }
+                touched = true;
+            } catch (Exception e) {
+                Reporter.report(context, e, ((MainActivity) context).reportSubject);
             }
-            touched = true;
-
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-            ((MainActivity) activity).ui.mainScroll.setScrollEnabled(true);
-            if (mediaPlayer != null) {
-                mediaPlayer.seekTo(seekBar.getProgress());
-                mediaPlayer.start();
+            try {
+                ((MainActivity) activity).ui.mainScroll.setScrollEnabled(true);
+                if (mediaPlayer != null) {
+                    mediaPlayer.seekTo(seekBar.getProgress());
+                    mediaPlayer.start();
+                }
+                touched = false;
+            } catch (Exception e) {
+                Reporter.report(context, e, ((MainActivity) context).reportSubject);
             }
-            touched=false;
         }
     }
 
@@ -821,8 +853,7 @@ public class VideoPlayer {
                     }
                 }
             } catch (Exception e) {
-                Log.d("Exeption_video_time", "");
-                e.printStackTrace();
+                Reporter.report(context, e, ((MainActivity) context).reportSubject);
             }
         }
     }

@@ -10,6 +10,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.*;
 import ru.mgvk.prostoege.*;
+import ru.mgvk.util.Reporter;
 
 /**
  * Created by mihail on 16.10.16.
@@ -134,7 +135,11 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
                 ((MainActivity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        openExercise(currentExercise.getNextExercise());
+                        try {
+                            openExercise(currentExercise.getNextExercise());
+                        } catch (Exception e) {
+                            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                        }
                     }
                 });
             }

@@ -19,6 +19,8 @@ import android.view.WindowManager;
 import android.widget.Toast;
 import com.google.gson.Gson;
 import ru.mgvk.prostoege.ui.UI;
+import ru.mgvk.util.Reporter;
+import ru.mgvk.util.Stopwatch;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,6 +35,8 @@ public class MainActivity extends Activity {
     public volatile Profile profile;
     public long TIME = 0;
     public Pays pays;
+    public Stopwatch stopwatch;
+    public String reportSubject;
     Context context;
     OnConfigurationUpdate onConfigurationUpdate;
     private boolean restoring = false;
@@ -44,29 +48,62 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-        setContentView(R.layout.activity_main);
+        try {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        }
+            setAccountInfo();
 
-        int p = UI.calcSize(5);
-        findViewById(R.id.main_linear).setPadding(0, getStatusBarHeight(), 0, 0);
-        context = this;
+            setContentView(R.layout.activity_main);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            }
+
+            stopwatch = new Stopwatch(true);
+            stopwatch.start("MainActivity_onCreate");
+
+            final int p = UI.calcSize(5);
+            findViewById(R.id.main_linear).setPadding(0, getStatusBarHeight(), 0, 0);
+            context = this;
 //        loadingBackground = new ImageView(this);
 //        loadingImage = new ImageView(this);
 //        loadingBackground.setImageResource(R.drawable.loading_b);
 //        loadingImage.setImageResource(R.drawable.loading_i);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                pays = new Pays(context);
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        stopwatch.checkpoint("Pays_start");
+                        pays = new Pays(context);
+                        stopwatch.checkpoint("Pays_ready");
+                    } catch (Exception e) {
+                        Reporter.report(context, e, reportSubject);
+                    }
+                }
+            }).start();
+
+
+            if (InstanceController.getObject("Profile") == null) {
+                if (!prepare()) {
+                    UI.makeErrorMessage(context, "Ошибка загрузка профиля");
+                    return;
+                }
+                restoring = false;
+            } else {
+                restoring = true;
             }
-        }).start();
 
 
-        Log.d("ActivityState", "onCreate");
+            ui = new UI(context, restoring);
+
+            stopwatch.checkpoint("MainActivity_onCreate_finish");
+            Log.d("ActivityState", "onCreate");
+
+        } catch (Exception e) {
+            Reporter.report(this, e, reportSubject);
+        }
+
     }
 
     int getStatusBarHeight() {
@@ -78,7 +115,6 @@ public class MainActivity extends Activity {
         return result;
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -86,23 +122,11 @@ public class MainActivity extends Activity {
 
 //        setBootScreen();
 
-        setAccountInfo();
-
-        if (InstanceController.getObject("Profile") == null) {
-            if (!prepare()) {
-                return;
-            }
-            restoring = false;
-        } else {
-            restoring = true;
-        }
-
-
-        ui = new UI(context, restoring);
     }
 
 
-    void setAccountInfo() {
+    private void setAccountInfo() {
+
         Account[] acc = AccountManager.get(this).getAccountsByType("com.google");
         if (acc.length == 0) {
             Toast.makeText(this, R.string.error_acc, Toast.LENGTH_SHORT).show();
@@ -110,6 +134,9 @@ public class MainActivity extends Activity {
             PID = acc[0].name;
             Toast.makeText(this, "Используется аккаунт: " + PID, Toast.LENGTH_LONG).show();
         }
+        reportSubject = "ErrorReport_" + PID;
+
+
     }
 
 //    void setBootScreen() {
@@ -158,7 +185,6 @@ public class MainActivity extends Activity {
             profile.ID = PID;
             profile.prepareData();
 
-            new InstanceController();
 
         } catch (ConnectException ce) {
 

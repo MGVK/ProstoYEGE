@@ -15,6 +15,7 @@ import ru.mgvk.prostoege.*;
 import ru.mgvk.prostoege.ui.MainScrollView;
 import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.prostoege.ui.VideoPlayer;
+import ru.mgvk.util.Reporter;
 
 /**
  * Created by mihail on 13.08.16.
@@ -52,16 +53,22 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
         this.container = container;
         mainActivity = (MainActivity) (this.context = inflater.getContext());
         return rootView;
+
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        try {
 
+            mainActivity.stopwatch.checkpoint("VideoListFragment_onStart");
 
-        initViews();
-        loadVideos();
-        updateSizes();
+            initViews();
+            loadVideos();
+            updateSizes();
+        } catch (Exception e) {
+            Reporter.report(context, e, mainActivity.reportSubject);
+        }
     }
 
     public void setPortraitMode() {
@@ -109,7 +116,7 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
         }
     }
 
-    void initViews() {
+    private void initViews() {
         mainVideoListLayout = (LinearLayout) container.findViewById(R.id.main_videolist_layout);
         rings = (ImageView) container.findViewById(R.id.rings_video);
         if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -143,33 +150,41 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
     }
 
     public void stopVideos() {
-        for (Task.Video video : this.currentTask.getVideoList()) {
-            video.stop();
+        try {
+            for (Task.Video video : this.currentTask.getVideoList()) {
+                video.stop();
+            }
+        } catch (Exception e) {
+            Reporter.report(context, e, ((MainActivity) context).reportSubject);
         }
     }
 
 
     public void setCurrentTask(Task currentTask) {
 
-
-        if (this.currentTask != null) {
-            stopVideos();
-        }
-        this.taskId = currentTask.getId();
-        this.currentTask = currentTask;
-        if (titleText != null) {
-            titleText.setText("Задание " + currentTask.getNumber());
-        }
-        if (descriptionText != null) {
-            descriptionText.setText(currentTask.getDescription());
-        }
-
-        loadVideos();
-        updateSizes();
-
         try {
-            videoScroll.fullScroll(View.FOCUS_UP);
-        } catch (Exception ignored) {
+
+            if (this.currentTask != null) {
+                stopVideos();
+            }
+            this.taskId = currentTask.getId();
+            this.currentTask = currentTask;
+            if (titleText != null) {
+                titleText.setText("Задание " + currentTask.getNumber());
+            }
+            if (descriptionText != null) {
+                descriptionText.setText(currentTask.getDescription());
+            }
+
+            loadVideos();
+            updateSizes();
+
+            try {
+                videoScroll.fullScroll(View.FOCUS_UP);
+            } catch (Exception ignored) {
+            }
+        } catch (Exception e) {
+            Reporter.report(context, e, ((MainActivity) context).reportSubject);
         }
     }
 
@@ -182,18 +197,29 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                try {
 
-                if (videoLayout != null) {
+                    if (videoLayout != null) {
 
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            for (Task.Video video : currentTask.getVideoList()) {
-                                video.updateSizes(videoLayout.getWidth(), 0);
+                        mainActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                try {
+
+                                    for (Task.Video video : currentTask.getVideoList()) {
+                                        video.updateSizes(videoLayout.getWidth(), 0);
+                                    }
+                                } catch (Exception e) {
+                                    Reporter.report(context, e, mainActivity.reportSubject);
+                                }
+
                             }
+                        });
+                    }
 
-                        }
-                    });
+                } catch (Exception e) {
+                    Reporter.report(context, e, mainActivity.reportSubject);
                 }
             }
         }).start();
@@ -203,56 +229,73 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            setPortraitMode();
-        } else {
-            setLandscapeMode();
-        }
+        try {
 
-        final int oldW = videoLayout.getWidth();
+            if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                setPortraitMode();
+            } else {
+                setLandscapeMode();
+            }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int count = 0;
-                while (videoLayout.getWidth() == oldW && count < 100) {
+
+            final int oldW = videoLayout.getWidth();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
                     try {
-                        count++;
-                        Thread.sleep(20);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        int count = 0;
+                        while (videoLayout.getWidth() == oldW && count < 100) {
+                            try {
+                                count++;
+                                Thread.sleep(20);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        mainActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    if (isAnyVideoPlaying()) {
+                                        mainActivity.ui.mainScroll.toRight();
+                                    }
+                                } catch (Exception e) {
+                                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                }
+                                try {
+                                    for (Task.Video video : currentTask.getVideoList()) {
+                                        video.updateSizes(videoLayout.getWidth(), 0);
+                                    }
+                                } catch (Exception ignored) {
+                                }
+                            }
+                        });
+                    } catch (Exception e) {
+                        Reporter.report(context, e, ((MainActivity) context).reportSubject);
                     }
                 }
-                mainActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (isAnyVideoPlaying()) {
-                            mainActivity.ui.mainScroll.toRight();
-                        }
-                        try {
-                            for (Task.Video video : currentTask.getVideoList()) {
-                                video.updateSizes(videoLayout.getWidth(), 0);
-                            }
-                        } catch (Exception ignored) {
-                        }
-                    }
-                });
+            }).start();
 
-            }
-        }).start();
-
+        } catch (Exception e) {
+            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+        }
 
     }
 
     public void loadVideos() {
-        if (currentTask != null && videoLayout != null) {
-            try {
-                ((ViewGroup) currentTask.getVideoList().get(0).getParent()).removeAllViews();
-            } catch (Exception ignored) {
+        try {
+            if (currentTask != null && videoLayout != null) {
+                try {
+                    ((ViewGroup) currentTask.getVideoList().get(0).getParent()).removeAllViews();
+                } catch (Exception ignored) {
+                }
+                for (Task.Video video : currentTask.getVideoList()) {
+                    videoLayout.addView(video);
+                }
             }
-            for (Task.Video video : currentTask.getVideoList()) {
-                videoLayout.addView(video);
-            }
+        } catch (Exception e) {
+            Reporter.report(context, e, ((MainActivity) context).reportSubject);
         }
     }
 
@@ -266,19 +309,22 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_exercises: {
-                mainActivity.ui.openExercisesListFragment();
-                break;
-            }
-            case R.id.btn_back: {
+        try {
+            switch (v.getId()) {
+                case R.id.btn_exercises: {
+                    mainActivity.ui.openExercisesListFragment();
+                    break;
+                }
+                case R.id.btn_back: {
 //                mainActivity.ui.openTaskListFragment();
 //                mainActivity.onBackPressed();
-                mainActivity.ui.mainScroll.toLeft();
-                break;
+                    mainActivity.ui.mainScroll.toLeft();
+                    break;
+                }
             }
+        } catch (Exception e) {
+            Reporter.report(context, e, ((MainActivity) context).reportSubject);
         }
-
 
     }
 
@@ -310,7 +356,11 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public void onPlay(VideoPlayer v) {
-        isAnyVideoPlaying = v.isPlaying();
+        try {
+            isAnyVideoPlaying = v.isPlaying();
+        } catch (Exception e) {
+            Reporter.report(context, e, mainActivity.reportSubject);
+        }
     }
 
     @Override

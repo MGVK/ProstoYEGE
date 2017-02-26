@@ -38,6 +38,15 @@ public class InstanceController {
         return null;
     }
 
+    public static boolean isInitialized() {
+        for (Thread thread : Thread.getAllStackTraces().keySet()) {
+            if (thread.getName().equals(Saver.name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void putObject(String key,Object o) throws NotInitializedError {
         for (Thread thread : Thread.getAllStackTraces().keySet()) {
             if(thread.getName().equals(Saver.name)){

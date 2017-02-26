@@ -10,19 +10,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
-
+import android.widget.*;
 import ru.mgvk.prostoege.InstanceController;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
 import ru.mgvk.prostoege.Task;
 import ru.mgvk.prostoege.ui.ExerciseWindow;
 import ru.mgvk.prostoege.ui.UI;
+import ru.mgvk.util.Reporter;
 
 /**
  * Create by  mihail on 18.08.16.
@@ -33,12 +28,13 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
     private MainActivity mainActivity;
     private Context context;
     private int taskId = 0;
-    private ImageButton backButton,homeButton;
-    private TextView videosButton, titleTextView,exercisesButton;
+    private ImageButton backButton, homeButton;
+    private TextView videosButton, titleTextView, exercisesButton;
     private View container;
     private Task currentTask;
     private LinearLayout excercisesListLayout;
-    private FrameLayout exerciseWindowLayout;
+    //    private FrameLayout exerciseWindowScroll;
+    private ScrollView exerciseWindowScroll;
     private ImageView rings;
     private LinearLayout mainExercisesListLayout;
     private ExerciseWindow exerciseWindow;
@@ -52,7 +48,11 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
     @SuppressLint("ValidFragment")
     public ExercisesListFragment(Context context) {
         mainActivity = (MainActivity) (this.context = context);
-        exerciseWindow = new ExerciseWindow(context);
+        try {
+            exerciseWindow = new ExerciseWindow(context);
+        } catch (Exception e) {
+            Reporter.report(context, e, mainActivity.reportSubject);
+        }
     }
 
     @Nullable
@@ -64,7 +64,7 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
         return rootView;
     }
 
-    public void setCurrentTask(Task currentTask) {
+    public void setCurrentTask(Task currentTask) throws Exception {
         this.currentTask = currentTask;
         if (titleTextView != null) {
             titleTextView.setText(context.getString(R.string.exercises_list_title)
@@ -73,12 +73,20 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
 
     }
 
+
     @Override
     public void onStart() {
         super.onStart();
-        initViews();
-        loadExcercises();
-        setCurrentTask(currentTask);
+        try {
+
+
+            mainActivity.stopwatch.checkpoint("ExercisesListFragment_onStart");
+            initViews();
+            loadExcercises();
+            setCurrentTask(currentTask);
+        } catch (Exception e) {
+            Reporter.report(context, e, mainActivity.reportSubject);
+        }
     }
 
     @Override
@@ -94,24 +102,25 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
         }
     }
 
-    void loadExcercises() {
+    private void loadExcercises() {
         try {
             excercisesListLayout.removeAllViews();
         } catch (NullPointerException ignored) {
         }
+
 
         for (Task.Exercise exercise : getTask().getExercisesList()) {
             excercisesListLayout.addView(exercise);
         }
     }
 
-    void initViews() {
+    private void initViews() throws Exception {
 
-        exerciseWindowLayout = (FrameLayout) container.findViewById(R.id.exercise_frame_layout);
+        exerciseWindowScroll = (ScrollView) container.findViewById(R.id.exercisewindow_scroll);
         if (exerciseWindow.getParent() != null) {
             ((ViewGroup) exerciseWindow.getParent()).removeView(exerciseWindow);
         }
-        exerciseWindowLayout.addView(exerciseWindow);
+        exerciseWindowScroll.addView(exerciseWindow);
 
         mainExercisesListLayout = (LinearLayout) container.findViewById(R.id.main_exercises_layout);
         rings = (ImageView) container.findViewById(R.id.rings_ex);
@@ -202,7 +211,7 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
         switch (v.getId()) {
             case R.id.btn_videos: {
 //                mainActivity.ui.openVideoListFragment(getTask());
-                if(exerciseWindow.isOpened()){
+                if (exerciseWindow.isOpened()) {
                     mainActivity.onBackPressed();
                 }
                 mainActivity.onBackPressed();
@@ -212,20 +221,20 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
                 mainActivity.ui.openToolsFragment();
                 break;
             }
-            case R.id.btn_home:{
+            case R.id.btn_home: {
                 mainActivity.ui.openTaskOrVideoFragment(true);
                 mainActivity.clearBackStack();
                 exerciseWindow.closeExercise();
                 break;
             }
-            case R.id.exerciselist_title:{
-                if(exerciseWindow.isOpened()) {
+            case R.id.exerciselist_title: {
+                if (exerciseWindow.isOpened()) {
                     mainActivity.onBackPressed();
                 }
                 break;
             }
-            case R.id.btn_exercises:{
-                if(exerciseWindow.isOpened()) {
+            case R.id.btn_exercises: {
+                if (exerciseWindow.isOpened()) {
                     mainActivity.onBackPressed();
                 }
                 break;

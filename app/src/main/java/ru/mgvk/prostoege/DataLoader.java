@@ -128,20 +128,22 @@ public class DataLoader {
         context = pcontext;
         taskList = new ArrayList<>();
 
+        MainActivity mainActivity = (MainActivity) context;
+
         final Profile p = ((MainActivity) context).profile;
         Log.d("taskLoading", "Profile " + p);
 
-        long T = System.currentTimeMillis();
+        mainActivity.stopwatch.checkpoint("Loading Tasks start");
 
         for (int task_i = 0; task_i < p.Tasks.length; task_i++) {
             long t = System.currentTimeMillis();
 
             taskList.add(new Task(context, p.Tasks[task_i]));
 
-            Log.d("time_loadTask_" + task_i, (System.currentTimeMillis() - t) + "");
+            mainActivity.stopwatch.checkpoint("Loading Task: " + task_i);
         }
 
-        Log.d("time_loadAllTask", System.currentTimeMillis() - T + "");
+        mainActivity.stopwatch.checkpoint("Loading Tasks finish");
 
         return taskList;
     }
@@ -301,14 +303,14 @@ public class DataLoader {
 //            reader.close();
 //
 //        } catch (IOException e) {
-//            e.printStackTrace();
+//            e.printStackTrace(
+// );
 //        }
-
         try {
             return 1 == context.getSharedPreferences(MainActivity.APP_SETTINGS, Context.MODE_PRIVATE)
                     .getInt(POLICY_SETTINGS, 0);
         } catch (Exception e) {
-            return false;
+            throw e;
         }
     }
 

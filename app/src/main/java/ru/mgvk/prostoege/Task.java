@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import ru.mgvk.prostoege.ui.*;
+import ru.mgvk.util.Reporter;
 
 import java.io.IOException;
 import java.net.URL;
@@ -168,7 +169,11 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
                     ((MainActivity) context).runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            image.setImageBitmap(b);
+                            try {
+                                image.setImageBitmap(b);
+                            } catch (Exception e) {
+                                Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                            }
                         }
                     });
                 } catch (IOException e) {
@@ -265,17 +270,21 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        if (isChoosed()) {
-            ((MainActivity) context).ui.mainScroll.toRight();
-            ((MainActivity) context).addToBackStack(new Runnable() {
-                @Override
-                public void run() {
-                    ((MainActivity) context).ui.mainScroll.toLeft();
-                }
-            });
-        } else {
-            ((MainActivity) context).ui.openVideoListFragment(Task.this);
-            ((MainActivity) context).ui.taskListFragment.chooseTask(index);
+        try {
+            if (isChoosed()) {
+                ((MainActivity) context).ui.mainScroll.toRight();
+                ((MainActivity) context).addToBackStack(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((MainActivity) context).ui.mainScroll.toLeft();
+                    }
+                });
+            } else {
+                ((MainActivity) context).ui.openVideoListFragment(Task.this);
+                ((MainActivity) context).ui.taskListFragment.chooseTask(index);
+            }
+        } catch (Exception e) {
+            Reporter.report(context, e, ((MainActivity) context).reportSubject);
         }
     }
 
@@ -464,7 +473,11 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
                             ((MainActivity) context).runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    player.setPicture(new BitmapDrawable(getResources(),b));
+                                    try {
+                                        player.setPicture(new BitmapDrawable(getResources(),b));
+                                    } catch (Exception e) {
+                                        Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                    }
                                 }
                             });
                         } catch (IOException e) {
@@ -511,7 +524,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
             ((LayoutParams) lp).gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
             ((LayoutParams) lp).setMargins(0, 0, 0, UI.calcSize(15));
             number.setLayoutParams(lp);
-            number.setText("#" + (this.number));
+            number.setText("#" + (this.number) + "\n" + this.videoID);
             number.setTextSize(18);
             number.setTextColor(Color.parseColor("#05025d"));
             number.setGravity(Gravity.CENTER);
@@ -558,7 +571,11 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
                         ((MainActivity) context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                player.setBuyed(new BitmapDrawable(getResources(), b));
+                                try {
+                                    player.setBuyed(new BitmapDrawable(getResources(), b));
+                                } catch (Exception e) {
+                                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                }
                             }
                         });
                     } catch (IOException e) {
@@ -707,7 +724,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         public void onClick(View v) {
             ((MainActivity) context).ui.exercisesListFragment
                     .getExerciseWindow().openExercise(this);
-            ((MainActivity) context).ui.exercisesListFragment.scrollListUp();
+//            ((MainActivity) context).ui.exercisesListFragment.scrollListUp();
         }
 
         public int getStatus() {

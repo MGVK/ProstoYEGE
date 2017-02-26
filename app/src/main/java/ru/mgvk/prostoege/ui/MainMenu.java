@@ -3,39 +3,27 @@ package ru.mgvk.prostoege.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.content.res.AssetManager;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import ru.mgvk.prostoege.DataLoader;
 import ru.mgvk.prostoege.InstanceController;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
+
+import java.io.File;
 
 /**
  * Created by mihail on 08.10.16.
  */
 public class MainMenu extends MenuPanel implements OnClickListener {
 
-    private ViewGroup parent;
     Context context;
     MainActivity mainActivity;
+    private ViewGroup parent;
     private MenuItem balanceBtn;
     private MenuItem greetingBtn;
     private MenuItem shareBtn;
@@ -156,7 +144,7 @@ public class MainMenu extends MenuPanel implements OnClickListener {
                 try {
                     DataLoader.putRepost();
                 } catch (Exception e) {
-                   mainActivity.ui.makeErrorMessage("Ошибка сервера: putRepost");
+                    UI.makeErrorMessage(context, "Ошибка сервера: putRepost");
                 }
                 mainActivity.profile.Repost = 1;
             }

@@ -2,15 +2,15 @@ package ru.mgvk.prostoege;
 
 import android.content.Context;
 import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
-
+import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.prostoege.util.IabHelper;
 import ru.mgvk.prostoege.util.IabResult;
 import ru.mgvk.prostoege.util.Inventory;
 import ru.mgvk.prostoege.util.Purchase;
+import ru.mgvk.util.Reporter;
 
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -23,6 +23,7 @@ public class Pays {
     private final ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
     Context context;
     IabHelper mHelper;
+    boolean success = false;
     private OnPurchaseListener listener;
 
     Pays(Context context) {
@@ -60,7 +61,7 @@ public class Pays {
                 public void onQueryInventoryFinished(IabResult result, Inventory inv) {
                     if (result.isFailure()) {
                         Log.d("fail", "" + result.getMessage());
-                        ((MainActivity) context).ui.makeErrorMessage(
+                        UI.makeErrorMessage(context,
                                 "При проверке покупок произошла ошибка! \n" +
                                         "Код ошибки: " + result.getResponse());
                     } else {
@@ -148,7 +149,11 @@ public class Pays {
                         ((MainActivity) context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                inventoryQuery();
+                                try {
+                                    inventoryQuery();
+                                } catch (Exception e) {
+                                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                }
                             }
                         });
 
@@ -157,8 +162,6 @@ public class Pays {
             })/*.start()*/;
         }
     }
-
-    boolean success=false;
 
     public void buyPack(int index) throws IabHelper.IabAsyncInProgressException {
         Log.d("Pays", "Index = " + index);

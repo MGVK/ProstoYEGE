@@ -3,32 +3,20 @@ package ru.mgvk.prostoege.ru.mgvk.prostoege.fragments;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Space;
-import android.widget.TextView;
-
-import java.util.ArrayList;
-
-import ru.mgvk.prostoege.DataLoader;
-import ru.mgvk.prostoege.InstanceController;
-import ru.mgvk.prostoege.MainActivity;
-import ru.mgvk.prostoege.R;
-import ru.mgvk.prostoege.Task;
+import android.widget.*;
+import ru.mgvk.prostoege.*;
 import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.prostoege.ui.VerticalScrollView;
+import ru.mgvk.util.Reporter;
+
+import java.util.ArrayList;
 
 /**
  * Created by mihail on 09.08.16.
@@ -40,7 +28,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
     MainActivity mainActivity;
     Context context;
     Task currentTask;
-    ImageButton menuButton,forwardButton;
+    ImageButton menuButton, forwardButton;
     TextView balanceView;
     ArrayList<Task> taskList = new ArrayList<>();
     ImageView rings;
@@ -61,13 +49,12 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
         View rootView = inflater.inflate(R.layout.fragment_tasklist, container, false);
         mainActivity = (MainActivity) (this.context = inflater.getContext());
 
-        Log.d("time_onCreate", System.currentTimeMillis() - mainActivity.TIME + "");
-
         return rootView;
 
     }
 
-    void initViews() {
+    private void initViews() {
+
         taskListLayout = (LinearLayout) mainActivity.findViewById(R.id.layout_tasklist);
         taskScroll = (VerticalScrollView) mainActivity.findViewById(R.id.task_scroll);
         (menuButton = (ImageButton) mainActivity.findViewById(R.id.btn_menu)).setOnClickListener(this);
@@ -75,6 +62,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
         (balanceView = (TextView) mainActivity.findViewById(R.id.btn_coins)).setOnClickListener(this);
         rings = (ImageView) mainActivity.findViewById(R.id.rings);
         mainTaskListLayout = (LinearLayout) mainActivity.findViewById(R.id.main_tasklist_layout);
+
 
         if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             setPortraitMode();
@@ -92,6 +80,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    @SuppressWarnings("WeakerAccess")
     public void setPortraitMode() {
         if (rings != null) {
             rings.setVisibility(View.GONE);
@@ -105,6 +94,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 
     }
 
+    @SuppressWarnings("WeakerAccess")
     public void setLandscapeMode() {
         if (rings != null) {
             rings.setVisibility(View.VISIBLE);
@@ -122,32 +112,39 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
     public void onStart() {
         super.onStart();
 
-        taskList = (ArrayList<Task>) InstanceController.getObject("TaskList");
+        try {
+
+            mainActivity.stopwatch.checkpoint("TaskListFragment_onStart");
+
+            taskList = (ArrayList<Task>) InstanceController.getObject("TaskList");
 
 //        Log.d("time_onStart", System.currentTimeMillis() - mainActivity.TIME + "");
 
 
-        if (taskList == null) {
-            taskList = DataLoader.__loadTasks(context);
-        }
+            if (taskList == null) {
+                taskList = DataLoader.__loadTasks(context);
+            }
 
 
-        initViews();
+            initViews();
 //        Log.d("time_initViews", System.currentTimeMillis() - mainActivity.TIME + "");
 
-        showTasks();
+            showTasks();
 
 //        Log.d("time_showT", System.currentTimeMillis() - mainActivity.TIME + "");
 
-        updateCoins();
+            updateCoins();
 
 //        Log.d("time_updateCoins", System.currentTimeMillis() - mainActivity.TIME + "");
 
-        chooseTask(0);
+            chooseTask(0);
 
 //        Log.d("time_endOnStart", System.currentTimeMillis() - mainActivity.TIME + "");
 
 //        mainActivity.closeLoadScreen();
+        } catch (Exception e) {
+            Reporter.report(context, e, mainActivity.reportSubject);
+        }
 
     }
 
@@ -162,17 +159,17 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
         balanceView.setText(String.valueOf(mainActivity.profile.Coins));
     }
 
-    void showTasks() {
+    private void showTasks() {
         try {
             taskListLayout.removeAllViews();
-        } catch (NullPointerException|IndexOutOfBoundsException e) {
+        } catch (NullPointerException | IndexOutOfBoundsException e) {
             //do nothing
         } catch (Exception e) {
             e.printStackTrace();
         }
         for (Task task : taskList) {
-            Space sp =new Space(context);
-            sp.setLayoutParams(new LinearLayout.LayoutParams(-1,UI.calcSize(4)));
+            Space sp = new Space(context);
+            sp.setLayoutParams(new LinearLayout.LayoutParams(-1, UI.calcSize(4)));
             taskListLayout.addView(sp);
             taskListLayout.addView(task);
         }
@@ -180,7 +177,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
     }
 
     public void chooseTask(int id) {
-        try{
+        try {
             if (id < taskList.size() && id >= 0) {
                 if (currentTask != null) {
                     currentTask.setChoosed(false);
@@ -189,12 +186,10 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 //            currentTask = taskList.get(id);
                 (currentTask = taskList.get(id)).setChoosed(true);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-
 
 
     public Task getCurrentTask() {
@@ -242,21 +237,26 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
 
-        switch (v.getId()) {
-            case R.id.btn_menu: {
-                mainActivity.ui.openMenu(mainActivity.ui.mainMenu);
-                break;
-            }
-            case R.id.btn_forward_task: {
-//                mainActivity.ui.openTaskOrVideoFragment(false);
-                mainActivity.ui.openVideoListFragment(currentTask);
-                break;
-            }
-            case R.id.btn_coins:{
-                mainActivity.ui.openBalanceDialog();
-            }
-        }
+        try {
 
+            switch (v.getId()) {
+                case R.id.btn_menu: {
+                    mainActivity.ui.openMenu(mainActivity.ui.mainMenu);
+                    break;
+                }
+                case R.id.btn_forward_task: {
+//                mainActivity.ui.openTaskOrVideoFragment(false);
+                    mainActivity.ui.openVideoListFragment(currentTask);
+                    break;
+                }
+                case R.id.btn_coins: {
+                    mainActivity.ui.openBalanceDialog();
+                }
+            }
+
+        } catch (Exception e) {
+            Reporter.report(context, e, mainActivity.reportSubject);
+        }
     }
 
 
@@ -264,13 +264,13 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
     public void onPause() {
         super.onPause();
 
-        Log.d("ActivityState_Tasks","onPause");
+        Log.d("ActivityState_Tasks", "onPause");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if(InstanceController.getObject("TaskList") !=null) {
+        if (InstanceController.getObject("TaskList") != null) {
             taskList = (ArrayList<Task>) InstanceController.getObject("TaskList");
         }
         Log.d("ActivityState_Tasks", "onResume");
