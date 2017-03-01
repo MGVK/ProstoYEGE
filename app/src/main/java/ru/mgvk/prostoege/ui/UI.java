@@ -548,7 +548,7 @@ public class UI {
 
     }
 
-    public void openVideoPurchaseDialog(Task.Video video) {
+    public void openVideoPurchaseDialog(VideoLayout.VideoCard video) {
         final VideoPurchaseWindow videoPurchaseWindow = new VideoPurchaseWindow(context, video);
         videoPurchaseWindow.open();
     }

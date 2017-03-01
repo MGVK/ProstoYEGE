@@ -70,19 +70,20 @@ public class MainActivity extends Activity {
 //        loadingImage.setImageResource(R.drawable.loading_i);
 
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        stopwatch.checkpoint("Pays_start");
-                        pays = new Pays(context);
-                        stopwatch.checkpoint("Pays_ready");
-                    } catch (Exception e) {
-                        Reporter.report(context, e, reportSubject);
-                    }
-                }
-            }).start();
-
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//
+//                    } catch (Exception e) {
+//                        Reporter.report(context, e, reportSubject);
+//                    }
+//                }
+//            }).start();
+//
+            stopwatch.checkpoint("Pays_start");
+            pays = new Pays(context);
+            stopwatch.checkpoint("Pays_ready");
 
             if (InstanceController.getObject("Profile") == null) {
                 if (!prepare()) {

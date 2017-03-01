@@ -1,7 +1,5 @@
 package ru.mgvk.prostoege;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
 
 /**
@@ -12,6 +10,7 @@ public class Profile {
     public String ID;
     public int Repost = 0;
     public TaskData Tasks[];
+    public int maxVideoCount = 0;
 
     void getVideos() {
         for (final TaskData task : Tasks) {
@@ -44,12 +43,17 @@ public class Profile {
         try {
             if (Tasks.length > 0) {
                 for (TaskData task : Tasks) {
-                    TaskData.ExercizesData newQ[] = new TaskData.ExercizesData[task.Questions.Questions.length];
+                    TaskData.ExercizesData newQ[] =
+                            new TaskData.ExercizesData[task.Questions.Questions.length];
                     for (TaskData.ExercizesData question : task.Questions.Questions) {
                         newQ[question.Number - 1] = question;
                     }
                     task.Questions.Questions = newQ;
                     newQ = null;
+
+                    if (task.Videos.Video.length > maxVideoCount) {
+                        maxVideoCount = task.Videos.Video.length;
+                    }
                 }
             }
         } catch (Exception e) {
@@ -68,12 +72,12 @@ public class Profile {
             return R.drawable.ti_1;
         }
 
-        class VideoData {
-            int ID = 0;
-            int Number = 0;
-            String Description = "description";
-            int Price=0;
-            String YouTube = "";
+        public class VideoData {
+            public int ID = 0;
+            public int Number = 0;
+            public String Description = "description";
+            public int Price = 0;
+            public String YouTube = "";
         }
 
         public class ExercizesData {

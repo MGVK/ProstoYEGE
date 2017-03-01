@@ -15,7 +15,6 @@ import android.widget.*;
 import ru.mgvk.prostoege.DataLoader;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
-import ru.mgvk.prostoege.Task;
 import ru.mgvk.util.Reporter;
 
 import java.net.URL;
@@ -29,10 +28,10 @@ public class VideoPurchaseWindow extends DialogWindow {
     int width = 0;
     int max_video_w, max_video_h;
     AttachedLayout layout;
-    Task.Video video;
+    VideoLayout.VideoCard video;
     private FrameLayout mainLayout;
 
-    public VideoPurchaseWindow(Context context, Task.Video video) {
+    public VideoPurchaseWindow(Context context, VideoLayout.VideoCard video) {
         super(context);
         this.context = context;
         this.video = video;
@@ -152,7 +151,9 @@ public class VideoPurchaseWindow extends DialogWindow {
             scrollView.setLayoutParams(new FrameLayout.LayoutParams(-1, UI.calcSize(100)));
 
             TextView description = new TextView(context);
-            description.setText(video.getTask().getNumber() + "." + video.getNumber() + " \n" + video.getDescription());
+            description.setText(
+                    video.getNumber() + "." + video.getNumber()
+                            + " \n" + video.getDescription());
             description.setLayoutParams(new LayoutParams(-1, -2));
             description.setTextSize(18);
             description.setTextColor(context.getResources().getColor(R.color.task_text));
@@ -270,11 +271,12 @@ public class VideoPurchaseWindow extends DialogWindow {
                     try {
                         if (((MainActivity) context).profile.Coins >= video.getPrice()) {
                             try {
-                                video.setYoutubeID(((MainActivity) context).pays.buyVideo(video.getVideoID()));
+                                video.setYoutubeID((((MainActivity) context).pays.buyVideo(video.getVideoID())));
                             } catch (Exception e) {
                                 UI.makeErrorMessage(context, "Ошибка соединения с сервером!");
                             }
                             video.setBuyed(true);
+
                             ((MainActivity) context).updateCoins(-1 * video.getPrice());
                             close();
                         } else {

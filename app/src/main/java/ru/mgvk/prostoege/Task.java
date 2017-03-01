@@ -5,22 +5,22 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import ru.mgvk.prostoege.ui.*;
+import ru.mgvk.prostoege.ui.ExerciseNumberImage;
+import ru.mgvk.prostoege.ui.ExerciseWindow;
+import ru.mgvk.prostoege.ui.SwipedLinearLayout;
+import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.util.Reporter;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by mihail on 09.08.16.
@@ -36,9 +36,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
     int index = 0;
 
 
-    ArrayList<Video> videoList = new ArrayList<>();
-    ConcurrentHashMap<String, Video> videoList2 = new ConcurrentHashMap<>();
-    ArrayList<Video> buyedVideos = new ArrayList<>();
+
     ArrayList<Exercise> exercisesList = new ArrayList<>();
 
     boolean choosed = false;
@@ -77,7 +75,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
 
             setDescription(taskData.Description);
             setPoints(taskData.Points);
-            setVideos(taskData.Videos.Video);
+//            setVideos(taskData.Videos.Video);
             setExcersize(taskData.Questions.Questions);
 
 
@@ -94,14 +92,16 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         super(context);
     }
 
+    @Deprecated
     private void setVideos(Profile.TaskData.VideoData data[]) {
 
         int number=1;
         for (Profile.TaskData.VideoData aData : data) {
             try {
 
-                videoList.add(
-                        new Video(aData.ID, aData.YouTube, aData.Description,number++,aData.Price));
+//                videoList.add(
+//                        new Video(aData.ID, aData.YouTube, aData.Description,number++,aData.Price));
+
             } catch (Exception e) {
                 Log.e("TaskLoading", "VideoLoadingError: " + e.getLocalizedMessage());
             }
@@ -128,10 +128,11 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         return exercisesList == null ? new ArrayList<Exercise>() : exercisesList;
     }
 
-    public ArrayList<Video> getVideoList() {
-        return videoList == null ? new ArrayList<Video>() : videoList;
-//        return videoList2 == null ? new ArrayList<Video>() : (ArrayList<Video>) videoList2.values();
-    }
+//    @Deprecated
+//    public ArrayList<VideoLayout.VideoCard> getVideoList() {
+//        return videoList == null ? new ArrayList<VideoLayout.VideoCard>() : videoList;
+////        return videoList2 == null ? new ArrayList<Video>() : (ArrayList<Video>) videoList2.values();
+//    }
 
     public void setIndex(int id) {
         this.index = id;
@@ -183,9 +184,9 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         }).start();
     }
 
-    Video getVideo(String id) {
-        return videoList2.get(id);
-    }
+//    Video getVideo(String id) {
+//        return videoList2.get(id);
+//    }
 
     void setTaskNumber(int number) {
         setTitle(context.getResources().getString(R.string.task_title) + " " + number);
@@ -345,281 +346,285 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         }
     }
 
-    public class Video extends FrameLayout {
-
-        int videoID = 0;
-        byte m = (byte) UI.calcSize(5);
-        LinearLayout mainLayout;
-        FrameLayout numberLayout;
-        VideoLayout videoLayout;
-        ImageView buyingIndicator;
-        private String youtubeID = "";
-        private String Description = "";
-        private VideoPlayer player;
-        private boolean buyed = false;
-        private int number=1;
-        private int price=0;
-
-        /**
-         *
-         */
-
-        public Video(int id, String youtubeID, String description,int number,int price) {
-
-            super(context);
-            this.videoID = id;
-            this.number = number;
-            this.price = price;
-            try {
-
-                if (youtubeID == null||youtubeID.equals("")) {
-                    setBuyed(false);
-                } else {
-                    this.youtubeID = youtubeID;
-                    setBuyed(true);
-                }
-                Description = description;
-
-
-            } catch (Exception e) {
-                Log.e("VideoData", "Incorrect data! " + e.getLocalizedMessage());
-            }
-
-
-            setPlayer();
-
-
-            initViews();
-
-
-            setVideoDescrition();
-
-        }
-
-        public int getNumber() {
-            return number;
-        }
-
-        public int getPrice(){
-            return price;
-        }
-
-        public int getVideoID() {
-            return videoID;
-        }
-
-        public void setOnVideoStateChangeListener() {
-
-        }
-
-        public boolean isPlaying() {
-            return player != null && player.isPlaying();
-        }
-
-        public void stop() {
-            if (player != null) {
-                player.stop();
-            }
-        }
-
-        public void pause() {
-            if (player != null && isPlaying()) {
-                player.pause();
-            }
-        }
-
-        public void start() {
-            if (player != null) {
-                player.start();
-            }
-        }
-
-        public void updateSizes(int w, int h) {
-            if (player != null) {
-
-                player.getSmallDisplay().setLayoutParams(new LinearLayout.LayoutParams(
-                        (int) (0.75 * w), h = (int) ((9 / 16.0) * 0.75 * w)));
-            }
-
-//            numberLayout.setLayoutParams(new LinearLayout.LayoutParams((int) (0.15 * w), h));
-//            videoLayout.setLayoutParams(new LinearLayout.LayoutParams(w - UI.calcSize(2 * m), h));
-
-        }
-
-        public String getDescription() {
-            return Description;
-        }
-
-        public Task getTask(){
-            return Task.this;
-        }
-
-        void setPlayer() {
-
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
-
-            player = new VideoPlayer(context);
-            player.setVideoID(youtubeID);
-            player.getSmallDisplay().setLayoutParams(lp);
-            if(Task.this.getNumber()==1||Task.this.getNumber()==2){
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            final Bitmap b = BitmapFactory.decodeStream(
-                                    new URL(DataLoader.getVideoBackRequest(videoID)).openStream());
-
-                            ((MainActivity) context).runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        player.setPicture(new BitmapDrawable(getResources(),b));
-                                    } catch (Exception e) {
-                                        Reporter.report(context, e, ((MainActivity) context).reportSubject);
-                                    }
-                                }
-                            });
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
-
-            }else{
-                player.setPicture(context.getResources().getDrawable(R.drawable.video_back));
-            }
-            if(!buyed&&(Task.this.getNumber()!=1&&Task.this.getNumber()!=2)) {
-                player.getSmallDisplay().setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ((MainActivity) context).ui.openVideoPurchaseDialog(Video.this);
-                    }
-                });
-            }
-        }
-
-        private void initViews() {
-            mainLayout = new LinearLayout(context);
-            mainLayout.setLayoutParams(new LayoutParams(-1, -1));
-            ((LayoutParams) mainLayout.getLayoutParams()).setMargins(m, m, m, m);
-            mainLayout.setPadding(4 * m, 3 * m, 0, 2 * m);
-            mainLayout.setOrientation(LinearLayout.VERTICAL);
-
-            videoLayout = new VideoLayout(context);
-
-            ViewGroup.LayoutParams lp = new LinearLayout.LayoutParams(-1, -1);
-            numberLayout = new FrameLayout(context);
-            numberLayout.setLayoutParams(lp);
-
-            buyingIndicator = new ImageView(context);
-            lp = new LayoutParams(UI.calcSize(20), UI.calcSize(20));
-            ((LayoutParams) lp).gravity = Gravity.CENTER;
-            buyingIndicator.setLayoutParams(lp);
-            buyingIndicator.setBackgroundDrawable(context.getResources().getDrawable(
-                    isBuyed() ? R.drawable.button_green : R.drawable.button_red));
-
-            TextView number = new TextView(context);
-            lp = new LayoutParams(-2, -2);
-            ((LayoutParams) lp).gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-            ((LayoutParams) lp).setMargins(0, 0, 0, UI.calcSize(15));
-            number.setLayoutParams(lp);
-            number.setText("#" + (this.number) + "\n" + this.videoID);
-            number.setTextSize(18);
-            number.setTextColor(Color.parseColor("#05025d"));
-            number.setGravity(Gravity.CENTER);
-
-            numberLayout.addView(buyingIndicator);
-            numberLayout.addView(number);
-
-            videoLayout.addView(player.getSmallDisplay());
-            videoLayout.addView(numberLayout);
-
-            mainLayout.addView(videoLayout);
-            player.updateParent(videoLayout);
-
-            this.setBackgroundResource(R.drawable.white_background_shadow);
-            this.setLayoutParams(new ViewGroup.LayoutParams(-1, -2));
-            this.addView(mainLayout);
-
-        }
-
-        public boolean isBuyed() {
-            return buyed;
-        }
-
-        public void setBuyed(boolean buyed) {
-            this.buyed = buyed;
-            if (buyed) {
-                buyedVideos.add(this);
-                setPlayerBack();
-                if (buyingIndicator != null) {
-                    buyingIndicator.setBackgroundResource(R.drawable.button_green);
-                }
-            }
-        }
-
-        void setPlayerBack() {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-
-                        final Bitmap b = BitmapFactory.decodeStream(
-                                new URL(DataLoader.getVideoBackRequest(videoID)).openStream());
-
-                        ((MainActivity) context).runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    player.setBuyed(new BitmapDrawable(getResources(), b));
-                                } catch (Exception e) {
-                                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
-                                }
-                            }
-                        });
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-        }
-
-        void setVideoDescrition() {
-            TextView descr = new TextView(context);
-            descr.setText(Description);
-            descr.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
-            ((LinearLayout.LayoutParams) descr.getLayoutParams()).setMargins(0, 0, UI.calcSize(10), 0);
-            descr.setTextColor(Color.parseColor("#05025d"));
-            descr.setTextSize(15);
-            descr.setGravity(Gravity.TOP);
-            try {
-                descr.setTypeface(DataLoader.getFont(context, "comic"));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            mainLayout.addView(descr);
-        }
-
-        public void setYoutubeID(String youtubeID) {
-            this.youtubeID = youtubeID;
-            player.setVideoID(youtubeID);
-            if (youtubeID != null && player == null) {
-                setPlayer();
-            }
-        }
-
-        class VideoLayout extends LinearLayout {
-
-
-            public VideoLayout(Context context) {
-                super(context);
-                setOrientation(LinearLayout.HORIZONTAL);
-                setGravity(Gravity.LEFT);
-                setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
-            }
-        }
+    public Profile.TaskData.VideoData[] getVideoData() {
+        return data.Videos.Video;
     }
+
+//    public class Video {
+//
+//        int videoID = 0;
+//        byte m = (byte) UI.calcSize(5);
+//        LinearLayout mainLayout;
+//        FrameLayout numberLayout;
+//        VideoLayout videoLayout;
+//        ImageView buyingIndicator;
+//        private String youtubeID = "";
+//        private String Description = "";
+//        private VideoPlayer player;
+//        private boolean buyed = false;
+//        private int number=1;
+//        private int price=0;
+//
+//        /**
+//         *
+//         */
+//
+//        public Video(int id, String youtubeID, String description,int number,int price) {
+//
+//            super(context);
+//            this.videoID = id;
+//            this.number = number;
+//            this.price = price;
+//            try {
+//
+//                if (youtubeID == null||youtubeID.equals("")) {
+//                    setBuyed(false);
+//                } else {
+//                    this.youtubeID = youtubeID;
+//                    setBuyed(true);
+//                }
+//                Description = description;
+//
+//
+//            } catch (Exception e) {
+//                Log.e("VideoData", "Incorrect data! " + e.getLocalizedMessage());
+//            }
+//
+//
+//            setPlayer();
+//
+//
+//            initViews();
+//
+//
+//            setVideoDescrition();
+//
+//        }
+//
+//        public int getNumber() {
+//            return number;
+//        }
+//
+//        public int getPrice(){
+//            return price;
+//        }
+//
+//        public int getVideoID() {
+//            return videoID;
+//        }
+//
+//        public void setOnVideoStateChangeListener() {
+//
+//        }
+//
+//        public boolean isPlaying() {
+//            return player != null && player.isPlaying();
+//        }
+//
+//        public void stop() {
+//            if (player != null) {
+//                player.stop();
+//            }
+//        }
+//
+//        public void pause() {
+//            if (player != null && isPlaying()) {
+//                player.pause();
+//            }
+//        }
+//
+//        public void start() {
+//            if (player != null) {
+//                player.start();
+//            }
+//        }
+//
+//        public void updateSizes(int w, int h) {
+//            if (player != null) {
+//
+//                player.getSmallDisplay().setLayoutParams(new LinearLayout.LayoutParams(
+//                        (int) (0.75 * w), h = (int) ((9 / 16.0) * 0.75 * w)));
+//            }
+//
+////            numberLayout.setLayoutParams(new LinearLayout.LayoutParams((int) (0.15 * w), h));
+////            videoLayout.setLayoutParams(new LinearLayout.LayoutParams(w - UI.calcSize(2 * m), h));
+//
+//        }
+//
+//        public String getDescription() {
+//            return Description;
+//        }
+//
+//        public Task getTask(){
+//            return Task.this;
+//        }
+//
+//        void setPlayer() {
+//
+//            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
+//
+//            player = new VideoPlayer(context);
+//            player.setVideoID(youtubeID);
+//            player.getSmallDisplay().setLayoutParams(lp);
+//            if(Task.this.getNumber()==1||Task.this.getNumber()==2){
+//
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        try {
+//                            final Bitmap b = BitmapFactory.decodeStream(
+//                                    new URL(DataLoader.getVideoBackRequest(videoID)).openStream());
+//
+//                            ((MainActivity) context).runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    try {
+//                                        player.setPicture(new BitmapDrawable(getResources(),b));
+//                                    } catch (Exception e) {
+//                                        Reporter.report(context, e, ((MainActivity) context).reportSubject);
+//                                    }
+//                                }
+//                            });
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }).start();
+//
+//            }else{
+//                player.setPicture(context.getResources().getDrawable(R.drawable.video_back));
+//            }
+//            if(!buyed&&(Task.this.getNumber()!=1&&Task.this.getNumber()!=2)) {
+//                player.getSmallDisplay().setOnClickListener(new OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        ((MainActivity) context).ui.openVideoPurchaseDialog(Video.this);
+//                    }
+//                });
+//            }
+//        }
+//
+//        private void initViews() {
+//            mainLayout = new LinearLayout(context);
+//            mainLayout.setLayoutParams(new LayoutParams(-1, -1));
+//            ((LayoutParams) mainLayout.getLayoutParams()).setMargins(m, m, m, m);
+//            mainLayout.setPadding(4 * m, 3 * m, 0, 2 * m);
+//            mainLayout.setOrientation(LinearLayout.VERTICAL);
+//
+//            videoLayout = new VideoLayout(context);
+//
+//            ViewGroup.LayoutParams lp = new LinearLayout.LayoutParams(-1, -1);
+//            numberLayout = new FrameLayout(context);
+//            numberLayout.setLayoutParams(lp);
+//
+//            buyingIndicator = new ImageView(context);
+//            lp = new LayoutParams(UI.calcSize(20), UI.calcSize(20));
+//            ((LayoutParams) lp).gravity = Gravity.CENTER;
+//            buyingIndicator.setLayoutParams(lp);
+//            buyingIndicator.setBackgroundDrawable(context.getResources().getDrawable(
+//                    isBuyed() ? R.drawable.button_green : R.drawable.button_red));
+//
+//            TextView number = new TextView(context);
+//            lp = new LayoutParams(-2, -2);
+//            ((LayoutParams) lp).gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+//            ((LayoutParams) lp).setMargins(0, 0, 0, UI.calcSize(15));
+//            number.setLayoutParams(lp);
+//            number.setText("#" + (this.number) + "\n" + this.videoID);
+//            number.setTextSize(18);
+//            number.setTextColor(Color.parseColor("#05025d"));
+//            number.setGravity(Gravity.CENTER);
+//
+//            numberLayout.addView(buyingIndicator);
+//            numberLayout.addView(number);
+//
+//            videoLayout.addView(player.getSmallDisplay());
+//            videoLayout.addView(numberLayout);
+//
+//            mainLayout.addView(videoLayout);
+//            player.updateParent(videoLayout);
+//
+//            this.setBackgroundResource(R.drawable.white_background_shadow);
+//            this.setLayoutParams(new ViewGroup.LayoutParams(-1, -2));
+//            this.addView(mainLayout);
+//
+//        }
+//
+//        public boolean isBuyed() {
+//            return buyed;
+//        }
+//
+//        public void setBuyed(boolean buyed) {
+//            this.buyed = buyed;
+//            if (buyed) {
+//                buyedVideos.add(this);
+//                setPlayerBack();
+//                if (buyingIndicator != null) {
+//                    buyingIndicator.setBackgroundResource(R.drawable.button_green);
+//                }
+//            }
+//        }
+//
+//        void setPlayerBack() {
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//
+//                        final Bitmap b = BitmapFactory.decodeStream(
+//                                new URL(DataLoader.getVideoBackRequest(videoID)).openStream());
+//
+//                        ((MainActivity) context).runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                try {
+//                                    player.setBuyed(new BitmapDrawable(getResources(), b));
+//                                } catch (Exception e) {
+//                                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+//                                }
+//                            }
+//                        });
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }).start();
+//        }
+//
+//        void setVideoDescrition() {
+//            TextView descr = new TextView(context);
+//            descr.setText(Description);
+//            descr.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
+//            ((LinearLayout.LayoutParams) descr.getLayoutParams()).setMargins(0, 0, UI.calcSize(10), 0);
+//            descr.setTextColor(Color.parseColor("#05025d"));
+//            descr.setTextSize(15);
+//            descr.setGravity(Gravity.TOP);
+//            try {
+//                descr.setTypeface(DataLoader.getFont(context, "comic"));
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            mainLayout.addView(descr);
+//        }
+//
+//        public void setYoutubeID(String youtubeID) {
+//            this.youtubeID = youtubeID;
+//            player.setVideoID(youtubeID);
+//            if (youtubeID != null && player == null) {
+//                setPlayer();
+//            }
+//        }
+//
+//        class VideoLayout extends LinearLayout {
+//
+//
+//            public VideoLayout(Context context) {
+//                super(context);
+//                setOrientation(LinearLayout.HORIZONTAL);
+//                setGravity(Gravity.LEFT);
+//                setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
+//            }
+//        }
+//    }
 
     public class Exercise extends FrameLayout implements OnClickListener {
 

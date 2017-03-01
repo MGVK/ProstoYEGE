@@ -18,6 +18,7 @@ public class Stopwatch {
     private long lastPoint = 0;
     private long finishTime = 0;
     private boolean logging = false;
+    private int pointNumber = 0;
 
     public Stopwatch() {
 
@@ -49,7 +50,7 @@ public class Stopwatch {
     }
 
     private String formatTime(String tag, long time, String mess) {
-        return tag + (tag.equals(TAG_CHECKPOINT) ? ": | +" : ": | ") + time + " | :" + mess;
+        return tag + "[" + (pointNumber++) + "]" + (tag.equals(TAG_CHECKPOINT) ? ": | +" : ": | ") + time + " | :" + mess;
     }
 
 
