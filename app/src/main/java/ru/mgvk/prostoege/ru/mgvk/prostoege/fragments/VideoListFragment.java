@@ -134,8 +134,10 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
                 .setOnClickListener(this);
         videoScroll = (ScrollView) container.findViewById(R.id.video_scroll);
 
-        videoLayout = new VideoLayout(context, mainActivity.profile.maxVideoCount);
-        videoScroll.addView(videoLayout);
+        videoLayout = new VideoLayout(context, 1);
+        if (videoScroll.getChildCount() == 0) {
+            videoScroll.addView(videoLayout);
+        }
 
         titleText = (TextView) container.findViewById(R.id.videolist_title);
         try {

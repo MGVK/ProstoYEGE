@@ -124,6 +124,11 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         }
     }
 
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+    }
+
     public ArrayList<Exercise> getExercisesList() {
         return exercisesList == null ? new ArrayList<Exercise>() : exercisesList;
     }
@@ -184,7 +189,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         }).start();
     }
 
-//    Video getVideo(String id) {
+//    Video loadVideo(String id) {
 //        return videoList2.get(id);
 //    }
 

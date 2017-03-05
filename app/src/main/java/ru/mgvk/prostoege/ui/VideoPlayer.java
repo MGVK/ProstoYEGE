@@ -516,6 +516,8 @@ public class VideoPlayer {
             playPauseButton.setBackgroundDrawable(
                     context.getResources().getDrawable(R.drawable.icon_play));
             seekBar.setProgress(0);
+
+
         }
 
         void setPlaying() {

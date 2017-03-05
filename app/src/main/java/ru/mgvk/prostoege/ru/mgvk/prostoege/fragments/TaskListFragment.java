@@ -24,14 +24,14 @@ import java.util.ArrayList;
 public class TaskListFragment extends Fragment implements View.OnClickListener {
 
     public VerticalScrollView taskScroll;
-    LinearLayout taskListLayout, mainTaskListLayout;
-    MainActivity mainActivity;
-    Context context;
-    Task currentTask;
-    ImageButton menuButton, forwardButton;
-    TextView balanceView;
-    ArrayList<Task> taskList = new ArrayList<>();
-    ImageView rings;
+    private LinearLayout taskListLayout, mainTaskListLayout;
+    private MainActivity mainActivity;
+    private Context context;
+    private Task currentTask;
+    private ImageButton menuButton, forwardButton;
+    private TextView balanceView;
+    private ArrayList<Task> taskList = new ArrayList<>();
+    private ImageView rings;
 
     @SuppressLint("ValidFragment")
     public TaskListFragment() {
@@ -116,38 +116,75 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 
             mainActivity.stopwatch.checkpoint("TaskListFragment_onStart");
 
-            taskList = (ArrayList<Task>) InstanceController.getObject("TaskList");
-
-//        Log.d("time_onStart", System.currentTimeMillis() - mainActivity.TIME + "");
-
-
-            if (taskList == null) {
-                taskList = DataLoader.__loadTasks(context);
-            }
-
-
             initViews();
-//        Log.d("time_initViews", System.currentTimeMillis() - mainActivity.TIME + "");
 
-            showTasks();
+            taskList = (ArrayList<Task>) InstanceController.getObject("TaskList");
+            if (taskList == null) {
+                taskList = new ArrayList<>();
 
-//        Log.d("time_showT", System.currentTimeMillis() - mainActivity.TIME + "");
 
-            updateCoins();
+                DataLoader.setOnTaskLoadCompleted(new DataLoader.onTaskLoadCompleted() {
+                    @Override
+                    public void onTaskLoadStarted() {
+                        try {
+                            taskListLayout.removeAllViews();
+                        } catch (Exception ignored) {
+                        }
+                    }
 
-//        Log.d("time_updateCoins", System.currentTimeMillis() - mainActivity.TIME + "");
+                    @Override
+                    public void onCompleted(Task task) {
+                        showTask(task);
 
-            chooseTask(0);
+                    }
 
-//        Log.d("time_endOnStart", System.currentTimeMillis() - mainActivity.TIME + "");
+                    @Override
+                    public void onAllTaskLoadCompleted() {
+                        mainActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                chooseTask(0);
+                                updateCoins();
+                            }
+                        });
 
-//        mainActivity.closeLoadScreen();
+                    }
+                });
+
+                if (!mainActivity.isProfileIsLoading()) {
+                    updateCoins();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            DataLoader.__loadTasks(context);
+                        }
+                    }).start();
+                } else {
+
+                    mainActivity.addOnProfileLoadingCompleted(new Profile.OnLoadCompleted() {
+                        @Override
+                        public void onCompleted() {
+
+                            mainActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    updateCoins();
+                                    DataLoader.__loadTasks(context);
+                                }
+                            });
+
+                        }
+                    });
+                }
+
+            } else {
+                showTasks();
+            }
         } catch (Exception e) {
             Reporter.report(context, e, mainActivity.reportSubject);
         }
 
     }
-
 
     public void restoreTasks() {
         for (Task task : taskList) {
@@ -159,6 +196,17 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
         balanceView.setText(String.valueOf(mainActivity.profile.Coins));
     }
 
+    private void showTask(Task task) {
+        try {
+            Space sp = new Space(context);
+            sp.setLayoutParams(new LinearLayout.LayoutParams(-1, UI.calcSize(4)));
+            taskListLayout.addView(sp);
+            taskListLayout.addView(task);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void showTasks() {
         try {
             taskListLayout.removeAllViews();
@@ -168,12 +216,8 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
             e.printStackTrace();
         }
         for (Task task : taskList) {
-            Space sp = new Space(context);
-            sp.setLayoutParams(new LinearLayout.LayoutParams(-1, UI.calcSize(4)));
-            taskListLayout.addView(sp);
-            taskListLayout.addView(task);
+            showTask(task);
         }
-
     }
 
     public void chooseTask(int id) {

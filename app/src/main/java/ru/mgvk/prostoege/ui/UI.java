@@ -205,16 +205,24 @@ public class UI {
 //                    .findFragmentByTag("ExercisesListFragment");
 //            toolsFragment = (ToolsFragment) mainActivity.getFragmentManager()
 //                    .findFragmentByTag("ToolsFragment");
+            mainActivity.stopwatch.checkpoint("initFragments_1");
             taskListFragment = (TaskListFragment) InstanceController.getObject("TasksFragment");
             videoListFragment = (VideoListFragment) InstanceController.getObject("VideosFragment");
             exercisesListFragment = (ExercisesListFragment) InstanceController.getObject("ExercisesFragment");
             toolsFragment = (ToolsFragment) InstanceController.getObject("ToolsFragment");
         } else {
-            taskListFragment = new TaskListFragment(context);
-            videoListFragment = new VideoListFragment(context);
-            exercisesListFragment = new ExercisesListFragment(context);
-            toolsFragment = new ToolsFragment(context);
 
+            taskListFragment = new TaskListFragment(context);
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    videoListFragment = new VideoListFragment(context);
+                    exercisesListFragment = new ExercisesListFragment(context);
+                    toolsFragment = new ToolsFragment(context);
+                }
+            });
+
+            mainActivity.stopwatch.checkpoint("initFragments_3");
             try {
                 InstanceController.putObject("TasksFragment", taskListFragment);
             } catch (InstanceController.NotInitializedError notInitializedError) {
@@ -235,7 +243,6 @@ public class UI {
             } catch (InstanceController.NotInitializedError notInitializedError) {
                 notInitializedError.printStackTrace();
             }
-
         }
     }
 
@@ -435,8 +442,9 @@ public class UI {
 
     public void openVideoListFragment(Task task) throws Exception {
 
-        setCurrentTask(task);
-
+        if (task != null) {
+            setCurrentTask(task);
+        }
 
         openTaskOrVideoFragment(false);
 

@@ -25,7 +25,9 @@ public class DataLoader {
     static int tasks_ready = 0;
     static Context context;
     static boolean loadingInThread = true;
+    static Profile p;
     private static String url = null;
+    private static onTaskLoadCompleted onTaskLoadCompleted;
 
     DataLoader(Context context) {
 
@@ -128,25 +130,48 @@ public class DataLoader {
         context = pcontext;
         taskList = new ArrayList<>();
 
-        MainActivity mainActivity = (MainActivity) context;
-
-        final Profile p = ((MainActivity) context).profile;
+        p = ((MainActivity) context).profile;
         Log.d("taskLoading", "Profile " + p);
 
-        mainActivity.stopwatch.checkpoint("Loading Tasks start");
+        ((MainActivity) context).stopwatch.checkpoint("Loading Tasks start");
+
+        ((MainActivity) context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                onTaskLoadCompleted.onTaskLoadStarted();
+            }
+        });
 
         for (int task_i = 0; task_i < p.Tasks.length; task_i++) {
-            long t = System.currentTimeMillis();
+
+            p.loadVideo(p.Tasks[task_i]);
+            p.loadQuestion(p.Tasks[task_i]);
+            p.sortQuestions(p.Tasks[task_i]);
 
             taskList.add(new Task(context, p.Tasks[task_i]));
+            if (onTaskLoadCompleted != null) {
+                final int finalTask_i1 = task_i;
+                ((MainActivity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        onTaskLoadCompleted.onCompleted(taskList.get(finalTask_i1));
+                    }
+                });
+            }
+            ((MainActivity) context).stopwatch.checkpoint("Loading Task: " + task_i);
 
-            mainActivity.stopwatch.checkpoint("Loading Task: " + task_i);
+
         }
 
-        mainActivity.stopwatch.checkpoint("Loading Tasks finish");
+        if (onTaskLoadCompleted != null) {
+            onTaskLoadCompleted.onAllTaskLoadCompleted();
+        }
+
+        ((MainActivity) context).stopwatch.checkpoint("Loading Tasks finish");
 
         return taskList;
     }
+
 
     public static String getProfile(String profileId) throws Exception{
         //        Log.d("Profile",s);
@@ -359,4 +384,19 @@ public class DataLoader {
     public static String getHintRequest(int id) {
         return "http://213.159.214.5/script/mobile/1/hint_load.php?ID=" + id;
     }
+
+    public static void setOnTaskLoadCompleted(DataLoader.onTaskLoadCompleted onTaskLoadCompleted) {
+        DataLoader.onTaskLoadCompleted = onTaskLoadCompleted;
+    }
+
+    public interface onTaskLoadCompleted {
+        void onTaskLoadStarted();
+
+        void onCompleted(Task task);
+
+        void onAllTaskLoadCompleted();
+
+    }
+
+
 }

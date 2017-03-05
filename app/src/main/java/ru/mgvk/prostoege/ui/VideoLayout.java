@@ -33,22 +33,66 @@ public class VideoLayout extends LinearLayout {
     private int maxCardsCount = 0;
     private ArrayList<VideoCard> currentVideosList = new ArrayList<>();
     private HashMap<Integer, Drawable> videoBackgrounds = new HashMap<>();
+    private ArrayList<VideoCard> cardsList = new ArrayList<>();
+
 
     public VideoLayout(Context context, int maxCardsCount) {
         super(context);
         this.context = context;
-        this.maxCardsCount = maxCardsCount;
+        if (InstanceController.getObject("VideoLayout_maxCardsCount") == null) {
+            this.maxCardsCount = maxCardsCount;
+        } else {
+            this.maxCardsCount = (int) InstanceController.getObject("VideoLayout_maxCardsCount");
+        }
 
         setOrientation(VERTICAL);
-        setLayoutParams(new LayoutParams(-1, -1));
+        setLayoutParams(new LayoutParams(-1, -2));
+
+        ((MainActivity) context).profile.setOnMaxVideosCountIncreased(new Profile.OnMaxVideosCountIncreased() {
+            @Override
+            public void onIncrease(int newCount) {
+                increaseCardsCount(newCount);
+            }
+        });
 
         initCards();
+        saveMaxCount();
+    }
+
+    public void increaseCardsCount(int newCount) {
+
+        final int currSize = cardsList.size();
+        if (newCount > currSize) {
+            for (int i = 0; i < newCount; i++) {
+                final int finalI = i;
+                ((MainActivity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        cardsList.add(new VideoCard(currSize + finalI));
+                    }
+                });
+            }
+        }
+        saveMaxCount();
+    }
+
+    private void saveMaxCount() {
+        try {
+            InstanceController.putObject("VideoLayout_maxCardsCount", maxCardsCount);
+        } catch (InstanceController.NotInitializedError notInitializedError) {
+            notInitializedError.printStackTrace();
+        }
     }
 
     private void initCards() {
         for (int i = 1; i <= maxCardsCount; i++) {
-            addView(new VideoCard(i));
+            cardsList.add(new VideoCard(i));
         }
+    }
+
+    private void addCard(VideoCard child) {
+        super.addView(child);
+        cardsList.add(child);
     }
 
     public void openVideosFromTask(Task task) {
@@ -59,21 +103,28 @@ public class VideoLayout extends LinearLayout {
 
     private void loadVideos() {
         try {
-            hideUnusefullCards();
+//            hideUnusefullCards(videoData.length);
+            try {
+                removeAllViews();
+            } catch (Exception ignored) {
+            }
             currentVideosList.clear();
             for (int i = 0; i < videoData.length; i++) {
-                ((VideoCard) getChildAt(i)).init(
+                (cardsList.get(i)).init(
                         videoData[i].ID, videoData[i].YouTube, videoData[i].Description, videoData[i].Price);
-                currentVideosList.add((VideoCard) getChildAt(i));
+                currentVideosList.add(cardsList.get(i));
             }
         } catch (Exception e) {
             Reporter.report(context, e, ((MainActivity) context).reportSubject);
         }
     }
 
-    private void hideUnusefullCards() {
-        for (int i = 0; i < getChildCount(); i++) {
-            getChildAt(i).setVisibility(GONE);
+    private void hideUnusefullCards(int usefullCardsCount) {
+        for (int i = usefullCardsCount; i < getChildCount(); i++) {
+            try {
+                removeViewAt(i);
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -125,23 +176,26 @@ public class VideoLayout extends LinearLayout {
         void init(int id, String youtubeID, String description, int price) {
             this.videoID = id;
             this.price = price;
+            this.youtubeID = youtubeID;
             setDescription(description);
 
             try {
 
                 if (youtubeID == null || youtubeID.equals("")) {
                     setBuyed(false);
+                    setOnClickListener();
                 } else {
-                    setYoutubeID(this.youtubeID = youtubeID);
                     setBuyed(true);
+                    setYoutubeID(youtubeID);
                 }
-
 
             } catch (Exception e) {
                 Log.e("VideoData", "Incorrect data! " + e.getLocalizedMessage());
             }
-
-            setVisibility(VISIBLE);
+            try {
+                VideoLayout.this.addView(this);
+            } catch (Exception ignored) {
+            }
 
         }
 
@@ -199,12 +253,31 @@ public class VideoLayout extends LinearLayout {
             return description;
         }
 
-        private void setDescription(String description) {
+        private void setDescription(final String description) {
             this.description = description;
             if (descriptionView == null) {
                 setVideoDescrition();
             }
             descriptionView.setText(description);
+            fixDescriptionSize();
+        }
+
+        void fixDescriptionSize() {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ((MainActivity) context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            LinearLayout.LayoutParams lp =
+                                    new LinearLayout.LayoutParams(
+                                            descriptionView.getWidth(),
+                                            descriptionView.getHeight());
+                            descriptionView.setLayoutParams(lp);
+                        }
+                    });
+                }
+            }).start();
         }
 
         public Task getTask() {
@@ -228,49 +301,18 @@ public class VideoLayout extends LinearLayout {
 //
 //            player = new VideoPlayer(context);
 //            player.getSmallDisplay().setLayoutParams(lp);
+            player.stop();
+
             player.setVideoID(youtubeID);
 
-            if (currentTask != null
-                    && (currentTask.getNumber() == 1 || currentTask.getNumber() == 2)) {
-
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            final Bitmap b = BitmapFactory.decodeStream(
-                                    new URL(DataLoader.getVideoBackRequest(videoID)).openStream());
-
-                            ((MainActivity) context).runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        player.setPicture(new BitmapDrawable(getResources(), b));
-                                    } catch (Exception e) {
-                                        Reporter.report(context, e, ((MainActivity) context).reportSubject);
-                                    }
-                                }
-                            });
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
-
-            } else {
-                player.setPicture(context.getResources().getDrawable(R.drawable.video_back));
+            if (currentTask == null) {
+                return;
             }
-            if (!buyed && (currentTask.getNumber() != 1 && currentTask.getNumber() != 2)) {
-                player.getSmallDisplay().setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ((MainActivity) context).ui.openVideoPurchaseDialog(VideoCard.this);
-                    }
-                });
-            }
+
+
         }
 
         private void initViews() {
-            setVisibility(GONE);
 
             mainLayout = new LinearLayout(context);
             mainLayout.setLayoutParams(new LayoutParams(-1, -1));
@@ -322,46 +364,59 @@ public class VideoLayout extends LinearLayout {
 
         public void setBuyed(boolean buyed) {
             this.buyed = buyed;
+            setPlayerBack();
             if (buyed) {
-                setPlayerBack();
                 if (buyingIndicator != null) {
                     buyingIndicator.setBackgroundResource(R.drawable.button_green);
                 }
             }
-//            else {
-//                setYoutubeID("");
-//            }
+        }
+
+        void setOnClickListener() {
+            if ((currentTask.getNumber() != 1 && currentTask.getNumber() != 2)) {
+                player.getSmallDisplay().setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ((MainActivity) context).ui.openVideoPurchaseDialog(VideoCard.this);
+                    }
+                });
+            }
+
         }
 
         void setPlayerBack() {
 
-            if (videoBackgrounds.get(getVideoID()) != null) {
-                player.setBuyed(videoBackgrounds.get(getVideoID()));
+            if (!buyed) {
+                player.setPicture(context.getResources().getDrawable(R.drawable.video_back));
             } else {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
+                if (videoBackgrounds.get(getVideoID()) != null) {
+                    player.setBuyed(videoBackgrounds.get(getVideoID()));
+                } else {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
 
-                            final Bitmap b = BitmapFactory.decodeStream(
-                                    new URL(DataLoader.getVideoBackRequest(videoID)).openStream());
+                                final Bitmap b = BitmapFactory.decodeStream(
+                                        new URL(DataLoader.getVideoBackRequest(videoID)).openStream());
 
-                            ((MainActivity) context).runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        videoBackgrounds.put(getVideoID(), new BitmapDrawable(getResources(), b));
-                                        player.setBuyed(videoBackgrounds.get(getVideoID()));
-                                    } catch (Exception e) {
-                                        Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                ((MainActivity) context).runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            videoBackgrounds.put(getVideoID(), new BitmapDrawable(getResources(), b));
+                                            player.setBuyed(videoBackgrounds.get(getVideoID()));
+                                        } catch (Exception e) {
+                                            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                        }
                                     }
-                                }
-                            });
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                                });
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                }).start();
+                    }).start();
+                }
             }
         }
 
@@ -384,7 +439,7 @@ public class VideoLayout extends LinearLayout {
 
         public void setYoutubeID(String youtubeID) {
             this.youtubeID = youtubeID;
-            videoData[number - 1].YouTube = youtubeID;
+//            videoData[number - 1].YouTube = youtubeID;
             player.setVideoID(youtubeID);
             if (youtubeID != null && player == null) {
                 setPlayer();

@@ -25,6 +25,7 @@ import ru.mgvk.util.Stopwatch;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.ConnectException;
+import java.util.ArrayList;
 import java.util.Stack;
 
 public class MainActivity extends Activity {
@@ -33,14 +34,15 @@ public class MainActivity extends Activity {
     public static String PID = "default";
     public UI ui;
     public volatile Profile profile;
-    public long TIME = 0;
     public Pays pays;
     public Stopwatch stopwatch;
     public String reportSubject;
-    Context context;
-    OnConfigurationUpdate onConfigurationUpdate;
+    private Context context;
+    private OnConfigurationUpdate onConfigurationUpdate;
     private boolean restoring = false;
     private Stack<Runnable> backStack = new Stack<>();
+    private boolean profileIsLoading = false;
+    private ArrayList<Profile.OnLoadCompleted> onLoadCompletedList = new ArrayList<>();
 
     // TODO: 10.08.16 user-friendly ошибки
 
@@ -81,9 +83,7 @@ public class MainActivity extends Activity {
 //                }
 //            }).start();
 //
-            stopwatch.checkpoint("Pays_start");
-            pays = new Pays(context);
-            stopwatch.checkpoint("Pays_ready");
+
 
             if (InstanceController.getObject("Profile") == null) {
                 if (!prepare()) {
@@ -174,28 +174,46 @@ public class MainActivity extends Activity {
 
 
     boolean prepare() {
+
+        stopwatch.checkpoint("prepare");
         final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        long t = System.currentTimeMillis();
 
-        try {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                profileIsLoading = true;
 
-            profile = new Gson().fromJson(DataLoader.getProfile(PID), Profile.class);
+                try {
 
-            profile.ID = PID;
-            profile.prepareData();
+                    profile = new Gson().fromJson(DataLoader.getProfile(PID), Profile.class);
+                    stopwatch.checkpoint("prepare_3");
 
+                    profile.ID = PID;
+//                    profile.prepareData();
 
-        } catch (ConnectException ce) {
+                    for (Profile.OnLoadCompleted onLoadCompleted : onLoadCompletedList) {
+                        onLoadCompleted.onCompleted();
+                    }
 
-            return false;
+                } catch (ConnectException ce) {
 
-        } catch (Exception e) {
-            // TODO: 09.10.16 вывод ошибки о неверных данных
-            e.printStackTrace();
-            return false;
-        }
+                    profileIsLoading = false;
+
+                    return;
+
+                } catch (Exception e) {
+                    // TODO: 09.10.16 вывод ошибки о неверных данных
+                    e.printStackTrace();
+                    profileIsLoading = false;
+
+                    return;
+                }
+                profileIsLoading = false;
+            }
+        }).start();
+
 
         try {
             InstanceController.putObject("WIFI_only", false);
@@ -208,14 +226,15 @@ public class MainActivity extends Activity {
             public void run() {
                 try {
                     //prepare image for sharing
-
-                    Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),
-                            R.drawable.share_image);
                     File sharefile = new File(context.getApplicationContext().getExternalCacheDir(), "share_image.png");
-                    FileOutputStream out = new FileOutputStream(sharefile);
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-                    out.flush();
-                    out.close();
+                    if (!sharefile.exists()) {
+                        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),
+                                R.drawable.share_image);
+                        FileOutputStream out = new FileOutputStream(sharefile);
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                        out.flush();
+                        out.close();
+                    }
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -223,10 +242,12 @@ public class MainActivity extends Activity {
 
             }
         }).start();
-
-        Log.d("time", (TIME = System.currentTimeMillis()) - t + "");
-
+        stopwatch.checkpoint("prepare_finish");
         return true;
+    }
+
+    public boolean isProfileIsLoading() {
+        return profileIsLoading;
     }
 
     @Override
@@ -326,6 +347,10 @@ public class MainActivity extends Activity {
         }
     }
 
+    public void addOnProfileLoadingCompleted(Profile.OnLoadCompleted onLoadCompleted) {
+        this.onLoadCompletedList.add(onLoadCompleted);
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -343,6 +368,10 @@ public class MainActivity extends Activity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         Log.d("ActivityState", "onPostCreate");
+        stopwatch.checkpoint("Pays_start");
+        pays = new Pays(context);
+        stopwatch.checkpoint("Pays_ready");
+        stopwatch.finish("onPostCreate");
     }
 
     @Override

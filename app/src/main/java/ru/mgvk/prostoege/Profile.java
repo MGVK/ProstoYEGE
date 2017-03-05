@@ -11,17 +11,14 @@ public class Profile {
     public int Repost = 0;
     public TaskData Tasks[];
     public int maxVideoCount = 0;
+    private OnMaxVideosCountIncreased onMaxVideosCountIncreased;
 
     void getVideos() {
         for (final TaskData task : Tasks) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        task.Videos = new Gson().fromJson(DataLoader.getVideo(task.Number), Videos.class);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    loadVideo(task);
                 }
             }).run();
         }
@@ -29,12 +26,26 @@ public class Profile {
 
     void getQuestions() {
         for (TaskData task : Tasks) {
-            try {
-                task.Questions = new Gson().fromJson(DataLoader.getQuestion(task.Number), Questions.class);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            loadQuestion(task);
         }
+    }
+
+    Videos loadVideo(TaskData taskData) {
+        try {
+            return taskData.Videos = new Gson().fromJson(DataLoader.getVideo(taskData.Number), Videos.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    Questions loadQuestion(TaskData taskData) {
+        try {
+            return taskData.Questions = new Gson().fromJson(DataLoader.getQuestion(taskData.Number), Questions.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     void prepareData() {
@@ -43,22 +54,43 @@ public class Profile {
         try {
             if (Tasks.length > 0) {
                 for (TaskData task : Tasks) {
-                    TaskData.ExercizesData newQ[] =
-                            new TaskData.ExercizesData[task.Questions.Questions.length];
-                    for (TaskData.ExercizesData question : task.Questions.Questions) {
-                        newQ[question.Number - 1] = question;
-                    }
-                    task.Questions.Questions = newQ;
-                    newQ = null;
-
-                    if (task.Videos.Video.length > maxVideoCount) {
-                        maxVideoCount = task.Videos.Video.length;
-                    }
+                    sortQuestions(task);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void sortQuestions(TaskData task) {
+        TaskData.ExercizesData newQ[] =
+                new TaskData.ExercizesData[task.Questions.Questions.length];
+        for (TaskData.ExercizesData question : task.Questions.Questions) {
+            newQ[question.Number - 1] = question;
+        }
+        task.Questions.Questions = newQ;
+        newQ = null;
+
+        if (task.Videos.Video.length > maxVideoCount) {
+            maxVideoCount = task.Videos.Video.length;
+            if (onMaxVideosCountIncreased != null) {
+                onMaxVideosCountIncreased.onIncrease(maxVideoCount);
+            }
+        }
+    }
+
+    public void setOnMaxVideosCountIncreased(OnMaxVideosCountIncreased onMaxVideosCountIncreased) {
+        this.onMaxVideosCountIncreased = onMaxVideosCountIncreased;
+    }
+
+    public interface OnLoadCompleted {
+        void onCompleted();
+    }
+
+    public interface OnMaxVideosCountIncreased {
+
+        void onIncrease(int newCount);
+
     }
 
     public class TaskData {
@@ -98,4 +130,5 @@ public class Profile {
     public class Questions {
         TaskData.ExercizesData Questions[];
     }
+
 }
