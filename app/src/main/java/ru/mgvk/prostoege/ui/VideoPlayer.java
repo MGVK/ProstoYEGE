@@ -266,10 +266,14 @@ public class VideoPlayer {
             mediaPlayer.stop();
             mediaPlayer.release();
         }
+        if (fullScreen) {
+            changeDisplay(false);
+        }
         callOnStop();
         wasStoped = true;
         smallDisplay.setStoped();
         fullScreenDisplay.setStoped();
+
     }
 
     public void pause() {

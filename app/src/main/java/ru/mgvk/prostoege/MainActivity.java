@@ -187,15 +187,18 @@ public class MainActivity extends Activity {
 
                 try {
 
-                    profile = new Gson().fromJson(DataLoader.getProfile(PID), Profile.class);
+                    if (profile == null) {
+                        profile = new Gson().fromJson(DataLoader.getProfile(PID), Profile.class);
+
+                    }
                     stopwatch.checkpoint("prepare_3");
 
                     profile.ID = PID;
 //                    profile.prepareData();
-
                     for (Profile.OnLoadCompleted onLoadCompleted : onLoadCompletedList) {
-                        onLoadCompleted.onCompleted();
+                        onLoadCompleted.onCompleted(restoring);
                     }
+
 
                 } catch (ConnectException ce) {
 

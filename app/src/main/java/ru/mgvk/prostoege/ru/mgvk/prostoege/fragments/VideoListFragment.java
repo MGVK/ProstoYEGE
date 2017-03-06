@@ -64,8 +64,8 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
         try {
 
             mainActivity.stopwatch.checkpoint("VideoListFragment_onStart");
-
             initViews();
+
             loadVideos();
             updateSizes();
         } catch (Exception e) {
@@ -134,10 +134,13 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
                 .setOnClickListener(this);
         videoScroll = (ScrollView) container.findViewById(R.id.video_scroll);
 
-        videoLayout = new VideoLayout(context, 1);
-        if (videoScroll.getChildCount() == 0) {
-            videoScroll.addView(videoLayout);
+        if ((videoLayout = (VideoLayout) InstanceController.getObject("VideoLayout")) == null) {
+            videoLayout = new VideoLayout(context, 1);
         }
+        if (videoScroll.getChildCount() != 0) {
+            videoScroll.removeAllViews();
+        }
+        videoScroll.addView(videoLayout);
 
         titleText = (TextView) container.findViewById(R.id.videolist_title);
         try {
@@ -349,6 +352,7 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
         Log.d("ActivityState_Tasks", "onSaveInstanceState_1");
         try {
             InstanceController.putObject("Task", currentTask);
+            InstanceController.putObject("VideoLayout", videoLayout);
         } catch (InstanceController.NotInitializedError notInitializedError) {
             notInitializedError.printStackTrace();
         }

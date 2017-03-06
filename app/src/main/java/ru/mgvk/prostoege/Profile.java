@@ -84,7 +84,7 @@ public class Profile {
     }
 
     public interface OnLoadCompleted {
-        void onCompleted();
+        void onCompleted(boolean restoring);
     }
 
     public interface OnMaxVideosCountIncreased {

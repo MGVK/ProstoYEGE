@@ -63,7 +63,6 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
         rings = (ImageView) mainActivity.findViewById(R.id.rings);
         mainTaskListLayout = (LinearLayout) mainActivity.findViewById(R.id.main_tasklist_layout);
 
-
         if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             setPortraitMode();
         }
@@ -96,6 +95,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 
     @SuppressWarnings("WeakerAccess")
     public void setLandscapeMode() {
+
         if (rings != null) {
             rings.setVisibility(View.VISIBLE);
         }
@@ -135,7 +135,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
                     @Override
                     public void onCompleted(Task task) {
                         showTask(task);
-
+                        taskList.add(task);
                     }
 
                     @Override
@@ -147,6 +147,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
                                 updateCoins();
                             }
                         });
+                        saveTaskList();
 
                     }
                 });
@@ -163,23 +164,25 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 
                     mainActivity.addOnProfileLoadingCompleted(new Profile.OnLoadCompleted() {
                         @Override
-                        public void onCompleted() {
-
-                            mainActivity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    updateCoins();
-                                    DataLoader.__loadTasks(context);
-                                }
-                            });
-
+                        public void onCompleted(boolean restoring) {
+                            if (!restoring) {
+                                mainActivity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateCoins();
+                                        DataLoader.__loadTasks(context);
+                                    }
+                                });
+                            }
                         }
                     });
                 }
 
             } else {
                 showTasks();
+                Log.d("TaskListFragment", "showing all tasks");
             }
+
         } catch (Exception e) {
             Reporter.report(context, e, mainActivity.reportSubject);
         }
@@ -207,6 +210,14 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    private void saveTaskList() {
+        try {
+            InstanceController.putObject("TaskList", taskList);
+        } catch (InstanceController.NotInitializedError notInitializedError) {
+            notInitializedError.printStackTrace();
+        }
+    }
+
     private void showTasks() {
         try {
             taskListLayout.removeAllViews();
@@ -216,6 +227,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
             e.printStackTrace();
         }
         for (Task task : taskList) {
+            Log.d("TaskListFragment", "task " + task.getNumber());
             showTask(task);
         }
     }
@@ -257,11 +269,6 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 
         Log.d("ActivityState_Tasks", "onSaveInstanceState_1");
 
-        try {
-            InstanceController.putObject("TaskList", taskList);
-        } catch (InstanceController.NotInitializedError notInitializedError) {
-            notInitializedError.printStackTrace();
-        }
     }
 
     @Override

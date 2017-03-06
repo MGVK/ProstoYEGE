@@ -45,6 +45,8 @@ public class VideoLayout extends LinearLayout {
             this.maxCardsCount = (int) InstanceController.getObject("VideoLayout_maxCardsCount");
         }
 
+        Log.d("VideoLayout_maxC", "" + maxCardsCount);
+
         setOrientation(VERTICAL);
         setLayoutParams(new LayoutParams(-1, -2));
 
@@ -61,18 +63,21 @@ public class VideoLayout extends LinearLayout {
 
     public void increaseCardsCount(int newCount) {
 
+
         final int currSize = cardsList.size();
         if (newCount > currSize) {
-            for (int i = 0; i < newCount; i++) {
+            maxCardsCount = newCount;
+            for (int i = currSize; i < newCount; i++) {
                 final int finalI = i;
                 ((MainActivity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        cardsList.add(new VideoCard(currSize + finalI));
+                        cardsList.add(new VideoCard(finalI));
                     }
                 });
             }
         }
+
         saveMaxCount();
     }
 
@@ -85,7 +90,7 @@ public class VideoLayout extends LinearLayout {
     }
 
     private void initCards() {
-        for (int i = 1; i <= maxCardsCount; i++) {
+        for (int i = 0; i < maxCardsCount; i++) {
             cardsList.add(new VideoCard(i));
         }
     }
@@ -161,7 +166,7 @@ public class VideoLayout extends LinearLayout {
 
             super(context);
             this.number = number;
-            this.videoID = id;
+            this.videoID = id + 1;
             this.price = price;
             this.description = description;
             this.youtubeID = youtubeID;
