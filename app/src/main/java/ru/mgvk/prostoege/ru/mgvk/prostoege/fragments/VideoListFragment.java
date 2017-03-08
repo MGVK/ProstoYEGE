@@ -398,6 +398,10 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
     public void onResume() {
         super.onResume();
         Log.d("ActivityState_Videos", "onResume");
+        currentTask = (Task) InstanceController.getObject("CurrentTask");
+        if (currentTask != null) {
+            setCurrentTask(currentTask);
+        }
 
     }
 
@@ -405,6 +409,7 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onStop() {
         super.onStop();
+        stopVideos();
 
         Log.d("ActivityState_Videos", "onStop");
     }

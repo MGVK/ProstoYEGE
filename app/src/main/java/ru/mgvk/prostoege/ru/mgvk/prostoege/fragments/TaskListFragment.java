@@ -121,8 +121,11 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 //        Log.d("time_onStart", System.currentTimeMillis() - mainActivity.TIME + "");
 
 
+            boolean restoring = true;
+
             if (taskList == null) {
                 taskList = DataLoader.__loadTasks(context);
+                restoring = false;
             }
 
 
@@ -137,7 +140,10 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 
 //        Log.d("time_updateCoins", System.currentTimeMillis() - mainActivity.TIME + "");
 
-            chooseTask(0);
+            if (!restoring) {
+                chooseTask(0);
+            }
+
 
 //        Log.d("time_endOnStart", System.currentTimeMillis() - mainActivity.TIME + "");
 
@@ -189,6 +195,12 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        try {
+            InstanceController.putObject("CurrentTask", currentTask);
+        } catch (InstanceController.NotInitializedError notInitializedError) {
+            notInitializedError.printStackTrace();
+        }
+
     }
 
 
@@ -270,10 +282,19 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        if (InstanceController.getObject("TaskList") != null) {
-            taskList = (ArrayList<Task>) InstanceController.getObject("TaskList");
-        }
+//        if (InstanceController.getObject("TaskList") != null) {
+//            taskList = (ArrayList<Task>) InstanceController.getObject("TaskList");
+//        }
         Log.d("ActivityState_Tasks", "onResume");
+
+        currentTask = (Task) InstanceController.getObject("CurrentTask");
+
+        try {
+            ((MainActivity) context).ui.taskListFragment.chooseTask(currentTask.getIndex());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
     }
 

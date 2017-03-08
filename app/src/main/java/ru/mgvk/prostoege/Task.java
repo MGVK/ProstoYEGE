@@ -46,6 +46,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
     private int imageSize = 65;
     private int taskHeight = 65 + 2 * (m + 5);
     private int taskWidth = 0;
+
     private Profile.TaskData data;
 
     /**
@@ -131,6 +132,10 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
     public ArrayList<Video> getVideoList() {
         return videoList == null ? new ArrayList<Video>() : videoList;
 //        return videoList2 == null ? new ArrayList<Video>() : (ArrayList<Video>) videoList2.values();
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     public void setIndex(int id) {
@@ -524,7 +529,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
             ((LayoutParams) lp).gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
             ((LayoutParams) lp).setMargins(0, 0, 0, UI.calcSize(15));
             number.setLayoutParams(lp);
-            number.setText("#" + (this.number) + "\n" + this.videoID);
+            number.setText("#" + (this.number) /*+ "\n" + this.videoID*/);
             number.setTextSize(18);
             number.setTextColor(Color.parseColor("#05025d"));
             number.setGravity(Gravity.CENTER);

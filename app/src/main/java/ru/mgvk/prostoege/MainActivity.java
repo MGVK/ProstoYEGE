@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -134,7 +135,7 @@ public class MainActivity extends Activity {
             PID = acc[0].name;
             Toast.makeText(this, "Используется аккаунт: " + PID, Toast.LENGTH_LONG).show();
         }
-        reportSubject = "ErrorReport_" + PID;
+        reportSubject = PID;
 
 
     }
@@ -200,6 +201,7 @@ public class MainActivity extends Activity {
             InstanceController.putObject("WIFI_only", false);
         } catch (InstanceController.NotInitializedError notInitializedError) {
             notInitializedError.printStackTrace();
+            new InstanceController();
         }
 
         new Thread(new Runnable() {
@@ -374,6 +376,11 @@ public class MainActivity extends Activity {
     protected void onPostResume() {
         super.onPostResume();
         Log.d("ActivityState", "onPostResume");
+        try {
+            InstanceController.putObject("LoadingCompleted", "");
+        } catch (InstanceController.NotInitializedError notInitializedError) {
+            notInitializedError.printStackTrace();
+        }
     }
 
     @Override
@@ -390,10 +397,21 @@ public class MainActivity extends Activity {
 //        onDestroy();
     }
 
+
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
-        Log.d("ActivityState", "onTrimMemory");
+        Log.d("ActivityState", "onTrimMemory " + level);
+        if (/*level== ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL
+                ||*/level == ComponentCallbacks2.TRIM_MEMORY_COMPLETE
+                || level == ComponentCallbacks2.TRIM_MEMORY_MODERATE
+                || level == ComponentCallbacks2.TRIM_MEMORY_BACKGROUND) {
+            finish();
+            System.exit(0);
+        }
+//        if(level>=80) {
+//            System.exit(0);
+//        }
     }
 
     @Override

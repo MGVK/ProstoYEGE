@@ -31,6 +31,7 @@ public class MainMenu extends MenuPanel implements OnClickListener {
     private MenuItem wifiBtn;
     private MenuItem orientationBtn;
     private MenuItem restoreBtn;
+    private MenuItem reportBtn;
 
 
     public MainMenu(Context context,ViewGroup parent) {
@@ -187,6 +188,7 @@ public class MainMenu extends MenuPanel implements OnClickListener {
         if (v == restoreBtn) {
             mainActivity.ui.taskListFragment.restoreTasks();
         }
+
 
     }
 }

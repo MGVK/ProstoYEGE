@@ -267,6 +267,9 @@ public class VideoPlayer {
             mediaPlayer.release();
         }
         callOnStop();
+        if (fullScreen) {
+            changeDisplay(false);
+        }
         wasStoped = true;
         smallDisplay.setStoped();
         fullScreenDisplay.setStoped();
@@ -853,7 +856,8 @@ public class VideoPlayer {
                     }
                 }
             } catch (Exception e) {
-                Reporter.report(context, e, ((MainActivity) context).reportSubject);
+//                Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                e.printStackTrace();
             }
         }
     }

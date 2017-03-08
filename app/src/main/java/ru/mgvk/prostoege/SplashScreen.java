@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.Log;
+import android.widget.ProgressBar;
 import ru.mgvk.prostoege.ui.AnimatedCounter;
 
 import java.io.IOException;
@@ -15,6 +17,8 @@ public class SplashScreen extends Activity {
 
 
     AnimatedCounter counter;
+    LoadingIndicator loadingIndicator;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +30,8 @@ public class SplashScreen extends Activity {
 
         new InstanceController();
 
-        counter = (AnimatedCounter) findViewById(R.id.counter);
+//        counter = (AnimatedCounter) findViewById(R.id.counter);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
 
     }
@@ -44,16 +49,46 @@ public class SplashScreen extends Activity {
                     Socket socket = new Socket("213.159.214.5", 80);
                     socket.isConnected();
                     socket.close();
+
+//                    if(!DataLoader.sendReport("[test;fdestestes]")){
+//                        throw new IOException("Cannot connect:(");
+//                    }
+
+//                    startLoadingIndicator();
+
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
 
                             startActivity(new Intent(SplashScreen.this, MainActivity.class));
-
                             finish();
 
                         }
                     });
+
+                    /*new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            long time = System.currentTimeMillis();
+                            while(System.currentTimeMillis()-time>15000) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (InstanceController.getObject("LoadingCompleted") != null) {
+                                            stopLoadingIndicator();
+                                        }
+                                    }
+                                });
+                                try {
+                                    Thread.sleep(150);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }).start();*/
+
+
                 } catch (IOException e) {
                     runOnUiThread(new Runnable() {
                         @Override
@@ -81,5 +116,52 @@ public class SplashScreen extends Activity {
                 .start()
         ;
 
+    }
+
+    void startLoadingIndicator() {
+        (loadingIndicator = new LoadingIndicator()).start();
+    }
+
+    void stopLoadingIndicator() {
+        loadingIndicator.finish();
+    }
+
+    class LoadingIndicator extends Thread {
+        private Integer progress = 0;
+        private boolean works = false;
+
+        @Override
+        public void run() {
+            works = true;
+            while (works) {
+
+                Log.d("Indicator", "works");
+                try {
+
+                    if ((progress = (Integer) InstanceController.getObject(DataLoader.TAG_TaskLoadingProgress)) != null) {
+//                        progress = (int) InstanceController.getObject(DataLoader.TAG_TaskLoadingProgress);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setProgress(progress);
+                            }
+
+                        });
+                        Log.d("Indicator", "progress: " + progress);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public void finish() {
+            works = false;
+        }
     }
 }

@@ -28,7 +28,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
     LinearLayout mainLayout;
     Context context;
     private String answer = "", separator = "&";
-    private LinearLayout answerLayout;
+    private AnswerLayout answerLayout;
     private TextView answerTextView;
     private ImageButton answerClearButton;
     private int Status = 0;
@@ -115,6 +115,9 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
     public void close() {
         opened = false;
         animateAlpha(DISAPPEAR);
+        if (answerLayout != null) {
+            answerLayout.stopIndicator();
+        }
 
     }
 
@@ -146,6 +149,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
         }).start();
     }
 
+
     private void initViews() {
 
         this.setBackgroundResource(R.drawable.white_background_shadow);
@@ -163,7 +167,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
         mainLayout.addView(titleLayout = new TitleLayout());
         mainLayout.addView(description = new DescriptionWebView());
         mainLayout.addView(new ButtonsLayout());
-        mainLayout.addView(new AnswerLayout());
+        mainLayout.addView(answerLayout = new AnswerLayout());
         mainLayout.addView(new NumPad());
 
         this.addView(mainLayout);
@@ -221,7 +225,8 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
     }
 
     void clearAnswer() {
-        answerTextView.setText("");
+        answerTextView.setText(answerTextView.getText().toString().replace("|", "")
+                .subSequence(0, answerTextView.length() - 1));
     }
 
     void togglePositive_Negative() {
@@ -262,7 +267,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
 //            closeExercise();
             ((MainActivity) context).onBackPressed();
         } else {
-            currentExercise.setTmpText(String.format("%s%s", answerTextView.getText(),
+            currentExercise.setTmpText(String.format("%s%s", answerTextView.getText().toString().replace("|", ""),
                     String.valueOf(v.getTag())));
             answerTextView.setText(currentExercise.getTmpText());
         }
@@ -276,6 +281,24 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
 
     public boolean isOpened() {
         return opened;
+    }
+
+    private void scrollUp() {
+        try {
+            if (getParent() != null) {
+                ((ScrollView) getParent()).fullScroll(View.FOCUS_UP);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void scrollDown() {
+        try {
+            if (getParent() != null) {
+                ((ScrollView) getParent()).fullScroll(View.FOCUS_DOWN);
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     class TitleLayout extends FrameLayout {
@@ -413,6 +436,8 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
 
     class AnswerLayout extends LinearLayout {
 
+        private TextIndicator textIndicator;
+
         public AnswerLayout() {
             super(context);
             setAnswerLabel();
@@ -433,7 +458,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
             text.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    startIndicator();
                 }
             });
             this.addView(text);
@@ -451,10 +476,26 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
             answerTextView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    scrollDown();
+                    startIndicator();
                 }
             });
             this.addView(answerTextView);
 
+        }
+
+        void startIndicator() {
+            if (textIndicator == null) {
+                (textIndicator = new TextIndicator()).start();
+            } else if (textIndicator.isInterrupted()) {
+                textIndicator.start();
+            }
+        }
+
+        void stopIndicator() {
+            if (textIndicator != null) {
+                textIndicator.interrupt();
+            }
         }
 
         void setClearButton() {
@@ -466,6 +507,38 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
             answerClearButton.setOnClickListener(ExerciseWindow.this);
             this.addView(answerClearButton);
 
+        }
+
+        class TextIndicator extends Thread {
+            @Override
+            public void run() {
+                while (!isInterrupted()) {
+                    ((MainActivity) context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            answerTextView.setText(answerTextView.getText() + "|");
+
+                        }
+                    });
+                    pause();
+                    ((MainActivity) context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            answerTextView.setText(answerTextView.getText().toString().replace("|", ""));
+
+                        }
+                    });
+                    pause();
+                }
+            }
+
+            private void pause() {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
     }

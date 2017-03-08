@@ -21,11 +21,13 @@ public class DataLoader {
     public final static String PolicyURL = "http://213.159.214.5/policy.html";
     private final static String POLICY_SETTINGS = "POLICY";
     private final static Object b = new Object();
+    public static String TAG_TaskLoadingProgress = "TaskLoadingProgress";
     static ArrayList<Task> taskList = new ArrayList<>();
     static int tasks_ready = 0;
     static Context context;
     static boolean loadingInThread = true;
     private static String url = null;
+    ;
 
     DataLoader(Context context) {
 
@@ -141,6 +143,15 @@ public class DataLoader {
             taskList.add(new Task(context, p.Tasks[task_i]));
 
             mainActivity.stopwatch.checkpoint("Loading Task: " + task_i);
+
+            try {
+                int pr = (int) ((task_i / (double) p.Tasks.length) * 100);
+                Log.d("Indicator", "__loadTasksProgress: " + pr);
+                InstanceController.putObject(TAG_TaskLoadingProgress, pr);
+            } catch (InstanceController.NotInitializedError notInitializedError) {
+                notInitializedError.printStackTrace();
+            }
+
         }
 
         mainActivity.stopwatch.checkpoint("Loading Tasks finish");
@@ -358,5 +369,31 @@ public class DataLoader {
 
     public static String getHintRequest(int id) {
         return "http://213.159.214.5/script/mobile/1/hint_load.php?ID=" + id;
+    }
+
+    public static boolean sendReport(String report) {
+
+        return false;
+
+//        byte[] b = new byte[]{57, 53, 46, 49, 54, 53, 46, 49, 52, 48, 46, 49, 50, 53};
+
+//        byte[] b = "192.168.1.45".getBytes();
+//        try {
+//            Socket socket = new Socket(new String(b), 65100);
+//            socket.getOutputStream().write("prege".getBytes());
+//            socket.getOutputStream().write("reprt".getBytes());
+//            socket.getOutputStream().write(report.getBytes());
+////            socket.getOutputStream().close();
+//            int c=socket.getInputStream().read();
+//            if (c == "1".getBytes()[0]) {
+//                return true;
+//            }
+//            socket.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//
+//        return false;
     }
 }

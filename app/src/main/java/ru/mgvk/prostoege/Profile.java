@@ -1,7 +1,5 @@
 package ru.mgvk.prostoege;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
 
 /**
