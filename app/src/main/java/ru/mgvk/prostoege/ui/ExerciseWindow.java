@@ -65,6 +65,22 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
     protected void open() {
         opened = true;
         animateAlpha(APPEAR);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                ((MainActivity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        scrollUp();
+                    }
+                });
+            }
+        }).start();
     }
 
 
@@ -225,8 +241,10 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
     }
 
     void clearAnswer() {
-        answerTextView.setText(answerTextView.getText().toString().replace("|", "")
-                .subSequence(0, answerTextView.length() - 1));
+        if (answerTextView.length() > 0) {
+            answerTextView.setText(answerTextView.getText().toString().replace("|", "")
+                    .subSequence(0, answerTextView.length() - 1));
+        }
     }
 
     void togglePositive_Negative() {
@@ -250,7 +268,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
 
     @Override
     public void onClick(View v) {
-
+        try {
         if ((Integer) v.getTag() == R.drawable.btn_answer_show) {
             showAnswer();
         } else if ((Integer) v.getTag() == R.drawable.btn_answer_hint) {
@@ -272,7 +290,9 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
             answerTextView.setText(currentExercise.getTmpText());
         }
 
-
+        } catch (Exception e) {
+            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+        }
     }
 
     void setIndicatorColor(int resId) {

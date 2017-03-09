@@ -16,6 +16,7 @@ import android.os.PersistableBundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.WindowManager;
 import android.widget.Toast;
 import com.google.gson.Gson;
@@ -32,6 +33,7 @@ public class MainActivity extends Activity {
 
     static final String APP_SETTINGS = "SETTINGS_EGE";
     public static String PID = "default";
+    private final String TAG = "ActivityState";
     public UI ui;
     public volatile Profile profile;
     public long TIME = 0;
@@ -99,7 +101,7 @@ public class MainActivity extends Activity {
             ui = new UI(context, restoring);
 
             stopwatch.checkpoint("MainActivity_onCreate_finish");
-            Log.d("ActivityState", "onCreate");
+            Log.d(TAG, "onCreate");
 
         } catch (Exception e) {
             Reporter.report(this, e, reportSubject);
@@ -119,7 +121,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d("ActivityState", "onStart");
+        Log.d(TAG, "onStart");
 
 //        setBootScreen();
 
@@ -234,7 +236,7 @@ public class MainActivity extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        Log.d("ActivityState", "onSaveInstanceState_1");
+        Log.d(TAG, "onSaveInstanceState_1");
         try {
             InstanceController.putObject("Profile", profile);
         } catch (InstanceController.NotInitializedError notInitializedError) {
@@ -246,7 +248,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        Log.d("ActivityState", "onRestoreInstanceState_1");
+        Log.d(TAG, "onRestoreInstanceState_1");
         restoring = true;
         profile = (Profile) InstanceController.getObject("Profile");
     }
@@ -270,7 +272,7 @@ public class MainActivity extends Activity {
         backStack = null;
 //        System.exit(0);
 
-        Log.d("ActivityState", "onDestroy");
+        Log.d(TAG, "onDestroy");
         super.onDestroy();
 
     }
@@ -331,51 +333,143 @@ public class MainActivity extends Activity {
     protected void onPause() {
         super.onPause();
 
-        Log.d("ActivityState", "onPause");
+        Log.d(TAG, "onPause");
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState, PersistableBundle persistentState) {
         super.onRestoreInstanceState(savedInstanceState, persistentState);
-        Log.d("ActivityState", "onRestoreInstanceState_2");
+        Log.d(TAG, "onRestoreInstanceState_2");
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        Log.d("ActivityState", "onPostCreate");
+        Log.d(TAG, "onPostCreate");
     }
 
     @Override
     public void onPostCreate(Bundle savedInstanceState, PersistableBundle persistentState) {
         super.onPostCreate(savedInstanceState, persistentState);
-        Log.d("ActivityState", "onPostCreate_2");
+        Log.d(TAG, "onPostCreate_2");
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
 
-        Log.d("ActivityState", "onRestart");
+        Log.d(TAG, "onRestart");
+    }
+
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+        Log.d(TAG, "onKeyLongPress: ");
+        return super.onKeyLongPress(keyCode, event);
+
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        Log.d(TAG, "onKeyUp: ");
+        return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyMultiple(int keyCode, int repeatCount, KeyEvent event) {
+        Log.d(TAG, "onKeyMultiple: ");
+        return super.onKeyMultiple(keyCode, repeatCount, event);
+    }
+
+    @Override
+    public boolean onKeyShortcut(int keyCode, KeyEvent event) {
+        Log.d(TAG, "onKeyShortcut: ");
+        return super.onKeyShortcut(keyCode, event);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Log.d(TAG, "onTouchEvent: ");
+        return super.onTouchEvent(event);
+    }
+
+    @Override
+    public boolean onTrackballEvent(MotionEvent event) {
+        Log.d(TAG, "onTrackballEvent: ");
+        return super.onTrackballEvent(event);
+    }
+
+    @Override
+    public void onUserInteraction() {
+        Log.d(TAG, "onUserInteraction: ");
+        super.onUserInteraction();
+    }
+
+    @Override
+    public void onWindowAttributesChanged(WindowManager.LayoutParams params) {
+        Log.d(TAG, "onWindowAttributesChanged: ");
+        super.onWindowAttributesChanged(params);
+    }
+
+    @Override
+    public void onContentChanged() {
+        Log.d(TAG, "onContentChanged: ");
+        super.onContentChanged();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if (ui != null) {
+            ui.onLeave();
+        }
+        Log.d(TAG, "onWindowFocusChanged: ");
+        super.onWindowFocusChanged(hasFocus);
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        Log.d(TAG, "onAttachedToWindow: ");
+        super.onAttachedToWindow();
+    }
+
+    @Override
+    public void onDetachedFromWindow() {
+        Log.d(TAG, "onDetachedFromWindow: ");
+        super.onDetachedFromWindow();
     }
 
     @Override
     public void onStateNotSaved() {
         super.onStateNotSaved();
-        Log.d("ActivityState", "onStateNotSaved");
+        Log.d(TAG, "onStateNotSaved");
+    }
+
+    @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        if (ui != null) {
+            ui.onLeave();
+        }
+    }
+
+    @Override
+    public boolean onGenericMotionEvent(MotionEvent event) {
+
+        Log.d(TAG, "onGenericMotionEvent: " + event.getActionIndex());
+
+        return super.onGenericMotionEvent(event);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("ActivityState", "onResume");
+        Log.d(TAG, "onResume");
 
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        Log.d("ActivityState", "onPostResume");
+        Log.d(TAG, "onPostResume");
         try {
             InstanceController.putObject("LoadingCompleted", "");
         } catch (InstanceController.NotInitializedError notInitializedError) {
@@ -387,13 +481,13 @@ public class MainActivity extends Activity {
     protected void onStop() {
         super.onStop();
 
-        Log.d("ActivityState", "onStop");
+        Log.d(TAG, "onStop");
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        Log.d("ActivityState", "onLowMemory");
+        Log.d(TAG, "onLowMemory");
 //        onDestroy();
     }
 
@@ -401,7 +495,7 @@ public class MainActivity extends Activity {
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
-        Log.d("ActivityState", "onTrimMemory " + level);
+        Log.d(TAG, "onTrimMemory " + level);
         if (/*level== ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL
                 ||*/level == ComponentCallbacks2.TRIM_MEMORY_COMPLETE
                 || level == ComponentCallbacks2.TRIM_MEMORY_MODERATE
@@ -417,30 +511,30 @@ public class MainActivity extends Activity {
     @Override
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         super.onSaveInstanceState(outState, outPersistentState);
-        Log.d("ActivityState", "onSaveInstanceState_2");
+        Log.d(TAG, "onSaveInstanceState_2");
     }
 
     @Override
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
-        Log.d("ActivityState", "onAttachFragment");
+        Log.d(TAG, "onAttachFragment");
     }
 
     @Override
     public void onActivityReenter(int resultCode, Intent data) {
         super.onActivityReenter(resultCode, data);
-        Log.d("ActivityState", "onActivityReenter");
+        Log.d(TAG, "onActivityReenter");
     }
 
     @Override
     public void finish() {
-        Log.d("ActivityState", "finish");
+        Log.d(TAG, "finish");
         super.finish();
     }
 
     @Override
     public void finishAffinity() {
-        Log.d("ActivityState", "finishAffinity");
+        Log.d(TAG, "finishAffinity");
         super.finishAffinity();
     }
 

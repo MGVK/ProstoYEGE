@@ -145,6 +145,7 @@ public class VideoPlayer {
                     public void run() {
                         try {
                             if (mediaPlayer != null && currDisplay != null) {
+
                                 mediaPlayer.setDisplay(currDisplay.getHolder());
 //                            mediaPlayer.start();
                                 if (continuePlaying) {
@@ -157,7 +158,8 @@ public class VideoPlayer {
                             }
 
                         } catch (Exception e) {
-                            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                            e.printStackTrace();
+//                            Reporter.report(context, e, ((MainActivity) context).reportSubject);
                         }
                     }
                 });

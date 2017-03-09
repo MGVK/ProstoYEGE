@@ -135,7 +135,11 @@ public class VideoPurchaseWindow extends DialogWindow {
             balanceBtn.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ((MainActivity) context).ui.openBalanceDialog();
+                    try {
+                        ((MainActivity) context).ui.openBalanceDialog();
+                    } catch (Exception e) {
+                        Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                    }
                 }
             });
 

@@ -498,8 +498,13 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
                 player.getSmallDisplay().setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ((MainActivity) context).ui.openVideoPurchaseDialog(Video.this);
+                        try {
+                            ((MainActivity) context).ui.openVideoPurchaseDialog(Video.this);
+                        } catch (Exception e) {
+                            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                        }
                     }
+
                 });
             }
         }
@@ -727,9 +732,13 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {
-            ((MainActivity) context).ui.exercisesListFragment
-                    .getExerciseWindow().openExercise(this);
+            try {
+                ((MainActivity) context).ui.exercisesListFragment
+                        .getExerciseWindow().openExercise(this);
 //            ((MainActivity) context).ui.exercisesListFragment.scrollListUp();
+            } catch (Exception e) {
+                Reporter.report(context, e, ((MainActivity) context).reportSubject);
+            }
         }
 
         public int getStatus() {

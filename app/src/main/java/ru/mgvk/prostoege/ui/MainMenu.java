@@ -13,6 +13,7 @@ import ru.mgvk.prostoege.DataLoader;
 import ru.mgvk.prostoege.InstanceController;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
+import ru.mgvk.util.Reporter;
 
 import java.io.File;
 
@@ -58,7 +59,11 @@ public class MainMenu extends MenuPanel implements OnClickListener {
         setOnBackClickListener(new MenuPanel.OnBackClickListener() {
             @Override
             public void onClick(MenuPanel menu) {
-                mainActivity.ui.closeMenu(menu);
+                try {
+                    mainActivity.ui.closeMenu(menu);
+                } catch (Exception e) {
+                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                }
             }
         });
 

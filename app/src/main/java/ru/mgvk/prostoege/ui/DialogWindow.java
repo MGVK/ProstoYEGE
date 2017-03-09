@@ -10,8 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
-
 import ru.mgvk.prostoege.MainActivity;
+import ru.mgvk.util.Reporter;
 
 /**
  * Created by mihail on 19.08.16.
@@ -47,8 +47,12 @@ public class DialogWindow extends RelativeLayout implements View.OnClickListener
 
     @Override
     public void onClick(View v) {
-        close();
-        ((MainActivity) context).removeLastBackStackAction();
+        try {
+            close();
+            ((MainActivity) context).removeLastBackStackAction();
+        } catch (Exception e) {
+            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+        }
     }
 
 

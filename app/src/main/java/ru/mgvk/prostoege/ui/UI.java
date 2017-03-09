@@ -163,13 +163,21 @@ public class UI {
                 .setPositiveButton("Принимаю", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        DataLoader.acceptLicense(context);
+                        try {
+                            DataLoader.acceptLicense(context);
+                        } catch (Exception e) {
+                            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                        }
                     }
                 })
                 .setNegativeButton("Не принимаю", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mainActivity.finish();
+                        try {
+                            mainActivity.finish();
+                        } catch (Exception e) {
+                            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                        }
                     }
                 }).create().show();
 
@@ -518,18 +526,22 @@ public class UI {
         okBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainActivity.onBackPressed();
-                if (mainActivity.profile.Coins < exercise.getHintPrice()) {
-                    openLowCoinsWindow();
-                } else {
-                    if (mainActivity.pays.buyHint(exercise.getHintID())) {
-                        mainActivity.updateCoins(-1 * exercise.getHintPrice());
-                        updateCoins();
-                        exercisesListFragment.getExerciseWindow().setStatus(ExerciseWindow.PROMPTED);
-                        openHintWindow(exercise);
+                try {
+                    mainActivity.onBackPressed();
+                    if (mainActivity.profile.Coins < exercise.getHintPrice()) {
+                        openLowCoinsWindow();
                     } else {
-                        makeErrorMessage(context, "Произошла ошибка:(\nПопробуйте еще раз.");
+                        if (mainActivity.pays.buyHint(exercise.getHintID())) {
+                            mainActivity.updateCoins(-1 * exercise.getHintPrice());
+                            updateCoins();
+                            exercisesListFragment.getExerciseWindow().setStatus(ExerciseWindow.PROMPTED);
+                            openHintWindow(exercise);
+                        } else {
+                            makeErrorMessage(context, "Произошла ошибка:(\nПопробуйте еще раз.");
+                        }
                     }
+                } catch (Exception e) {
+                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
                 }
             }
         });
@@ -576,7 +588,11 @@ public class UI {
         balanceBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) context).ui.openBalanceDialog();
+                try {
+                    ((MainActivity) context).ui.openBalanceDialog();
+                } catch (Exception e) {
+                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                }
             }
         });
 
@@ -703,45 +719,47 @@ public class UI {
         okBtn.setOnClickListener(listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                mainActivity.onBackPressed();
-                window.close();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        mainActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    openTaskOrVideoFragment(true);
-                                } catch (Exception e) {
-                                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
-                                }
+                try {
+                    mainActivity.onBackPressed();
+                    window.close();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
-                        });
-                        try {
-                            Thread.sleep(200);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        mainActivity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    openMenu(mainMenu);
-                                } catch (Exception e) {
-                                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                            mainActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        openTaskOrVideoFragment(true);
+                                    } catch (Exception e) {
+                                        Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                    }
                                 }
+                            });
+                            try {
+                                Thread.sleep(200);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
-                        });
-                    }
-                }).start();
-
+                            mainActivity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        openMenu(mainMenu);
+                                    } catch (Exception e) {
+                                        Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                    }
+                                }
+                            });
+                        }
+                    }).start();
+                } catch (Exception e) {
+                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                }
             }
         });
         layout.setOnClickListener(listener);
@@ -751,5 +769,13 @@ public class UI {
 //        window.layout.setLayoutParams(window.layout.getLayoutParams());
         window.open();
 
+    }
+
+    public void onLeave() {
+        try {
+            videoListFragment.stopVideos();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

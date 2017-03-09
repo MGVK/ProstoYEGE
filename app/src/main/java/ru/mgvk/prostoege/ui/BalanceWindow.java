@@ -6,17 +6,11 @@ import android.graphics.Color;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Space;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
 import ru.mgvk.prostoege.DataLoader;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
+import ru.mgvk.util.Reporter;
 
 /**
  * Created by mihail on 08.10.16.
@@ -60,9 +54,13 @@ public class BalanceWindow extends DialogWindow implements View.OnClickListener 
             view.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (v.getTag() != null && ((Integer) v.getTag()) == 1 && (++count) == 20) {
-                        Toast.makeText(context, "Made by MGVK: vk.com/mihailllo", Toast.LENGTH_SHORT).show();
-                        count = 0;
+                    try {
+                        if (v.getTag() != null && ((Integer) v.getTag()) == 1 && (++count) == 20) {
+                            Toast.makeText(context, "Made by MGVK: vk.com/mihailllo", Toast.LENGTH_SHORT).show();
+                            count = 0;
+                        }
+                    } catch (Exception e) {
+                        Reporter.report(context, e, ((MainActivity) context).reportSubject);
                     }
                 }
             });

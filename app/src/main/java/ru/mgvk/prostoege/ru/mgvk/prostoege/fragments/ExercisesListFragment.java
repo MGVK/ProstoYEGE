@@ -208,37 +208,43 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_videos: {
+        try {
+            switch (v.getId()) {
+                case R.id.btn_videos: {
 //                mainActivity.ui.openVideoListFragment(getTask());
-                if (exerciseWindow.isOpened()) {
+                    if (exerciseWindow.isOpened()) {
+                        mainActivity.onBackPressed();
+                    }
                     mainActivity.onBackPressed();
+                    break;
                 }
-                mainActivity.onBackPressed();
-                break;
-            }
-            case R.id.btn_forward: {
-                mainActivity.ui.openToolsFragment();
-                break;
-            }
-            case R.id.btn_home: {
-                mainActivity.ui.openTaskOrVideoFragment(true);
-                mainActivity.clearBackStack();
-                exerciseWindow.closeExercise();
-                break;
-            }
-            case R.id.exerciselist_title: {
-                if (exerciseWindow.isOpened()) {
-                    mainActivity.onBackPressed();
+                case R.id.btn_forward: {
+                    mainActivity.ui.openToolsFragment();
+                    break;
                 }
-                break;
-            }
-            case R.id.btn_exercises: {
-                if (exerciseWindow.isOpened()) {
-                    mainActivity.onBackPressed();
+                case R.id.btn_home: {
+                    mainActivity.ui.openTaskOrVideoFragment(true);
+                    mainActivity.clearBackStack();
+                    exerciseWindow.closeExercise();
+                    break;
                 }
-                break;
+                case R.id.exerciselist_title: {
+                    if (exerciseWindow.isOpened()) {
+                        mainActivity.onBackPressed();
+                    }
+                    break;
+                }
+                case R.id.btn_exercises: {
+                    if (exerciseWindow.isOpened()) {
+                        mainActivity.onBackPressed();
+                    }
+                    break;
+
+
+                }
             }
+        } catch (Exception e) {
+            Reporter.report(context, e, ((MainActivity) context).reportSubject);
         }
     }
 

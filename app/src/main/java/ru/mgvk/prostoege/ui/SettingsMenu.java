@@ -3,10 +3,10 @@ package ru.mgvk.prostoege.ui;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-
 import ru.mgvk.prostoege.InstanceController;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
+import ru.mgvk.util.Reporter;
 
 /**
  * Created by mihail on 08.10.16.
@@ -42,7 +42,11 @@ public class SettingsMenu extends MenuPanel implements View.OnClickListener {
         setOnBackClickListener(new OnBackClickListener() {
             @Override
             public void onClick(MenuPanel menu) {
-                mainActivity.ui.closeMenu(menu);
+                try {
+                    mainActivity.ui.closeMenu(menu);
+                } catch (Exception e) {
+                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                }
             }
         });
 
@@ -70,20 +74,24 @@ public class SettingsMenu extends MenuPanel implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
+        try {
 
-        if (v == restoreBtn) {
-            mainActivity.ui.taskListFragment.restoreTasks();
-        }
-        if (v == wifiBtn) {
-            try {
-                InstanceController.putObject("WIFI_only",!(boolean)InstanceController.getObject("WIFI_only"));
-            } catch (InstanceController.NotInitializedError notInitializedError) {
-                notInitializedError.printStackTrace();
+            if (v == restoreBtn) {
+                mainActivity.ui.taskListFragment.restoreTasks();
             }
-        }
-        if (v == orientationBtn) {
-        }
+            if (v == wifiBtn) {
+                try {
+                    InstanceController.putObject("WIFI_only",!(boolean)InstanceController.getObject("WIFI_only"));
+                } catch (InstanceController.NotInitializedError notInitializedError) {
+                    notInitializedError.printStackTrace();
+                }
+            }
+            if (v == orientationBtn) {
+            }
 
+        } catch (Exception e) {
+            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+        }
     }
 
 
