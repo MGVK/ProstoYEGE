@@ -143,7 +143,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
                         mainActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                chooseTask(0);
+//                                chooseTask(0);
                                 updateCoins();
                             }
                         });

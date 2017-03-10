@@ -34,6 +34,7 @@ public class VideoLayout extends LinearLayout {
     private ArrayList<VideoCard> currentVideosList = new ArrayList<>();
     private HashMap<Integer, Drawable> videoBackgrounds = new HashMap<>();
     private ArrayList<VideoCard> cardsList = new ArrayList<>();
+    private VideoPlayer playingVideo;
 
 
     public VideoLayout(Context context, int maxCardsCount) {
@@ -297,6 +298,31 @@ public class VideoLayout extends LinearLayout {
             player.getSmallDisplay().setLayoutParams(lp);
 
             player.setPicture(context.getResources().getDrawable(R.drawable.video_back));
+
+            player.setOnVideoStateChangeListener(new VideoPlayer.OnVideoStateChangeListener() {
+                @Override
+                public void onPlay(VideoPlayer v) {
+                    if (playingVideo != null && playingVideo != v) {
+                        playingVideo.stop();
+                    }
+                    playingVideo = v;
+                }
+
+                @Override
+                public void onPause(VideoPlayer v) {
+
+                }
+
+                @Override
+                public void onStop(VideoPlayer v) {
+
+                }
+
+                @Override
+                public void onFullScreen(VideoPlayer v) {
+
+                }
+            });
 
         }
 

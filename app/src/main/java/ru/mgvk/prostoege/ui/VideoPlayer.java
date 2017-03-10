@@ -145,13 +145,29 @@ public class VideoPlayer {
                     public void run() {
                         try {
                             if (mediaPlayer != null && currDisplay != null) {
-                                mediaPlayer.setDisplay(currDisplay.getHolder());
+                                currDisplay.initHolder(new SurfaceHolder.Callback() {
+                                    @Override
+                                    public void surfaceCreated(SurfaceHolder holder) {
+                                        mediaPlayer.setDisplay(holder);
 //                            mediaPlayer.start();
-                                if (continuePlaying) {
-                                    start(currDisplay);
-                                } else {
-                                    pause();
-                                }
+                                        if (continuePlaying) {
+                                            start(currDisplay);
+                                        } else {
+                                            pause();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+                                    }
+
+                                    @Override
+                                    public void surfaceDestroyed(SurfaceHolder holder) {
+
+                                    }
+                                });
+
 //                            activateSeekBar();
 
                             }
@@ -201,8 +217,7 @@ public class VideoPlayer {
         if (picture == null) {
             picture = new ImageView(context);
             picture.setLayoutParams(new ViewGroup.LayoutParams(-1, -1));
-            smallDisplay.addView(picture);
-            smallDisplay.setBackgroundColor(Color.TRANSPARENT);
+            smallDisplay.setPicture(picture);
         } else {
             try {
                 smallDisplay.removeView(picture);
@@ -220,38 +235,55 @@ public class VideoPlayer {
             return;
         }
         try {
-
             if (display.getSurface() == null) {
                 display.initSurface();
-                display.reInitViews();
+
             }
             try {
-                smallDisplay.removeView(picture);
-                smallDisplay.setBackgroundColor(Color.BLACK);
+                smallDisplay.removePicture(picture);
                 picture = null;
             } catch (Exception ignored) {
             }
+
+            display.reInitViews();
+
             activity.getWindow().setFormat(PixelFormat.UNKNOWN);
 
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(context, VideoInfoGetter.getVideoURI(videoID));
-            SurfaceHolder holder = display.getHolder();
-            holder.setFixedSize(display.getWidth(), display.getHeight());
-            holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-            mediaPlayer.setDisplay(holder);
-            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+
+            SurfaceHolder holder = display.initHolder(new SurfaceHolder.Callback() {
                 @Override
-                public void onPrepared(MediaPlayer mp) {
-                    mp.start();
-                    smallDisplay.seekBar.setMax(mediaPlayer.getDuration());
-                    fullScreenDisplay.seekBar.setMax(mediaPlayer.getDuration());
-                    wasStoped = false;
-                    activateSeekBar();
+                public void surfaceCreated(SurfaceHolder holder) {
+                    mediaPlayer.setDisplay(holder);
+                    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mp) {
+                            mp.start();
+                            smallDisplay.seekBar.setMax(mediaPlayer.getDuration());
+                            fullScreenDisplay.seekBar.setMax(mediaPlayer.getDuration());
+                            wasStoped = false;
+                            activateSeekBar();
+                        }
+                    });
+                    mediaPlayer.prepareAsync();
+                }
+
+                @Override
+                public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+                }
+
+                @Override
+                public void surfaceDestroyed(SurfaceHolder holder) {
+
                 }
             });
-            mediaPlayer.prepareAsync();
+            holder.setFixedSize(display.getWidth(), display.getHeight());
+            holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
         } catch (Exception e) {
+            e.printStackTrace();
             UI.makeErrorMessage(context, "Ошибка загрузки видео!");
         }
     }
@@ -273,6 +305,7 @@ public class VideoPlayer {
         wasStoped = true;
         smallDisplay.setStoped();
         fullScreenDisplay.setStoped();
+        smallDisplay.setPicture(picture);
 
     }
 
@@ -291,6 +324,7 @@ public class VideoPlayer {
     }
 
     public void start(Display display) {
+
         if (mediaPlayer == null || wasStoped) {
             initPlayer(display);
         } else {
@@ -521,7 +555,6 @@ public class VideoPlayer {
                     context.getResources().getDrawable(R.drawable.icon_play));
             seekBar.setProgress(0);
 
-
         }
 
         void setPlaying() {
@@ -529,11 +562,13 @@ public class VideoPlayer {
                     context.getResources().getDrawable(R.drawable.icon_pause));
         }
 
-        SurfaceHolder getHolder() {
+        SurfaceHolder initHolder(SurfaceHolder.Callback callback) {
 //            activate();
             SurfaceHolder holder = display.getHolder();
+            holder.addCallback(callback);
             holder.setFixedSize(display.getWidth(), display.getHeight());
             holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
 //            updateLayoutParams();
 
 //            Log.d("HolderSize", display.getWidth() + " " + display.getHeight());
@@ -553,9 +588,18 @@ public class VideoPlayer {
             display.setOnClickListener(this);
             display.setMinimumWidth(UI.calcSize(110));
             display.setMinimumHeight(UI.calcSize(62));
-            this.addView(display);
+//            this.addView(display);
         }
 
+
+        void setPicture(ImageView picture) {
+            removeView(display);
+            try {
+                addView(picture);
+            } catch (Exception ignored) {
+            }
+            setBackgroundColor(Color.TRANSPARENT);
+        }
 
         private void initViews() {
             setLayoutParams(new ViewGroup.LayoutParams(-1, -2));
@@ -680,7 +724,6 @@ public class VideoPlayer {
 //                            return;
 //                        }
                         }
-
                         start(this);
                         playPauseButton.setBackgroundDrawable(
                                 context.getResources().getDrawable(R.drawable.icon_pause));
@@ -709,6 +752,27 @@ public class VideoPlayer {
                 seekBar.setVisibility(VISIBLE);
                 fullScreenButton.setVisibility(VISIBLE);
             }
+        }
+
+        private void removeDisplay() {
+
+        }
+
+        private void addDisplay() {
+
+        }
+
+        public void removePicture(ImageView picture) {
+            try {
+                removeView(picture);
+            } catch (Exception ignored) {
+            }
+            try {
+                addView(display);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            setBackgroundColor(Color.BLACK);
         }
 
 
@@ -859,7 +923,8 @@ public class VideoPlayer {
                     }
                 }
             } catch (Exception e) {
-                Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                e.printStackTrace();
+//                Reporter.report(context, e, ((MainActivity) context).reportSubject);
             }
         }
     }
