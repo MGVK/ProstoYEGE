@@ -17,9 +17,11 @@ import ru.mgvk.util.Reporter;
  */
 public class ExerciseWindow extends FrameLayout implements View.OnClickListener {
 
-    public final static byte NOT_DECIDED = 0, WRONG_ANSWER = 1, PROMPTED = 2, DECIDED = 3, ANSWER_SHOWED = 4;
+    public final static byte NOT_DECIDED = 0, WRONG_ANSWER = 1,
+            PROMPTED = 2, DECIDED_FIRSTLY = 3,
+            ANSWER_SHOWED = 4, DECIDED_SECONDLY = 5;
     public final static int[] indicators = {R.drawable.button_yellow, R.drawable.button_red,
-            R.drawable.button_blue, R.drawable.button_green, R.drawable.button_red,
+            R.drawable.button_blue, R.drawable.button_green,
             R.drawable.button_red, R.drawable.button_blue};
     private static final boolean APPEAR = true, DISAPPEAR = false;
 
@@ -31,7 +33,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
     private LinearLayout answerLayout;
     private TextView answerTextView;
     private ImageButton answerClearButton;
-    private int Status = 0;
+    private int status = 0;
     private TitleLayout titleLayout;
     private DescriptionWebView description;
     private Task.Exercise currentExercise;
@@ -174,40 +176,57 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
     }
 
     public void setStatus(int status) {
-        if (status == ANSWER_SHOWED && Status == PROMPTED) {
-            // TODO: 05.02.17 исправить статусы!
-        }
-        this.Status = status;
+//        if (status == ANSWER_SHOWED && this.status == PROMPTED) {
+//            // TODO: 05.02.17 исправить статусы!
+//        }
+
+        this.status = status;
         setIndicatorColor(ExerciseWindow.indicators[status]);
         currentExercise.setStatus(status);
     }
 
     private void showAnswer() {
-        if (Status == NOT_DECIDED || Status == PROMPTED) {
+
+        if (status != DECIDED_FIRSTLY && status != DECIDED_SECONDLY) {
             setStatus(ANSWER_SHOWED);
         }
+
+//        if (status == NOT_DECIDED || status == PROMPTED) {
+//            setStatus(ANSWER_SHOWED);
+//        }
+
         ((MainActivity) context).ui.openExerciseAnswerShowWindow(answer);
     }
 
     private void checkAnswer() {
-        if (answerTextView.getText() != null && answerTextView.getText().equals(answer)) {
-            if (Status != ANSWER_SHOWED) {
-                if (Status == PROMPTED || Status == WRONG_ANSWER) {
-                    setStatus(PROMPTED);
-                } else {
-                    setStatus(DECIDED);
+
+
+        if (status != DECIDED_FIRSTLY && status != DECIDED_SECONDLY
+                && status != ANSWER_SHOWED) {
+//                    if (status == PROMPTED || status == WRONG_ANSWER) {
+//                        setStatus(PROMPTED);
+//                    } else {
+//                        setStatus(DECIDED_FIRSTLY);
+//                    }
+            if (answerTextView.getText() != null && answerTextView.getText()
+                    .toString().replace("|", "").equals(answer)) {
+
+                ((MainActivity) context).ui.openExerciseResultWindow(true);
+                openNextExercise();
+
+                if (status == NOT_DECIDED) {
+                    setStatus(DECIDED_FIRSTLY);
+                } else if (status == WRONG_ANSWER || status == PROMPTED) {
+                    setStatus(DECIDED_SECONDLY);
                 }
-            }
-            ((MainActivity) context).ui.openExerciseResultWindow(true);
-            openNextExercise();
 
-        } else {
-            if (Status == NOT_DECIDED) {
-                setStatus(WRONG_ANSWER);
+                } else {
+                if (status == NOT_DECIDED) {
+                    setStatus(WRONG_ANSWER);
+                }
+                ((MainActivity) context).ui.openExerciseResultWindow(false);
             }
-            ((MainActivity) context).ui.openExerciseResultWindow(false);
         }
-
     }
 
     private void showHint() {
@@ -266,8 +285,6 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
                     String.valueOf(v.getTag())));
             answerTextView.setText(currentExercise.getTmpText());
         }
-
-
     }
 
     void setIndicatorColor(int resId) {

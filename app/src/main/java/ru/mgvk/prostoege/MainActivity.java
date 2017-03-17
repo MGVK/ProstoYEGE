@@ -28,6 +28,7 @@ import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.Stack;
 
+
 public class MainActivity extends Activity {
 
     static final String APP_SETTINGS = "SETTINGS_EGE";
@@ -122,6 +123,7 @@ public class MainActivity extends Activity {
         Log.d("ActivityState", "onStart");
 
 //        setBootScreen();
+
 
     }
 

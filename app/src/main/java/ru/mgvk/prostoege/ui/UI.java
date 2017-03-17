@@ -493,7 +493,7 @@ public class UI {
 
     public void openHintWindow(Task.Exercise currentExercise) {
 
-        if (currentExercise.isPromted()||currentExercise.isSolved()) {
+        if (currentExercise.hintIsBought()) {
             HintWindow hintWindow = new HintWindow(context);
             hintWindow.addView(new HintWebView(context, currentExercise.getHintID()));
             hintWindow.open();
@@ -526,18 +526,23 @@ public class UI {
         okBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainActivity.onBackPressed();
-                if (mainActivity.profile.Coins < exercise.getHintPrice()) {
-                    openLowCoinsWindow();
-                } else {
-                    if (mainActivity.pays.buyHint(exercise.getHintID())) {
-                        mainActivity.updateCoins(-1 * exercise.getHintPrice());
-                        updateCoins();
-                        exercisesListFragment.getExerciseWindow().setStatus(ExerciseWindow.PROMPTED);
-                        openHintWindow(exercise);
+                try {
+                    mainActivity.onBackPressed();
+                    if (mainActivity.profile.Coins < exercise.getHintPrice()) {
+                        openLowCoinsWindow();
                     } else {
-                        makeErrorMessage(context, "Произошла ошибка:(\nПопробуйте еще раз.");
+                        if (mainActivity.pays.buyHint(exercise.getHintID())) {
+                            mainActivity.updateCoins(-1 * exercise.getHintPrice());
+                            updateCoins();
+                            exercise.setHintIsBought();
+                            exercisesListFragment.getExerciseWindow().setStatus(ExerciseWindow.PROMPTED);
+                            openHintWindow(exercise);
+                        } else {
+                            makeErrorMessage(context, "Произошла ошибка:(\nПопробуйте еще раз.");
+                        }
                     }
+                } catch (Exception e) {
+                    Reporter.report(context, e, mainActivity.reportSubject);
                 }
             }
         });

@@ -48,13 +48,14 @@ public class Profile {
         return null;
     }
 
-    void prepareData() {
+    @Deprecated
+    void _prepareData() {
         getVideos();
         getQuestions();
         try {
             if (Tasks.length > 0) {
                 for (TaskData task : Tasks) {
-                    sortQuestions(task);
+                    prepareData(task);
                 }
             }
         } catch (Exception e) {
@@ -62,11 +63,18 @@ public class Profile {
         }
     }
 
-    public void sortQuestions(TaskData task) {
+    public void prepareData(TaskData task) {
         TaskData.ExercizesData newQ[] =
                 new TaskData.ExercizesData[task.Questions.Questions.length];
         for (TaskData.ExercizesData question : task.Questions.Questions) {
             newQ[question.Number - 1] = question;
+
+
+            //костыль. Страшный костыль.
+            if (question.Status > 10) {
+                question.hintIsBought = true;
+                question.Status -= 10;
+            }
         }
         task.Questions.Questions = newQ;
         newQ = null;
@@ -118,6 +126,7 @@ public class Profile {
             public int PriceHint = 0;
             public String Answer = "_0_o__...";
             public int Status = 0;
+            public boolean hintIsBought = false;
             public int Bonus1 = 0;
             public int Bonus2 = 0;
         }

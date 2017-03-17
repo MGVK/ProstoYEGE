@@ -3,7 +3,6 @@ package ru.mgvk.prostoege.ui;
 import android.content.Context;
 import android.graphics.Color;
 import android.webkit.WebView;
-
 import ru.mgvk.prostoege.DataLoader;
 
 /**
@@ -17,5 +16,6 @@ public class HintWebView extends WebView {
         loadUrl(DataLoader.getHintRequest(id));
         setBackgroundColor(Color.TRANSPARENT);
         setLayerType(LAYER_TYPE_SOFTWARE, null);
+
     }
 }

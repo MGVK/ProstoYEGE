@@ -3,12 +3,12 @@ package ru.mgvk.prostoege;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.Log;
+import ru.mgvk.util.Reporter;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 
 /**
@@ -146,7 +146,7 @@ public class DataLoader {
 
             p.loadVideo(p.Tasks[task_i]);
             p.loadQuestion(p.Tasks[task_i]);
-            p.sortQuestions(p.Tasks[task_i]);
+            p.prepareData(p.Tasks[task_i]);
 
             taskList.add(new Task(context, p.Tasks[task_i]));
             if (onTaskLoadCompleted != null) {
@@ -234,79 +234,64 @@ public class DataLoader {
         return result;
     }
 
-    public static String getVideoURI(final String ID) {
-
-        Log.d("DataLoader", "Parsing video: " + ID);
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (b) {
-                    url = getVideoURL(ID);
-                    b.notifyAll();
-                }
-            }
-        }).start();
-
-        synchronized (b) {
-            try {
-                b.wait(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        return url;
-    }
-
-    static String getVideoURL(String id) {
-        String urlToRead = "http://www.youtube.com/get_video_info?video_id=" + id;
-
-        URL url;
-        HttpURLConnection conn;
-        BufferedReader rd;
-        String line;
-        String result = "";
-        try {
-            url = new URL(urlToRead);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            while ((line = rd.readLine()) != null) {
-                result += line;
-            }
-            rd.close();
-
-            for (String s : result.split("&")) {
-                if (s.contains("url_encoded_fmt_stream_map")) {
-                    return (decode(s.substring("url_encoded_fmt_stream_map=".length())));
-                }
-            }
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return "0_0";
-
-    }
-
-    public static boolean acceptLicense(Context context) {
-//        String filePath = context.getPackageResourcePath()+"license";
-//        File file;
-//        boolean res=false;
-//        try {
-//            file = new File(filePath);
-//            if(!file.exists()&&!file.createNewFile()){
-//                return false;
-//            }
-//            BufferedWriter writer= new BufferedWriter(new FileWriter(file));
-//            writer.write(new char[]{'1'});
-//            writer.close();
+//    public static String getVideoURI(final String ID) {
 //
-//        } catch (IOException e) {
+//        Log.d("DataLoader", "Parsing video: " + ID);
+//
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                synchronized (b) {
+//                    url = getVideoURL(ID);
+//                    b.notifyAll();
+//                }
+//            }
+//        }).start();
+//
+//        synchronized (b) {
+//            try {
+//                b.wait(2000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        return url;
+//    }
+
+//    static String getVideoURL(String id) {
+//        String urlToRead = "http://www.youtube.com/get_video_info?video_id=" + id;
+//
+//        URL url;
+//        HttpURLConnection conn;
+//        BufferedReader rd;
+//        String line;
+//        String result = "";
+//        try {
+//            url = new URL(urlToRead);
+//            conn = (HttpURLConnection) url.openConnection();
+//            conn.setRequestMethod("GET");
+//            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+//            while ((line = rd.readLine()) != null) {
+//                result += line;
+//            }
+//            rd.close();
+//
+//            for (String s : result.split("&")) {
+//                if (s.contains("url_encoded_fmt_stream_map")) {
+//                    return (decode(s.substring("url_encoded_fmt_stream_map=".length())));
+//                }
+//            }
+//
+//
+//        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
+//
+//        return "0_0";
+//
+//    }
+
+    public static boolean acceptLicense(Context context) {
 
         context.getSharedPreferences(MainActivity.APP_SETTINGS, Context.MODE_PRIVATE)
                 .edit().putInt(POLICY_SETTINGS, 1).apply();
@@ -316,53 +301,39 @@ public class DataLoader {
 
     public static boolean isLicenseAccepted(Context context) {
 
-//        String filePath = context.getPackageResourcePath()+"license";
-//        boolean res=false;
-//        try {
-//            BufferedReader reader = new BufferedReader(new FileReader(new File(filePath)));
-//            char[] c = new char[1];
-//            if(reader.read(c)!=-1){
-//                res = (c==new char[]{'1'});
-//            }
-//
-//            reader.close();
-//
-//        } catch (IOException e) {
-//            e.printStackTrace(
-// );
-//        }
         try {
             return 1 == context.getSharedPreferences(MainActivity.APP_SETTINGS, Context.MODE_PRIVATE)
                     .getInt(POLICY_SETTINGS, 0);
         } catch (Exception e) {
-            throw e;
+            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+            return false;
         }
     }
 
 
-    private static String decode(String s) {
-        s = URLDecoder.decode(s);
-        String p[] = s.split(",");
-        for (String s1 : p) {
-            if (s1.contains("itag=22")) {
-//                return extractURL(URLDecoder.decode(URLDecoder.decode(s1)));
-                return URLDecoder.decode(extractURL(s1));
-            }
-        }
-        return "0_0";
-    }
+//    private static String decode(String s) {
+//        s = URLDecoder.decode(s);
+//        String p[] = s.split(",");
+//        for (String s1 : p) {
+//            if (s1.contains("itag=22")) {
+////                return extractURL(URLDecoder.decode(URLDecoder.decode(s1)));
+//                return URLDecoder.decode(extractURL(s1));
+//            }
+//        }
+//        return "0_0";
+//    }
 
-    private static String extractURL(String s) {
-
-//        return s;
-
-        for (String s1 : s.split("&")) {
-            if (s1.contains("url")) {
-                return s1.substring("url=".length());
-            }
-        }
-        return "0_0";
-    }
+//    private static String extractURL(String s) {
+//
+////        return s;
+//
+//        for (String s1 : s.split("&")) {
+//            if (s1.contains("url")) {
+//                return s1.substring("url=".length());
+//            }
+//        }
+//        return "0_0";
+//    }
 
 
     public static String getTaskPirctureRequest(int id) {
@@ -389,6 +360,20 @@ public class DataLoader {
         DataLoader.onTaskLoadCompleted = onTaskLoadCompleted;
     }
 
+    public static boolean sendReport(String report) {
+
+//        return false;
+
+//        byte[] b = new byte[]{57, 53, 46, 49, 54, 53, 46, 49, 52, 48, 46, 49, 50, 53};
+
+        try {
+            return !"-1".equals(getResponse("http://mgvk.esy.es/logs.php",
+                    "pid=" + MainActivity.PID + "&report=" + report));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public interface onTaskLoadCompleted {
         void onTaskLoadStarted();
 
@@ -397,6 +382,4 @@ public class DataLoader {
         void onAllTaskLoadCompleted();
 
     }
-
-
 }

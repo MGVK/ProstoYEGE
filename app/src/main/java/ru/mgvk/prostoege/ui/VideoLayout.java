@@ -303,6 +303,7 @@ public class VideoLayout extends LinearLayout {
                 @Override
                 public void onPlay(VideoPlayer v) {
                     if (playingVideo != null && playingVideo != v) {
+                        Log.d("onPlay", "stopVideo");
                         playingVideo.stop();
                     }
                     playingVideo = v;

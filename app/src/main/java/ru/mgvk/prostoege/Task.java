@@ -730,6 +730,10 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
             return data;
         }
 
+        public boolean hintIsBought() {
+            return data.hintIsBought;
+        }
+
         @Override
         public void onClick(View v) {
             ((MainActivity) context).ui.exercisesListFragment
@@ -743,12 +747,15 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
 
         public void setStatus(int status) {
             this.Status = status;
+            setIndicatorColor(ExerciseWindow.indicators[status]);
             try {
-                DataLoader.putQuestion(data.ID,status);
+                if (data.hintIsBought) {
+                    status += 10;
+                }
+                DataLoader.putQuestion(data.ID, status);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            setIndicatorColor(ExerciseWindow.indicators[status]);
         }
 
         public boolean isPromted() {
@@ -760,7 +767,12 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         }
 
         public boolean isSolved() {
-            return (getStatus() == ExerciseWindow.DECIDED);
+            return (getStatus() == ExerciseWindow.DECIDED_FIRSTLY
+                    || getStatus() == ExerciseWindow.DECIDED_SECONDLY);
+        }
+
+        public void setHintIsBought() {
+            data.hintIsBought = true;
         }
     }
 

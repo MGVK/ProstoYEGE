@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -54,6 +55,8 @@ public class VideoPlayer {
 //    }
     private boolean buyed = false;
     private boolean wasStoped = false;
+    private String TAG = "VideoPlayer";
+
 
     public VideoPlayer(Context context) throws ClassCastException {
         this.context = context;
@@ -70,6 +73,7 @@ public class VideoPlayer {
     }
 
     void initDisplays() {
+        smallDisplay = new Display(context);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -92,30 +96,28 @@ public class VideoPlayer {
                 }
             }
         }).start();
-        smallDisplay = new Display(context);
     }
 
-    void toggleOrientation() {
-        if (/*context.getResources().getConfiguration().orientation
-                == Configuration.ORIENTATION_PORTRAIT*/
-                !isFullScreen()) {
-            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            fullScreen = true;
-            currDisplay = fullScreenDisplay;
-            UI.enterFullScreen(context);
-        } else {
+    private void toggleOrientation() {
+        if (isFullScreen()) {
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
             fullScreen = false;
             currDisplay = smallDisplay;
             UI.exitFullScreen(context);
+        } else {
+            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            fullScreen = true;
+            currDisplay = fullScreenDisplay;
+            UI.enterFullScreen(context);
         }
     }
 
-    void changeDisplay(final boolean continuePlaying) {
+    private void changeDisplay(final boolean continuePlaying) {
 
-        if (isPlaying()) {
-            mediaPlayer.pause();
-        }
+//        if (isPlaying()) {
+//            mediaPlayer.pause();
+        pause();
+//        }
 
         if (isFullScreen()) {
             fullScreenDisplay.deactivate();
@@ -136,50 +138,55 @@ public class VideoPlayer {
         toggleOrientation();
 
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
 
-                activity.runOnUiThread(new Runnable() {
+        try {
+            if (mediaPlayer != null && currDisplay != null) {
+                currDisplay.initHolder(new SurfaceHolder.Callback() {
                     @Override
-                    public void run() {
-                        try {
-                            if (mediaPlayer != null && currDisplay != null) {
-                                currDisplay.initHolder(new SurfaceHolder.Callback() {
-                                    @Override
-                                    public void surfaceCreated(SurfaceHolder holder) {
-                                        mediaPlayer.setDisplay(holder);
+                    public void surfaceCreated(SurfaceHolder holder) {
+                        Log.d(TAG, "surfaceCreated: changeDisplay");
+//                        holder.removeCallback(this);
+                        mediaPlayer.setDisplay(holder);
 //                            mediaPlayer.start();
-                                        if (continuePlaying) {
-                                            start(currDisplay);
-                                        } else {
-                                            pause();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-                                    }
-
-                                    @Override
-                                    public void surfaceDestroyed(SurfaceHolder holder) {
-
-                                    }
-                                });
-
-//                            activateSeekBar();
-
-                            }
-
-                        } catch (Exception e) {
-                            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                        if (continuePlaying) {
+                            start(currDisplay);
+                        } else {
+                            pause();
                         }
+                    }
+
+                    @Override
+                    public void surfaceChanged(SurfaceHolder holder,
+                                               int format, int width, int height) {
+                        Log.d(TAG, "surfaceChanged: changeDisplay: " + format + " " + width + " " + height);
+//                        holder.removeCallback(this);
+                        mediaPlayer.setDisplay(holder);
+                        if (continuePlaying) {
+                            start(currDisplay);
+                        } else {
+                            pause();
+                        }
+                    }
+
+                    @Override
+                    public void surfaceDestroyed(SurfaceHolder holder) {
+                        Log.d(TAG, "surfaceDestroyed: changeDisplay");
                     }
                 });
 
+//                            activateSeekBar();
             }
-        }).start();
+
+        } catch (Exception e) {
+            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+        }
+
+
+//            }
+//        }).start();
     }
 
     public void updateParent(ViewGroup p) {
@@ -200,8 +207,12 @@ public class VideoPlayer {
 
     public boolean isPlaying() {
         try {
-            return mediaPlayer != null && mediaPlayer.isPlaying();
+            boolean res = mediaPlayer != null && mediaPlayer.isPlaying();
+            Log.d(TAG, "isPlaying: " + res);
+            return res;
         } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "isPlaying: false");
             return false;
         }
 
@@ -252,9 +263,15 @@ public class VideoPlayer {
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(context, VideoInfoGetter.getVideoURI(videoID));
 
-            SurfaceHolder holder = display.initHolder(new SurfaceHolder.Callback() {
+
+            display.initHolder(new SurfaceHolder.Callback() {
                 @Override
                 public void surfaceCreated(SurfaceHolder holder) {
+
+                    Log.d(TAG, "surfaceCreated: initPlayer");
+
+                    holder.removeCallback(this);
+
                     mediaPlayer.setDisplay(holder);
                     mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                         @Override
@@ -266,21 +283,25 @@ public class VideoPlayer {
                             activateSeekBar();
                         }
                     });
-                    mediaPlayer.prepareAsync();
+
+                    try {
+                        mediaPlayer.prepareAsync();
+//                        mediaPlayer.prepare();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
                 public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
+                    Log.d(TAG, "surfaceChanged: initPlayer");
                 }
 
                 @Override
                 public void surfaceDestroyed(SurfaceHolder holder) {
-
+                    Log.d(TAG, "surfaceDestroyed: initPlayer");
                 }
             });
-            holder.setFixedSize(display.getWidth(), display.getHeight());
-            holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -311,7 +332,7 @@ public class VideoPlayer {
 
     public void pause() {
         if (mediaPlayer != null && isPlaying()) {
-            wasStoped = true;
+//            wasStoped = true;
             smallDisplay.setStoped();
             fullScreenDisplay.setStoped();
             mediaPlayer.pause();
@@ -359,10 +380,8 @@ public class VideoPlayer {
         this.onVideoStateChangeListener = onVideoStateChangeListener;
     }
 
-    // TODO: 18.10.16 дописать листенер ^
-
-
     private void callOnPlay() {
+        Log.d(TAG, "callOnPlay");
         activateSeekBar();
         if (onVideoStateChangeListener != null) {
             onVideoStateChangeListener.onPlay(this);
@@ -370,18 +389,21 @@ public class VideoPlayer {
     }
 
     private void callOnStop() {
+        Log.d(TAG, "callOnStop");
         if (onVideoStateChangeListener != null) {
             onVideoStateChangeListener.onStop(this);
         }
     }
 
     private void callOnPause() {
+        Log.d(TAG, "callOnPause");
         if (onVideoStateChangeListener != null) {
             onVideoStateChangeListener.onPause(this);
         }
     }
 
     private void callOnFullScreen() {
+        Log.d(TAG, "callOnFullScreen");
         if (onVideoStateChangeListener != null) {
             onVideoStateChangeListener.onFullScreen(this);
         }
@@ -563,15 +585,12 @@ public class VideoPlayer {
         }
 
         SurfaceHolder initHolder(SurfaceHolder.Callback callback) {
-//            activate();
+
             SurfaceHolder holder = display.getHolder();
             holder.addCallback(callback);
             holder.setFixedSize(display.getWidth(), display.getHeight());
             holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-//            updateLayoutParams();
-
-//            Log.d("HolderSize", display.getWidth() + " " + display.getHeight());
             return holder;
         }
 
@@ -583,18 +602,26 @@ public class VideoPlayer {
         }
 
         public void initSurface() {
+            try {
+                removeView(display);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             display = new DisplaySurface(context);
             display.setLayoutParams(new LinearLayout.LayoutParams(-1, -1));
             display.setOnClickListener(this);
             display.setMinimumWidth(UI.calcSize(110));
             display.setMinimumHeight(UI.calcSize(62));
-//            this.addView(display);
+            if (fullScreenDisplay) {
+                this.addView(display);
+            }
         }
 
 
         void setPicture(ImageView picture) {
             removeView(display);
             try {
+                picture.setOnClickListener(this);
                 addView(picture);
             } catch (Exception ignored) {
             }
@@ -685,56 +712,33 @@ public class VideoPlayer {
         public void onClick(View v) {
             try {
 
-//            ((MainActivity) activity).setOnConfigurationUpdate(new MainActivity.OnConfigurationUpdate() {
-//                @Override
-//                public void onUpdate() {
-////                    updateSizes();
-//                }
-//            });
-
                 if (v == fullScreenButton) {
-                    changeDisplay((!isFullScreen()));
+//                    changeDisplay((!isFullScreen()));
+                    changeDisplay(false);
                     callOnFullScreen();
                 }
 
                 if (v == playPauseButton) {
 
                     if (isPlaying()) {
-                        mediaPlayer.pause();
-                        callOnPause();
-                        playPauseButton.setBackgroundDrawable(
-                                context.getResources().getDrawable(R.drawable.icon_play));
+                        pause();
                     } else {
                         if (((boolean) InstanceController.getObject("WIFI_only"))) {
 
                             WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
                             if (!manager.isWifiEnabled()) {
-//                            WifiInfo wifiInfo = manager.getConnectionInfo();
-////                            Log.d("Wifi",""+wifiInfo);
-//                            Toast.makeText(context,"wifinfo: "+wifiInfo,Toast.LENGTH_SHORT).show();
-//                            if (wifiInfo == null) {
-//                                ((MainActivity) activity).ui.openWifiOnlyDialog();
-//                                return;
-//                            }
+
                                 ((MainActivity) activity).ui.openWifiOnlyDialog();
                                 return;
                             }
-//                        else{
-//                            ((MainActivity) activity).ui.openWifiOnlyDialog();
-//                            return;
-//                        }
                         }
                         start(this);
-                        playPauseButton.setBackgroundDrawable(
-                                context.getResources().getDrawable(R.drawable.icon_pause));
-
                     }
 
 
                 }
-                if (v == display) {
+                if (v == display || (v == picture)) {
                     toggleButtonsVisibility();
-
                 }
             } catch (Exception e) {
                 Reporter.report(context, e, ((MainActivity) context).reportSubject);
@@ -914,18 +918,24 @@ public class VideoPlayer {
 
         @Override
         public void run() {
-            try {
-                while (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                    Thread.sleep(500);
-                    if (!touched) {
-                        smallDisplay.seekBar.setProgress(mediaPlayer.getCurrentPosition());
-                        fullScreenDisplay.seekBar.setProgress(mediaPlayer.getCurrentPosition());
+            while (!isInterrupted()) {
+                try {
+                    if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                        Thread.sleep(500);
+                        if (!touched) {
+                            smallDisplay.seekBar.setProgress(mediaPlayer.getCurrentPosition());
+                            fullScreenDisplay.seekBar.setProgress(mediaPlayer.getCurrentPosition());
+                        }
+                    } else {
+                        interrupt();
                     }
+                } catch (Exception ignored) {
+//                e.printStackTrace();
+//                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-//                Reporter.report(context, e, ((MainActivity) context).reportSubject);
+
             }
+
         }
     }
 
