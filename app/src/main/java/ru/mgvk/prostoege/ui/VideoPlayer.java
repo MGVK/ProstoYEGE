@@ -85,7 +85,8 @@ public class VideoPlayer {
                         @Override
                         public void run() {
                             try {
-                                ((ViewGroup) activity.getWindow().getDecorView().getRootView()).addView(fullScreenDisplay);
+                                ((ViewGroup) activity.getWindow().getDecorView()
+                                        .getRootView()).addView(fullScreenDisplay);
                             } catch (Exception e) {
                                 Reporter.report(context, e, ((MainActivity) context).reportSubject);
                             }
@@ -161,7 +162,8 @@ public class VideoPlayer {
                     @Override
                     public void surfaceChanged(SurfaceHolder holder,
                                                int format, int width, int height) {
-                        Log.d(TAG, "surfaceChanged: changeDisplay: " + format + " " + width + " " + height);
+                        Log.d(TAG, "surfaceChanged: changeDisplay: "
+                                + format + " " + width + " " + height);
 //                        holder.removeCallback(this);
                         mediaPlayer.setDisplay(holder);
                         if (continuePlaying) {
@@ -233,6 +235,7 @@ public class VideoPlayer {
             try {
                 smallDisplay.removeView(picture);
                 smallDisplay.addView(picture);
+//                smallDisplay.setPicture(picture);
             } catch (Exception ignored) {
             }
         }
@@ -522,6 +525,16 @@ public class VideoPlayer {
 
         }
 
+        @Override
+        public void setOnClickListener(OnClickListener l) {
+            if (picture != null && indexOfChild(picture) != -1) {
+                picture.setOnClickListener(l);
+            }
+            else {
+                super.setOnClickListener(l);
+            }
+        }
+
         public SurfaceView getSurface() {
             return display;
         }
@@ -697,7 +710,8 @@ public class VideoPlayer {
 
                 fullScreenButton.getLayoutParams().height = h09;
                 fullScreenButton.getLayoutParams().width = h09;
-                ((LayoutParams) fullScreenButton.getLayoutParams()).setMargins(0, 0, (int) (h04 / 2.0), (int) (h04 / 2.0));
+                ((LayoutParams) fullScreenButton.getLayoutParams()).setMargins(
+                        0, 0, (int) (h04 / 2.0), (int) (h04 / 2.0));
                 fullScreenButton.setLayoutParams(fullScreenButton.getLayoutParams());
 
                 playPauseButton.getLayoutParams().width
@@ -725,7 +739,8 @@ public class VideoPlayer {
                     } else {
                         if (((boolean) InstanceController.getObject("WIFI_only"))) {
 
-                            WifiManager manager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+                            WifiManager manager =
+                                    (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
                             if (!manager.isWifiEnabled()) {
 
                                 ((MainActivity) activity).ui.openWifiOnlyDialog();
@@ -862,10 +877,12 @@ public class VideoPlayer {
         public boolean onTouchEvent(MotionEvent event) {
             try {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    ((MainActivity) activity).ui.videoListFragment.setScrollViewEnabled(touched = false);
+                    ((MainActivity) activity).ui.videoListFragment
+                            .setScrollViewEnabled(touched = false);
                 }
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    ((MainActivity) activity).ui.videoListFragment.setScrollViewEnabled(touched = true);
+                    ((MainActivity) activity).ui.videoListFragment
+                            .setScrollViewEnabled(touched = true);
                 }
             } catch (Exception e) {
                 Reporter.report(context, e, ((MainActivity) context).reportSubject);

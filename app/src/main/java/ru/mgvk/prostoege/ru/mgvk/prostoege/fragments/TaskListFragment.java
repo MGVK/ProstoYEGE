@@ -137,6 +137,9 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
                     public void onCompleted(Task task) {
                         showTask(task);
                         taskList.add(task);
+                        if (task.getIndex() == 0) {
+                            chooseTask(0);
+                        }
                     }
 
                     @Override

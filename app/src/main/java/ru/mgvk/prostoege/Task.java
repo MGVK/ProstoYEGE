@@ -137,10 +137,6 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
 ////        return videoList2 == null ? new ArrayList<Video>() : (ArrayList<Video>) videoList2.values();
 //    }
 
-    public void setIndex(int id) {
-        this.index = id;
-    }
-
     void setImage() {
         if (image == null) {
             image = new ImageView(context);
@@ -187,13 +183,13 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         }).start();
     }
 
-//    Video loadVideo(String id) {
-//        return videoList2.returnTo(id);
-//    }
-
     void setTaskNumber(int number) {
         setTitle(context.getResources().getString(R.string.task_title) + " " + number);
     }
+
+//    Video loadVideo(String id) {
+//        return videoList2.returnTo(id);
+//    }
 
     void setTitle(String text) {
         if (title == null) {
@@ -321,7 +317,15 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
     }
 
     public int getNumber() {
-        return index + 1;
+        return getIndex() + 1;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int id) {
+        this.index = id;
     }
 
     public String getDescription() {

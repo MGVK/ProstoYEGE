@@ -42,7 +42,8 @@ public class VideoLayout extends LinearLayout {
         this.context = context;
         if (InstanceController.getObject("VideoLayout_maxCardsCount") == null) {
             this.maxCardsCount = maxCardsCount;
-        } else {
+        }
+        else {
             this.maxCardsCount = (int) InstanceController.getObject("VideoLayout_maxCardsCount");
         }
 
@@ -51,12 +52,13 @@ public class VideoLayout extends LinearLayout {
         setOrientation(VERTICAL);
         setLayoutParams(new LayoutParams(-1, -2));
 
-        ((MainActivity) context).profile.setOnMaxVideosCountIncreased(new Profile.OnMaxVideosCountIncreased() {
-            @Override
-            public void onIncrease(int newCount) {
-                increaseCardsCount(newCount);
-            }
-        });
+        ((MainActivity) context).profile
+                .setOnMaxVideosCountIncreased(new Profile.OnMaxVideosCountIncreased() {
+                    @Override
+                    public void onIncrease(int newCount) {
+                        increaseCardsCount(newCount);
+                    }
+                });
 
         initCards();
         saveMaxCount();
@@ -117,7 +119,8 @@ public class VideoLayout extends LinearLayout {
             currentVideosList.clear();
             for (int i = 0; i < videoData.length; i++) {
                 (cardsList.get(i)).init(
-                        videoData[i].ID, videoData[i].YouTube, videoData[i].Description, videoData[i].Price);
+                        videoData[i].ID, videoData[i].YouTube, videoData[i].Description,
+                        videoData[i].Price);
                 currentVideosList.add(cardsList.get(i));
             }
         } catch (Exception e) {
@@ -190,7 +193,8 @@ public class VideoLayout extends LinearLayout {
                 if (youtubeID == null || youtubeID.equals("")) {
                     setBuyed(false);
                     setOnClickListener();
-                } else {
+                }
+                else {
                     setBuyed(true);
                     setYoutubeID(youtubeID);
                 }
@@ -420,26 +424,31 @@ public class VideoLayout extends LinearLayout {
 
             if (!buyed) {
                 player.setPicture(context.getResources().getDrawable(R.drawable.video_back));
-            } else {
+            }
+            else {
                 if (videoBackgrounds.get(getVideoID()) != null) {
                     player.setBuyed(videoBackgrounds.get(getVideoID()));
-                } else {
+                }
+                else {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
                             try {
 
                                 final Bitmap b = BitmapFactory.decodeStream(
-                                        new URL(DataLoader.getVideoBackRequest(videoID)).openStream());
+                                        new URL(DataLoader.getVideoBackRequest(videoID))
+                                                .openStream());
 
                                 ((MainActivity) context).runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         try {
-                                            videoBackgrounds.put(getVideoID(), new BitmapDrawable(getResources(), b));
+                                            videoBackgrounds.put(getVideoID(),
+                                                    new BitmapDrawable(getResources(), b));
                                             player.setBuyed(videoBackgrounds.get(getVideoID()));
                                         } catch (Exception e) {
-                                            Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                            Reporter.report(context, e,
+                                                    ((MainActivity) context).reportSubject);
                                         }
                                     }
                                 });
