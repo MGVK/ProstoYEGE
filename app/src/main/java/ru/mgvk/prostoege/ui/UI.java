@@ -24,6 +24,7 @@ import ru.mgvk.prostoege.ru.mgvk.prostoege.fragments.TaskListFragment;
 import ru.mgvk.prostoege.ru.mgvk.prostoege.fragments.ToolsFragment;
 import ru.mgvk.prostoege.ru.mgvk.prostoege.fragments.VideoListFragment;
 import ru.mgvk.util.Reporter;
+import ru.mgvk.util.StateTags;
 
 /**
  * Created by Michael_Admin on 08.08.2016.
@@ -415,6 +416,7 @@ public class UI {
 
     public void openTaskListFragment() {
 
+        mainActivity.getBackStack().addState(StateTags.TASK_LIST_FRAGMENT);
         openTaskOrVideoFragment(true);
     }
 
@@ -442,11 +444,6 @@ public class UI {
 
     public void openVideoListFragment(Task task) throws Exception {
 
-        if (task != null) {
-            setCurrentTask(task);
-        }
-
-        openTaskOrVideoFragment(false);
 
         mainActivity.addToBackStack(new Runnable() {
             @Override
@@ -454,11 +451,19 @@ public class UI {
                 openTaskOrVideoFragment(true);
             }
         });
+
+        if (task != null) {
+            setCurrentTask(task);
+        }
+
+        openTaskOrVideoFragment(false);
+
+        mainActivity.getBackStack().addState(StateTags.VIDEO_LIST_FRAGMENT);
+
+
     }
 
     public void openExercisesListFragment() {
-
-        openExercisesOrToolsFragment(true);
 
         mainActivity.addToBackStack(new Runnable() {
             @Override
@@ -466,17 +471,24 @@ public class UI {
                 openTaskOrVideoFragment(false);
             }
         });
+
+        openExercisesOrToolsFragment(true);
+
+
+        mainActivity.getBackStack().addState(StateTags.EXERCISE_LIST_FRAGMENT);
+
     }
 
     public void openToolsFragment() {
-
-        openExercisesOrToolsFragment(false);
         mainActivity.addToBackStack(new Runnable() {
             @Override
             public void run() {
                 openExercisesOrToolsFragment(true);
             }
         });
+        openExercisesOrToolsFragment(false);
+
+        mainActivity.getBackStack().addState(StateTags.TOOLS_FRAGMENT);
 
     }
 
@@ -527,7 +539,9 @@ public class UI {
             @Override
             public void onClick(View v) {
                 try {
+
                     mainActivity.onBackPressed();
+
                     if (mainActivity.profile.Coins < exercise.getHintPrice()) {
                         openLowCoinsWindow();
                     } else {
@@ -615,59 +629,37 @@ public class UI {
         window.addView(txt);
         window.open();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                mainActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        window.close();
-                    }
-                });
-            }
-        }).start();
+        window.closeWithDelay(2000);
     }
 
-    public void openExerciseResultWindow(boolean correct) {
+    public void openExerciseResultWindow(boolean correct, int bonus) {
         final HintWindow window = new HintWindow(context);
-        TextView txt = new TextView(context);
-        txt.setTextColor(Color.WHITE);
+        TextView textView = new TextView(context);
+        textView.setTextColor(Color.WHITE);
         if (correct) {
-            txt.setText("Верный ответ!");
+            String text = "Верный ответ!";
+            if (bonus != 0) {
+                text += "\nВы получаете бонус: "
+                        + getPriceLabel(bonus);
+                mainActivity.updateCoins(bonus);
+            }
+            textView.setText(text);
             window.layout.setBackgroundResource(R.drawable.answer_correct);
         } else {
-            txt.setText("Ответ неверен!");
+            textView.setText("Ответ неверен!");
             window.layout.setBackgroundResource(R.drawable.answer_incorrect);
         }
-        txt.setTextSize(20);
+        textView.setTextSize(20);
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(-2, -2);
         lp.setMargins(UI.calcSize(5), UI.calcSize(5), UI.calcSize(5), UI.calcSize(5));
-        txt.setLayoutParams(lp);
-        window.addView(txt);
+        textView.setLayoutParams(lp);
+        window.addView(textView);
         window.open();
+        window.closeWithDelay(2500);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                mainActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        window.close();
-                    }
-                });
-            }
-        }).start();
     }
+
+
 
     public void updateCoins() {
         mainActivity.runOnUiThread(new Runnable() {

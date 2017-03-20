@@ -122,7 +122,7 @@ public class VideoPlayer {
         if (isFullScreen()) {
             fullScreenDisplay.deactivate();
             smallDisplay.activate();
-            ((MainActivity) activity).removeLastBackStackAction();
+            ((MainActivity) activity).getBackStack().removeLastAction();
         } else {
             ((MainActivity) activity).addToBackStack(new Runnable() {
                 @Override

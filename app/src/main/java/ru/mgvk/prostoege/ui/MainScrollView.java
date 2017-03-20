@@ -95,6 +95,7 @@ public class MainScrollView extends HorizontalScrollView{
      */
     public void toRight() {
         fullScroll(screenState = FOCUS_RIGHT);
+
     }
 
     /**

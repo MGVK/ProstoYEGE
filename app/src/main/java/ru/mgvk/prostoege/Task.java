@@ -35,8 +35,6 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
 
     int index = 0;
 
-
-
     ArrayList<Exercise> exercisesList = new ArrayList<>();
 
     boolean choosed = false;
@@ -190,7 +188,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
     }
 
 //    Video loadVideo(String id) {
-//        return videoList2.get(id);
+//        return videoList2.returnTo(id);
 //    }
 
     void setTaskNumber(int number) {
@@ -283,6 +281,10 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
                     @Override
                     public void run() {
                         ((MainActivity) context).ui.mainScroll.toLeft();
+//                        ((MainActivity) context).getBackStack().returnToState(
+//                                StateTags.TASK_LIST_FRAGMENT);
+//                        ((MainActivity)context).ui.openTaskOrVideoFragment(true);
+
                     }
                 });
             } else {
@@ -774,6 +776,15 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         public void setHintIsBought() {
             data.hintIsBought = true;
         }
+
+        public int getBonus1() {
+            return data.Bonus1;
+        }
+
+        public int getBonus2() {
+            return data.Bonus2;
+        }
+
     }
 
 

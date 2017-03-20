@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
-
 import ru.mgvk.prostoege.MainActivity;
 
 /**
@@ -48,7 +47,7 @@ public class DialogWindow extends RelativeLayout implements View.OnClickListener
     @Override
     public void onClick(View v) {
         close();
-        ((MainActivity) context).removeLastBackStackAction();
+        ((MainActivity) context).getBackStack().removeLastAction();
     }
 
 
@@ -93,6 +92,25 @@ public class DialogWindow extends RelativeLayout implements View.OnClickListener
         if(onClosingListener!=null){
             onClosingListener.onClose(this);
         }
+    }
+
+    public void closeWithDelay(final long ms) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(ms);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                ((Activity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        close();
+                    }
+                });
+            }
+        }).start();
     }
 
     public OnClosingListener getOnClosingListener() {

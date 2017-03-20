@@ -110,7 +110,7 @@ public class Pays {
                         Log.d("PurchasingSuccess", "" + result.getMessage());
 
                         try {
-//                            DataLoader.buyCoins(map.get(purchase.getSku()));
+//                            DataLoader.buyCoins(map.returnTo(purchase.getSku()));
 //                            ((MainActivity) context).ui.updateCoins();
 //
 //                            mHelper.consumeAsync(purchase, new IabHelper.OnConsumeFinishedListener() {

@@ -1,19 +1,22 @@
 package ru.mgvk.prostoege;
 
-import android.util.Log;
-
-import junit.framework.TestCase;
+import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.LargeTest;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Created by mihail on 18.09.16.
  */
-public class DataLoaderTest extends TestCase {
 
-    @Override
-    protected void runTest() throws Throwable {
-        super.runTest();
+@RunWith(AndroidJUnit4.class)
+@LargeTest
+public class DataLoaderTest {
 
-        Log.d("test",DataLoader.getProfile("test"));
+
+    @Test
+    public void test() {
 
     }
+
 }

@@ -53,6 +53,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 
     }
 
+
     private void initViews() {
 
         taskListLayout = (LinearLayout) mainActivity.findViewById(R.id.layout_tasklist);
@@ -239,7 +240,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
                     currentTask.setChoosed(false);
                 }
                 ((MainActivity) context).ui.setCurrentTask(taskList.get(id));
-//            currentTask = taskList.get(id);
+//            currentTask = taskList.returnTo(id);
                 (currentTask = taskList.get(id)).setChoosed(true);
             }
         } catch (Exception e) {
@@ -247,6 +248,9 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    public ArrayList<Task> getTaskList() {
+        return taskList;
+    }
 
     public Task getCurrentTask() {
         return currentTask;

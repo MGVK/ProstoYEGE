@@ -18,6 +18,7 @@ import ru.mgvk.prostoege.Task;
 import ru.mgvk.prostoege.ui.ExerciseWindow;
 import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.util.Reporter;
+import ru.mgvk.util.StateTags;
 
 /**
  * Create by  mihail on 18.08.16.
@@ -211,10 +212,13 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
         switch (v.getId()) {
             case R.id.btn_videos: {
 //                mainActivity.ui.openVideoListFragment(getTask());
-                if (exerciseWindow.isOpened()) {
-                    mainActivity.onBackPressed();
-                }
-                mainActivity.onBackPressed();
+//                if (exerciseWindow.isOpened()) {
+//                    mainActivity.onBackPressed();
+//                }
+//                mainActivity.onBackPressed();
+                mainActivity.getBackStack().returnToState(
+                        StateTags.VIDEO_LIST_FRAGMENT
+                );
                 break;
             }
             case R.id.btn_forward: {
@@ -222,21 +226,27 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
                 break;
             }
             case R.id.btn_home: {
-                mainActivity.ui.openTaskOrVideoFragment(true);
-                mainActivity.clearBackStack();
-                exerciseWindow.closeExercise();
+//                mainActivity.ui.openTaskOrVideoFragment(true);
+//                mainActivity.clearBackStack();
+//                exerciseWindow.closeExercise();
+                mainActivity.getBackStack().returnToState(
+                        StateTags.TASK_LIST_FRAGMENT);
                 break;
             }
             case R.id.exerciselist_title: {
-                if (exerciseWindow.isOpened()) {
-                    mainActivity.onBackPressed();
-                }
+                mainActivity.getBackStack().returnToState(
+                        StateTags.EXERCISE_LIST_FRAGMENT);
+//                if (exerciseWindow.isOpened()) {
+//                    mainActivity.onBackPressed();
+//                }
                 break;
             }
             case R.id.btn_exercises: {
-                if (exerciseWindow.isOpened()) {
-                    mainActivity.onBackPressed();
-                }
+                mainActivity.getBackStack().returnToState(
+                        StateTags.EXERCISE_LIST_FRAGMENT);
+//                if (exerciseWindow.isOpened()) {
+//                    mainActivity.onBackPressed();
+//                }
                 break;
             }
         }

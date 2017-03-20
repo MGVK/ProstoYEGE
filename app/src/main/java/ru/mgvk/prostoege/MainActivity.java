@@ -18,7 +18,9 @@ import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.widget.Toast;
 import com.google.gson.Gson;
+import ru.mgvk.prostoege.ui.MainScrollView;
 import ru.mgvk.prostoege.ui.UI;
+import ru.mgvk.util.BackStack;
 import ru.mgvk.util.Reporter;
 import ru.mgvk.util.Stopwatch;
 
@@ -26,10 +28,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.ConnectException;
 import java.util.ArrayList;
-import java.util.Stack;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements MainScrollView.OnScreenSwitchedListener {
 
     static final String APP_SETTINGS = "SETTINGS_EGE";
     public static String PID = "default";
@@ -41,11 +42,13 @@ public class MainActivity extends Activity {
     private Context context;
     private OnConfigurationUpdate onConfigurationUpdate;
     private boolean restoring = false;
-    private Stack<Runnable> backStack = new Stack<>();
+    private BackStack backStack = new BackStack();
+    //    private Stack<Runnable> backStack = new Stack<>();
     private boolean profileIsLoading = false;
     private ArrayList<Profile.OnLoadCompleted> onLoadCompletedList = new ArrayList<>();
 
     // TODO: 10.08.16 user-friendly ошибки
+    private boolean pressAgain = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,8 +99,11 @@ public class MainActivity extends Activity {
                 restoring = true;
             }
 
+//            getBackStack().addState(StateTags.MAIN_ACTIVITY);
 
             ui = new UI(context, restoring);
+
+            ui.mainScroll.addOnScreenSwitchedListener(this);
 
             stopwatch.checkpoint("MainActivity_onCreate_finish");
             Log.d("ActivityState", "onCreate");
@@ -123,21 +129,6 @@ public class MainActivity extends Activity {
         Log.d("ActivityState", "onStart");
 
 //        setBootScreen();
-
-
-    }
-
-
-    private void setAccountInfo() {
-
-        Account[] acc = AccountManager.get(this).getAccountsByType("com.google");
-        if (acc.length == 0) {
-            Toast.makeText(this, R.string.error_acc, Toast.LENGTH_SHORT).show();
-        } else {
-            PID = acc[0].name;
-            Toast.makeText(this, "Используется аккаунт: " + PID, Toast.LENGTH_LONG).show();
-        }
-        reportSubject = "ErrorReport_" + PID;
 
 
     }
@@ -170,10 +161,23 @@ public class MainActivity extends Activity {
 //
 //    }
 
+    private void setAccountInfo() {
+
+        Account[] acc = AccountManager.get(this).getAccountsByType("com.google");
+        if (acc.length == 0) {
+            Toast.makeText(this, R.string.error_acc, Toast.LENGTH_SHORT).show();
+        } else {
+            PID = acc[0].name;
+            Toast.makeText(this, "Используется аккаунт: " + PID, Toast.LENGTH_LONG).show();
+        }
+        reportSubject = "ErrorReport_" + PID;
+
+
+    }
+
     public void clearBackStack() {
         backStack.clear();
     }
-
 
     boolean prepare() {
 
@@ -267,7 +271,6 @@ public class MainActivity extends Activity {
         }
     }
 
-
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -275,7 +278,6 @@ public class MainActivity extends Activity {
         restoring = true;
         profile = (Profile) InstanceController.getObject("Profile");
     }
-
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -301,21 +303,43 @@ public class MainActivity extends Activity {
     }
 
     public void addToBackStack(Runnable action) {
-        backStack.push(action);
+        backStack.addAction(action);
+//        backStack.push(action);
     }
 
     public void removeLastBackStackAction() {
-        backStack.removeElement(backStack.lastElement());
+        backStack.removeLastAction();
+    }
+
+    public BackStack getBackStack() {
+        return backStack;
     }
 
     @Override
     public void onBackPressed() {
 //        super.onBackPressed();
-        if (!backStack.empty()) {
+        if ((backStack.size() > 1)) {
             backStack.pop().run();
         } else {
-            super.onBackPressed();
-            onDestroy();
+            if (pressAgain) {
+                Toast.makeText(context, "Для выхода нажмите еще раз!",
+                        Toast.LENGTH_SHORT).show();
+                pressAgain = false;
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(2000);
+                            pressAgain = true;
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+            } else {
+                super.onBackPressed();
+                onDestroy();
+            }
         }
 
 
@@ -459,6 +483,25 @@ public class MainActivity extends Activity {
     public void finishAffinity() {
         Log.d("ActivityState", "finishAffinity");
         super.finishAffinity();
+    }
+
+    @Override
+    public void switchedRight() {
+        if (ui.taskListFragment.getCurrentTask() == null) {
+            ui.taskListFragment.chooseTask(0);
+        }
+
+        addToBackStack(new Runnable() {
+            @Override
+            public void run() {
+                ui.mainScroll.toLeft();
+            }
+        });
+    }
+
+    @Override
+    public void switchedLeft() {
+
     }
 
     public interface OnConfigurationUpdate {

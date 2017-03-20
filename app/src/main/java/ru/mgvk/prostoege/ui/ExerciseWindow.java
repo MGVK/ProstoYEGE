@@ -11,6 +11,7 @@ import android.webkit.WebView;
 import android.widget.*;
 import ru.mgvk.prostoege.*;
 import ru.mgvk.util.Reporter;
+import ru.mgvk.util.StateTags;
 
 /**
  * Created by mihail on 16.10.16.
@@ -56,7 +57,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
         answerTextView.setText(exercise.getTmpText());
         description.reloadDescription();
         open();
-        ((MainActivity) context).addToBackStack(new Runnable() {
+        ((MainActivity) context).getBackStack().addAction("ExerciseWindow.openExercise", new Runnable() {
             @Override
             public void run() {
                 closeExercise();
@@ -200,18 +201,21 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
 
     private void checkAnswer() {
 
+        boolean result = answerTextView.getText()
+                .toString().replace("|", "").equals(answer);
 
-        if (status != DECIDED_FIRSTLY && status != DECIDED_SECONDLY
-                && status != ANSWER_SHOWED) {
+        ((MainActivity) context).ui.openExerciseResultWindow(result,
+                currentExercise.getBonus1());
+
+        if (answerTextView.getText() != null && status != DECIDED_FIRSTLY
+                && status != DECIDED_SECONDLY && status != ANSWER_SHOWED) {
 //                    if (status == PROMPTED || status == WRONG_ANSWER) {
 //                        setStatus(PROMPTED);
 //                    } else {
 //                        setStatus(DECIDED_FIRSTLY);
 //                    }
-            if (answerTextView.getText() != null && answerTextView.getText()
-                    .toString().replace("|", "").equals(answer)) {
+            if (result) {
 
-                ((MainActivity) context).ui.openExerciseResultWindow(true);
                 openNextExercise();
 
                 if (status == NOT_DECIDED) {
@@ -220,11 +224,10 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
                     setStatus(DECIDED_SECONDLY);
                 }
 
-                } else {
+            } else {
                 if (status == NOT_DECIDED) {
                     setStatus(WRONG_ANSWER);
                 }
-                ((MainActivity) context).ui.openExerciseResultWindow(false);
             }
         }
     }
@@ -279,7 +282,9 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
             setComma();
         } else if ((Integer) v.getTag() == -1) {
 //            closeExercise();
-            ((MainActivity) context).onBackPressed();
+//            ((MainActivity) context).onBackPressed();
+            ((MainActivity) context).getBackStack().returnToState(
+                    StateTags.EXERCISE_LIST_FRAGMENT);
         } else {
             currentExercise.setTmpText(String.format("%s%s", answerTextView.getText(),
                     String.valueOf(v.getTag())));

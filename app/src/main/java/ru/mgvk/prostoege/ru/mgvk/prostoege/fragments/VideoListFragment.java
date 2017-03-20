@@ -17,6 +17,7 @@ import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.prostoege.ui.VideoLayout;
 import ru.mgvk.prostoege.ui.VideoPlayer;
 import ru.mgvk.util.Reporter;
+import ru.mgvk.util.StateTags;
 
 /**
  * Created by mihail on 13.08.16.
@@ -273,7 +274,7 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
 
         if (currentTask != null && videoLayout != null) {
 //                try {
-//                    ((ViewGroup) currentTask.getVideoList().get(0).getParent()).removeAllViews();
+//                    ((ViewGroup) currentTask.getVideoList().returnTo(0).getParent()).removeAllViews();
 //                } catch (Exception ignored) {
 //                }
 //                for (VideoLayout.VideoCard video : currentTask.getVideoList()) {
@@ -302,7 +303,9 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
                 case R.id.btn_back: {
 //                mainActivity.ui.openTaskListFragment();
 //                mainActivity.onBackPressed();
-                    mainActivity.ui.mainScroll.toLeft();
+//                    mainActivity.ui.mainScroll.toLeft();
+                    mainActivity.getBackStack().returnToState(
+                            StateTags.TASK_LIST_FRAGMENT);
                     break;
                 }
             }

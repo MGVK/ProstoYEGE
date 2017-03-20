@@ -18,14 +18,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import ru.mgvk.prostoege.ColorChooser;
-import ru.mgvk.prostoege.MainActivity;
-import ru.mgvk.prostoege.PaintView;
-import ru.mgvk.prostoege.PenResizer;
-import ru.mgvk.prostoege.R;
-import ru.mgvk.prostoege.Task;
+import ru.mgvk.prostoege.*;
 import ru.mgvk.prostoege.ui.UI;
+import ru.mgvk.util.StateTags;
 
 /**
  * Created by mihail on 23.08.16.
@@ -36,6 +31,7 @@ public class ToolsFragment extends Fragment implements OnClickListener {
     public PenResizer penResizer;
     MainActivity mainActivity;
     Context context;
+    View[] toolViews = new View[4];
     private ViewGroup container;
     private Task currentTask;
     private ColorChooser colorChooser;
@@ -43,7 +39,6 @@ public class ToolsFragment extends Fragment implements OnClickListener {
     private FrameLayout mainToolsListLayout;
     private LinearLayout toolsTitle;
     private TextView toolsButton;
-
 
     @SuppressLint("ValidFragment")
     public ToolsFragment() {
@@ -94,8 +89,6 @@ public class ToolsFragment extends Fragment implements OnClickListener {
         (toolViews[2] = container.findViewById(R.id.btn_tools_erase)).setOnClickListener(this);
         (toolViews[3] = container.findViewById(R.id.btn_tools_basket)).setOnClickListener(this);
     }
-
-    View[] toolViews = new View[4];
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -177,7 +170,9 @@ public class ToolsFragment extends Fragment implements OnClickListener {
     public void onClick(View v) {
         if (v.getId() == R.id.btn_back_tools) {
 //            mainActivity.ui.openExercisesListFragment();
-            mainActivity.onBackPressed();
+//            mainActivity.onBackPressed();
+            mainActivity.getBackStack().returnToState(
+                    StateTags.EXERCISE_LIST_FRAGMENT);
             return;
         }
 
@@ -194,7 +189,7 @@ public class ToolsFragment extends Fragment implements OnClickListener {
 
         if (v.getId() == R.id.btn_tools_erase) {
             paintView.setLineColor(Color.WHITE);
-            toggleViewsVisibility(null);
+            toggleViewsVisibility(penResizer);
             setPressed(v);
             return;
         }
