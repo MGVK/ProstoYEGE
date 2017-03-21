@@ -136,7 +136,7 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
         videoScroll = (ScrollView) container.findViewById(R.id.video_scroll);
 
         if ((videoLayout = (VideoLayout) InstanceController.getObject("VideoLayout")) == null) {
-            videoLayout = new VideoLayout(context, 1);
+            videoLayout = new VideoLayout(context);
         }
         if (videoScroll.getChildCount() != 0) {
             videoScroll.removeAllViews();

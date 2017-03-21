@@ -1,5 +1,8 @@
 package ru.mgvk.util;
 
+import android.content.Context;
+import ru.mgvk.prostoege.MainActivity;
+
 import java.util.LinkedHashMap;
 
 /**
@@ -15,11 +18,16 @@ public class BackStack extends LinkedHashMap<String, Runnable> {
 
         }
     };
+    private Context context;
+
+    public BackStack(Context context) {
+        this.context = context;
+    }
 
     public Runnable returnTo(String key) {
         if (containsKey(key)) {
             Object[] set = keySet().toArray();
-            for (int i = size() - 1; i > 0; i--) {
+            for (int i = size() - 1; i >= 0; i--) {
                 if (set[i].equals(key)) {
                     Runnable tmp = super.get(set[i]);
                     remove(tmp);
@@ -32,17 +40,34 @@ public class BackStack extends LinkedHashMap<String, Runnable> {
         return null;
     }
 
-    public void returnToState(String tag) {
-        if (containsKey(tag)) {
-            Object[] set = keySet().toArray();
-            for (int i = size() - 1; i > 0; i--) {
-                if (set[i].equals(tag)) {
-                    return;
+    public void returnToState(final String tag) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (containsKey(tag)) {
+                    final Object[] set = keySet().toArray();
+                    for (int i = size() - 1; i >= 0; i--) {
+                        if (set[i].equals(tag)) {
+                            return;
+                        }
+                        final int finalI = i;
+                        ((MainActivity) context).runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                get(set[finalI]).run();
+                                remove(set[finalI]);
+                            }
+                        });
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
-                super.get(set[i]).run();
-                remove(set[i]);
+
             }
-        }
+        }).start();
     }
 
     public void addState(String tag) {

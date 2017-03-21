@@ -27,6 +27,7 @@ import java.util.HashMap;
  */
 public class VideoLayout extends LinearLayout {
 
+    private static final String TAG = "VideoLayout";
     private Context context;
     private Task currentTask;
     private Profile.TaskData.VideoData[] videoData;
@@ -36,6 +37,9 @@ public class VideoLayout extends LinearLayout {
     private ArrayList<VideoCard> cardsList = new ArrayList<>();
     private VideoPlayer playingVideo;
 
+    public VideoLayout(Context context) {
+        this(context, 0);
+    }
 
     public VideoLayout(Context context, int maxCardsCount) {
         super(context);
@@ -71,13 +75,13 @@ public class VideoLayout extends LinearLayout {
         if (newCount > currSize) {
             maxCardsCount = newCount;
             for (int i = currSize; i < newCount; i++) {
-                final int finalI = i;
-                ((MainActivity) context).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        cardsList.add(new VideoCard(finalI));
-                    }
-                });
+//                final int finalI = i;
+//                ((MainActivity) context).runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+                cardsList.add(new VideoCard(i + 1));
+//                    }
+//                });
             }
         }
 
@@ -94,7 +98,7 @@ public class VideoLayout extends LinearLayout {
 
     private void initCards() {
         for (int i = 0; i < maxCardsCount; i++) {
-            cardsList.add(new VideoCard(i));
+            cardsList.add(new VideoCard(i + 1));
         }
     }
 
@@ -170,7 +174,7 @@ public class VideoLayout extends LinearLayout {
 
             super(context);
             this.number = number;
-            this.videoID = id + 1;
+            this.videoID = id;
             this.price = price;
             this.description = description;
             this.youtubeID = youtubeID;
@@ -269,26 +273,9 @@ public class VideoLayout extends LinearLayout {
                 setVideoDescrition();
             }
             descriptionView.setText(description);
-            fixDescriptionSize();
+
         }
 
-        void fixDescriptionSize() {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    ((MainActivity) context).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            LinearLayout.LayoutParams lp =
-                                    new LinearLayout.LayoutParams(
-                                            descriptionView.getWidth(),
-                                            descriptionView.getHeight());
-                            descriptionView.setLayoutParams(lp);
-                        }
-                    });
-                }
-            }).start();
-        }
 
         public Task getTask() {
             return currentTask;
@@ -351,7 +338,7 @@ public class VideoLayout extends LinearLayout {
         private void initViews() {
 
             mainLayout = new LinearLayout(context);
-            mainLayout.setLayoutParams(new LayoutParams(-1, -1));
+            mainLayout.setLayoutParams(new LayoutParams(-1, -2));
             ((LayoutParams) mainLayout.getLayoutParams()).setMargins(m, m, m, m);
             mainLayout.setPadding(4 * m, 3 * m, 0, 2 * m);
             mainLayout.setOrientation(LinearLayout.VERTICAL);
@@ -401,11 +388,12 @@ public class VideoLayout extends LinearLayout {
         public void setBuyed(boolean buyed) {
             this.buyed = buyed;
             setPlayerBack();
-            if (buyed) {
-                if (buyingIndicator != null) {
-                    buyingIndicator.setBackgroundResource(R.drawable.button_green);
-                }
+            if (buyingIndicator != null) {
+                buyingIndicator.setBackgroundResource(buyed ?
+                        R.drawable.button_green
+                        : R.drawable.button_red);
             }
+
         }
 
         void setOnClickListener() {

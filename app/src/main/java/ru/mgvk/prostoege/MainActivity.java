@@ -42,7 +42,7 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
     private Context context;
     private OnConfigurationUpdate onConfigurationUpdate;
     private boolean restoring = false;
-    private BackStack backStack = new BackStack();
+    private BackStack backStack;
     //    private Stack<Runnable> backStack = new Stack<>();
     private boolean profileIsLoading = false;
     private ArrayList<Profile.OnLoadCompleted> onLoadCompletedList = new ArrayList<>();
@@ -54,6 +54,9 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+
+        backStack = new BackStack(this);
+
         try {
 
             setAccountInfo();
