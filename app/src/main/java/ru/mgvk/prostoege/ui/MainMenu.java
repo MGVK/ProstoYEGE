@@ -31,6 +31,7 @@ public class MainMenu extends MenuPanel implements OnClickListener {
     private MenuItem wifiBtn;
     private MenuItem orientationBtn;
     private MenuItem restoreBtn;
+    private MenuItem aboutButton;
 
 
     public MainMenu(Context context,ViewGroup parent) {

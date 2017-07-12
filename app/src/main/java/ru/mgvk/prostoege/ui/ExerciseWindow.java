@@ -20,10 +20,11 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
 
     public final static byte NOT_DECIDED = 0, WRONG_ANSWER = 1,
             PROMPTED = 2, DECIDED_FIRSTLY = 3,
-            ANSWER_SHOWED = 4, DECIDED_SECONDLY = 5;
+            ANSWER_SHOWED = 4, DECIDED_SECONDLY = 5, DECIDED = 6, WRONG_ANSWER_ONCE = 7;
     public final static int[] indicators = {R.drawable.button_yellow, R.drawable.button_red,
             R.drawable.button_blue, R.drawable.button_green,
-            R.drawable.button_red, R.drawable.button_blue};
+            R.drawable.button_red, R.drawable.button_blue, R.drawable.button_blue,
+            R.drawable.button_red};
     private static final boolean APPEAR = true, DISAPPEAR = false;
 
     int QUESTION_ID = 0;
@@ -210,7 +211,6 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
         if (status != DECIDED_FIRSTLY && status != DECIDED_SECONDLY) {
             setStatus(ANSWER_SHOWED);
         }
-
 //        if (status == NOT_DECIDED || status == PROMPTED) {
 //            setStatus(ANSWER_SHOWED);
 //        }
@@ -218,13 +218,19 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
         ((MainActivity) context).ui.openExerciseAnswerShowWindow(answer);
     }
 
+
     private void checkAnswer() {
 
         boolean result = answerTextView.getText()
                 .toString().replace("|", "").equals(answer);
 
         ((MainActivity) context).ui.openExerciseResultWindow(result,
-                currentExercise.getBonus1());
+                status == WRONG_ANSWER ?
+                        currentExercise.getBonus1() : (
+                        status == WRONG_ANSWER_ONCE ?
+                                currentExercise.getBonus2() : 0
+                )
+        );
 
         if (answerTextView.getText() != null && status != DECIDED_FIRSTLY
                 && status != DECIDED_SECONDLY && status != ANSWER_SHOWED) {
@@ -239,12 +245,19 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
 
                 if (status == NOT_DECIDED) {
                     setStatus(DECIDED_FIRSTLY);
-                } else if (status == WRONG_ANSWER || status == PROMPTED) {
+                }
+                else if (status == WRONG_ANSWER_ONCE) {
+                    setStatus(DECIDED_SECONDLY);
+                }
+                else if (status == WRONG_ANSWER_ONCE || status == PROMPTED) {
                     setStatus(DECIDED_SECONDLY);
                 }
 
             } else {
                 if (status == NOT_DECIDED) {
+                    setStatus(WRONG_ANSWER_ONCE);
+                }
+                else if (status == WRONG_ANSWER_ONCE) {
                     setStatus(WRONG_ANSWER);
                 }
             }
@@ -428,7 +441,8 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
             this.setOnLongClickListener(new OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    Toast.makeText(context, context.getString(R.string.mess_text_copy_not_allowed), Toast.LENGTH_SHORT).show();
+                    //#3_2
+//                    Toast.makeText(context, context.getString(R.string.mess_text_copy_not_allowed), Toast.LENGTH_SHORT).show();
                     return true;
                 }
             });

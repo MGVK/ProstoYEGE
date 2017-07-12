@@ -34,6 +34,8 @@ public class SplashScreen extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        //hotfix #3_14
 //        counter.startCounting();
 
 

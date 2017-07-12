@@ -71,6 +71,7 @@ public class Profile {
 
 
             //костыль. Страшный костыль.
+            // TODO: 29.06.17 ИСправить страшный костыль #3_9
             if (question.Status > 10) {
                 question.hintIsBought = true;
                 question.Status -= 10;

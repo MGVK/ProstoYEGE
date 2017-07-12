@@ -2,11 +2,12 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <item android:drawable="@drawable/hint_back_p"
+    <item
         android:bottom="2dp"
-        android:top="2dp"
+        android:drawable="@drawable/hint_back_p"
         android:left="2dp"
-        android:right="2dp">
+        android:right="2dp"
+        android:top="2dp">
 
     </item>
 
@@ -19,8 +20,9 @@
 
             </corners>
 
-            <stroke android:color="#4eff02"
-                android:width="3dp">
+            <stroke
+                android:width="3dp"
+                android:color="#4eff02">
             </stroke>
 
 

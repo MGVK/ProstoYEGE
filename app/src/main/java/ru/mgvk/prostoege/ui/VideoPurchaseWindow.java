@@ -3,6 +3,7 @@ package ru.mgvk.prostoege.ui;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -24,11 +25,11 @@ import java.net.URL;
  */
 public class VideoPurchaseWindow extends DialogWindow {
 
-    Context context;
-    int width = 0;
-    int max_video_w, max_video_h;
-    AttachedLayout layout;
-    VideoLayout.VideoCard video;
+    private Context context;
+    private int width = 0, height = 0;
+    private int max_video_w, max_video_h;
+    private AttachedLayout layout;
+    private VideoLayout.VideoCard video;
     private FrameLayout mainLayout;
 
     public VideoPurchaseWindow(Context context, VideoLayout.VideoCard video) {
@@ -36,15 +37,13 @@ public class VideoPurchaseWindow extends DialogWindow {
         this.context = context;
         this.video = video;
 
-        initSizes();
-
         initViews();
+        initSizes();
 
     }
 
     void initViews() {
         layout = new AttachedLayout(context);
-        layout.setLayoutParams(new FrameLayout.LayoutParams((int) (0.9 * width), -2));
         mainLayout = new FrameLayout(context);
         mainLayout.setLayoutParams(new ViewGroup.LayoutParams(-2, -2));
         setBackground();
@@ -74,8 +73,29 @@ public class VideoPurchaseWindow extends DialogWindow {
 
     void initSizes() {
         width = ((MainActivity) context).ui.deviceWidth;
-        max_video_w = (int) (0.87 * width);
-        max_video_h = (int) (max_video_w / 1.7);
+        height = ((MainActivity) context).ui.deviceHeight;
+
+
+        FrameLayout.LayoutParams lp;
+        if (getContext().getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_PORTRAIT) {
+
+            max_video_w = (int) (0.87 * width);
+            max_video_h = (int) (max_video_w / 1.7);
+
+            lp = new FrameLayout.LayoutParams((int) (0.9 * width), -2);
+        }
+        else {
+            max_video_h = (int) (0.45 * height);
+            max_video_w = (int) (max_video_h * 1.7);
+
+            lp = new FrameLayout.LayoutParams(-2, (int) (0.9 * height));
+        }
+
+        if (layout != null) {
+            layout.setLayoutParams(lp);
+        }
+
     }
 
 
@@ -84,6 +104,9 @@ public class VideoPurchaseWindow extends DialogWindow {
         LinearLayout balanceLayout;
         ImageView imageView;
         Bitmap b;
+        private TextView donateBtn;
+        private ScrollView scrollView;
+        private LinearLayout scrolllayout;
 
 
         public AttachedLayout(Context context) {
@@ -97,21 +120,32 @@ public class VideoPurchaseWindow extends DialogWindow {
 
         void initViews() {
             setBalanceLayout();
-            addSpace(5);
+            this.addView(addSpace(5));
             setVideoTitle();
-            addSpace(5);
+            this.addView(addSpace(5));
+            setScrollView();
             setVideoPicture();
-            addSpace(5);
+            scrolllayout.addView(addSpace(5));
             setPrice();
-            addSpace(5);
+            this.addView(addSpace(5));
             setDonateBtn();
+        }
+
+        private void setScrollView() {
+            scrollView = new ScrollView(context);
+            scrollView.setLayoutParams(new ViewGroup.LayoutParams(-1, -2));
+            scrolllayout = new LinearLayout(context);
+            scrolllayout.setLayoutParams(new ViewGroup.LayoutParams(-1, -2));
+            scrolllayout.setOrientation(VERTICAL);
+            scrollView.addView(scrolllayout);
+            this.addView(scrollView);
         }
 
         void setBalanceLayout() {
             balanceLayout = new LinearLayout(context);
             balanceLayout.setPadding(UI.calcSize(10), 0, UI.calcSize(20), 0);
             balanceLayout.setOrientation(LinearLayout.HORIZONTAL);
-            balanceLayout.setLayoutParams(new FrameLayout.LayoutParams(-2, -2));
+            balanceLayout.setLayoutParams(new FrameLayout.LayoutParams(-2, UI.calcSize(50)));
 
             TextView text = new TextView(context);
             text.setText("Ваш баланс:\n" + UI.getPriceLabel(((MainActivity) context).profile.Coins));
@@ -166,15 +200,19 @@ public class VideoPurchaseWindow extends DialogWindow {
             this.addView(scrollView);
         }
 
+        void initVideoSize() {
+            LinearLayout.LayoutParams lp = new LayoutParams(max_video_w, max_video_h);
+            lp.gravity = Gravity.CENTER;
+            imageView.setLayoutParams(lp);
+        }
+
         void setVideoPicture() {
             imageView = new ImageView(context);
             imageView.setBackgroundResource(R.drawable.video_back_loading);
             imageView.setAdjustViewBounds(true);
 //            imageView.setMaxHeight(max_video_h);
 //            imageView.setMaxWidth(max_video_w);
-            LinearLayout.LayoutParams lp = new LayoutParams(max_video_w, max_video_h);
-            lp.gravity = Gravity.CENTER;
-            imageView.setLayoutParams(lp);
+            initVideoSize();
 //            imageView.setLayoutParams(new LayoutParams(-1,-1));
             imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             new Thread(new Runnable() {
@@ -182,15 +220,20 @@ public class VideoPurchaseWindow extends DialogWindow {
                 public void run() {
                     try {
                         b = BitmapFactory.decodeStream(
-                                new URL(DataLoader.getVideoBackRequest(video.getVideoID())).openStream());
+                                new URL(DataLoader.getVideoBackRequest(video.getVideoID()))
+                                        .openStream());
                         ((MainActivity) context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 try {
 //                                imageView.setImageDrawable(new BitmapDrawable(getResources(), b));
-                                    animateVideoPicture(false, new BitmapDrawable(getResources(), b));
+                                    animateVideoPicture(false,
+                                            new BitmapDrawable(getResources(),
+                                                    b));
                                 } catch (Exception e) {
-                                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                    Reporter.report(context,
+                                            e,
+                                            ((MainActivity) context).reportSubject);
                                 }
                             }
                         });
@@ -199,7 +242,7 @@ public class VideoPurchaseWindow extends DialogWindow {
                     }
                 }
             }).start();
-            this.addView(imageView);
+            scrolllayout.addView(imageView);
         }
 
         void animateVideoPicture(boolean in, final Drawable picture) {
@@ -252,20 +295,46 @@ public class VideoPurchaseWindow extends DialogWindow {
             text.setTextColor(Color.BLACK);
             text.setTypeface(DataLoader.getFont(context, "comic"));
             text.setText("Цена: " + UI.getPriceLabel((video.getPrice())));
-            this.addView(text);
+            scrolllayout.addView(text);
+        }
+
+
+        @Override
+        protected void onConfigurationChanged(Configuration newConfig) {
+            super.onConfigurationChanged(newConfig);
+            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                try {
+                    this.removeView(donateBtn);
+                } catch (Exception ignored) {
+                }
+                balanceLayout.addView(donateBtn);
+            }
+            else {
+                try {
+                    balanceLayout.removeView(donateBtn);
+                } catch (Exception ignored) {
+                }
+                this.addView(donateBtn);
+            }
+
+            initSizes();
+            initVideoSize();
+
         }
 
         void setDonateBtn() {
-            TextView textView = new TextView(context);
-            textView.setText("РАЗБЛОКИРОВАТЬ");
-            textView.setTextColor(Color.WHITE);
-            LinearLayout.LayoutParams lp = new LayoutParams(-2, UI.calcSize(26));
-            lp.gravity = Gravity.CENTER_HORIZONTAL;
-            textView.setTextSize(17);
-            textView.setPadding(UI.calcSize(5), 0, UI.calcSize(5), 0);
-            textView.setLayoutParams(lp);
-            textView.setBackgroundResource(R.drawable.btn_videodonate_donate);
-            textView.setOnClickListener(new OnClickListener() {
+            donateBtn = new TextView(context);
+            donateBtn.setText("РАЗБЛОКИРОВАТЬ");
+            donateBtn.setTextColor(Color.WHITE);
+            LinearLayout.LayoutParams lp = new LayoutParams(-2, /*UI.calcSize(26)*/-1);
+            lp.gravity = Gravity.CENTER;
+            lp.setMargins(UI.calcSize(10), 0, UI.calcFontSize(10), 0);
+            donateBtn.setTextSize(17);
+            donateBtn.setGravity(Gravity.CENTER);
+            donateBtn.setPadding(UI.calcSize(5), 0, UI.calcSize(5), 0);
+            donateBtn.setLayoutParams(lp);
+            donateBtn.setBackgroundResource(R.drawable.btn_videodonate_donate);
+            donateBtn.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     try {
@@ -311,13 +380,19 @@ public class VideoPurchaseWindow extends DialogWindow {
                     }
                 }
             });
-            this.addView(textView);
+            if (getContext().getResources().getConfiguration().orientation
+                    == Configuration.ORIENTATION_PORTRAIT) {
+                this.addView(donateBtn);
+            }
+            else {
+                balanceLayout.addView(donateBtn);
+            }
         }
 
-        void addSpace(int h) {
+        Space addSpace(int h) {
             Space space = new Space(context);
             space.setLayoutParams(new LayoutParams(-1, UI.calcSize(h)));
-            this.addView(space);
+            return space;
         }
 
     }

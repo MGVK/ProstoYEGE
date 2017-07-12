@@ -318,6 +318,8 @@ public class UI {
 
         mainMenu.setLayoutParams(new FrameLayout.LayoutParams((deviceWidth), -1));
         mainMenu.updateSizes((int) (k * deviceWidth), deviceHeight);
+
+
     }
 
     public void openTaskOrVideoFragment(final boolean task) {
