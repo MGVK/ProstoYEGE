@@ -161,13 +161,13 @@ public class UI {
                 .setMessage("Пользовательское соглашение")
                 .setCancelable(false)
                 .setView(webView)
-                .setPositiveButton("Принимаю", new DialogInterface.OnClickListener() {
+                .setPositiveButton("ПРИНИМАЮ", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         DataLoader.acceptLicense(context);
                     }
                 })
-                .setNegativeButton("Не принимаю", new DialogInterface.OnClickListener() {
+                .setNegativeButton("НЕ ПРИНИМАЮ", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         mainActivity.finish();
