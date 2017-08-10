@@ -54,7 +54,7 @@
             android:layout_marginTop="5dp"
             android:background="@drawable/white_background_shadow">
 
-            <ru.mgvk.prostoege.PaintView
+            <ru.mgvk.prostoege.ui.PaintView
                 android:id="@+id/paintView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -62,7 +62,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
                 android:layout_marginTop="5dp">
-            </ru.mgvk.prostoege.PaintView>
+            </ru.mgvk.prostoege.ui.PaintView>
 
         </FrameLayout>
 
@@ -80,15 +80,15 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/back_tools"
+                android:layout_marginLeft="5dp"
 
+                android:background="@drawable/back_tools"
                 android:gravity="center_horizontal|center_vertical"
                 android:orientation="horizontal"
                 android:paddingBottom="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:paddingTop="8dp"
-                android:layout_marginLeft="5dp"
                 android:textColor="@color/task_text"
                 android:textSize="22sp">
 
@@ -107,8 +107,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/colors"
-                    android:alpha="0.5"/>
+                    android:alpha="0.5"
+                    android:background="@drawable/colors"/>
 
                 <Space android:layout_width="10dp"
                        android:layout_height="match_parent"/>
@@ -119,8 +119,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/eraser"
-                    android:alpha="0.5"/>
+                    android:alpha="0.5"
+                    android:background="@drawable/eraser"/>
 
                 <Space android:layout_width="10dp"
                        android:layout_height="match_parent"/>
@@ -130,25 +130,25 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/basket"
-                    android:alpha="0.5"/>
+                    android:alpha="0.5"
+                    android:background="@drawable/basket"/>
 
             </LinearLayout>
 
-            <ru.mgvk.prostoege.PenResizer
+            <ru.mgvk.prostoege.ui.PenResizer
                 android:id="@+id/penResizer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:background="@drawable/white_background_shadow"/>
 
-            <ru.mgvk.prostoege.ColorChooser
+            <ru.mgvk.prostoege.ui.ColorChooser
                 android:id="@+id/colorChooser"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:gravity="center_horizontal|center_vertical"
-                android:background="@drawable/white_background_shadow"/>
+                android:background="@drawable/white_background_shadow"
+                android:gravity="center_horizontal|center_vertical"/>
 
         </LinearLayout>
 

@@ -1,28 +1,29 @@
 package ru.mgvk.prostoege.ui;
 
 import android.content.Context;
-import android.support.v4.widget.NestedScrollView;
+import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import ru.mgvk.prostoege.MainActivity;
 
 /**
- * Created by mihail on 12.09.16.
+ * Created by mike on 28.07.17.
  */
-public class VerticalScrollView extends NestedScrollView {
-    boolean scrollEnabled = true;
+public class MyCoordinatorLayout extends CoordinatorLayout {
+    private boolean scrollEnabled = true;
 
-    public VerticalScrollView(Context context) {
+    public MyCoordinatorLayout(Context context) {
         super(context);
     }
 
-    public VerticalScrollView(Context context, AttributeSet attrs) {
+    public MyCoordinatorLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public VerticalScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MyCoordinatorLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
+
 
     public boolean isScrollEnabled() {
         return scrollEnabled;

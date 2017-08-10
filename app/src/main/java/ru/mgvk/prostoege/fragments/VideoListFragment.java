@@ -1,4 +1,4 @@
-package ru.mgvk.prostoege.ru.mgvk.prostoege.fragments;
+package ru.mgvk.prostoege.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;

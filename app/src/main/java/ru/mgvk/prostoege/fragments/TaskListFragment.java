@@ -1,4 +1,4 @@
-package ru.mgvk.prostoege.ru.mgvk.prostoege.fragments;
+package ru.mgvk.prostoege.fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import ru.mgvk.prostoege.*;
+import ru.mgvk.prostoege.ui.MyCoordinatorLayout;
 import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.prostoege.ui.VerticalScrollView;
 import ru.mgvk.util.Reporter;
@@ -23,8 +24,9 @@ import java.util.ArrayList;
  */
 public class TaskListFragment extends Fragment implements View.OnClickListener {
 
-    public VerticalScrollView taskScroll;
-    private LinearLayout taskListLayout, mainTaskListLayout;
+    public  VerticalScrollView  taskScroll;
+    public  MyCoordinatorLayout myCoordinatorLayout;
+    private LinearLayout        taskListLayout, mainTaskListLayout;
     private MainActivity mainActivity;
     private Context context;
     private Task currentTask;
@@ -58,6 +60,8 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 
         taskListLayout = (LinearLayout) mainActivity.findViewById(R.id.layout_tasklist);
         taskScroll = (VerticalScrollView) mainActivity.findViewById(R.id.task_scroll);
+        myCoordinatorLayout = (MyCoordinatorLayout) mainActivity
+                .findViewById(R.id.coordinator_layout);
         (menuButton = (ImageButton) mainActivity.findViewById(R.id.btn_menu)).setOnClickListener(this);
         (forwardButton = (ImageButton) mainActivity.findViewById(R.id.btn_forward_task)).setOnClickListener(this);
         (balanceView = (TextView) mainActivity.findViewById(R.id.btn_coins)).setOnClickListener(this);

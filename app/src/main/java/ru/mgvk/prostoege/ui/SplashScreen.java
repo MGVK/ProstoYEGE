@@ -1,4 +1,4 @@
-package ru.mgvk.prostoege;
+package ru.mgvk.prostoege.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -6,7 +6,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
-import ru.mgvk.prostoege.ui.AnimatedCounter;
+import ru.mgvk.prostoege.InstanceController;
+import ru.mgvk.prostoege.MainActivity;
+import ru.mgvk.prostoege.R;
 
 import java.io.IOException;
 import java.net.Socket;

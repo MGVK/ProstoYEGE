@@ -1,4 +1,4 @@
-package ru.mgvk.prostoege;
+package ru.mgvk.prostoege.ui;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -6,6 +6,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.SeekBar;
+import ru.mgvk.prostoege.MainActivity;
 
 /**
  * Created by mihail on 26.08.16.

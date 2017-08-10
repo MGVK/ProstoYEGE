@@ -3,7 +3,7 @@
     <string name="task_title">Задание</string>
     <string name="task_description">Задачи на арифметику</string>
     <string name="task_points">балл</string>
-    <string name="task_list_title">ЕГЭ 2017 профиль\nсписок заданий</string>
+    <string name="task_list_title">ЕГЭ 2018 профиль</string>
     <string name="video_list_title">Задание 1</string>
     <string name="exercises_list_title">Задачи к заданию</string>
     <string name="tasks">" ЗАДАЧИ "</string>
@@ -28,4 +28,11 @@
         этого зайдите в меню :)\n
     </string>
     <string name="mess_text_copy_not_allowed">Копировать текст запрещено!:)</string>
+    <string name="statistic">Статистика:</string>
+    <string name="statistic_main_title">Статистика:</string>
+    <string name="statistic_main_current">Текущий балл:</string>
+    <string name="statistic_main_desired">Желаемый балл:</string>
+    <string name="statistic_main_tasklabel">Задания:</string>
+    <string name="statistic_main_repbtn">Репетиция ЕГЭ</string>
+    <string name="repetition_title">Идет экзамен</string>
 </resources>

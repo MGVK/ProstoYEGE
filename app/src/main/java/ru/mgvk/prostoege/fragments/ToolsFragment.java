@@ -1,4 +1,4 @@
-package ru.mgvk.prostoege.ru.mgvk.prostoege.fragments;
+package ru.mgvk.prostoege.fragments;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
@@ -18,7 +18,12 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import ru.mgvk.prostoege.*;
+import ru.mgvk.prostoege.MainActivity;
+import ru.mgvk.prostoege.R;
+import ru.mgvk.prostoege.Task;
+import ru.mgvk.prostoege.ui.ColorChooser;
+import ru.mgvk.prostoege.ui.PaintView;
+import ru.mgvk.prostoege.ui.PenResizer;
 import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.util.StateTags;
 

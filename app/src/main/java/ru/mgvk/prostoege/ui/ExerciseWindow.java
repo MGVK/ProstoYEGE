@@ -19,26 +19,28 @@ import ru.mgvk.util.StateTags;
 public class ExerciseWindow extends FrameLayout implements View.OnClickListener {
 
     public final static byte NOT_DECIDED = 0, WRONG_ANSWER = 1,
-            PROMPTED = 2, DECIDED_FIRSTLY = 3,
-            ANSWER_SHOWED = 4, DECIDED_SECONDLY = 5, DECIDED = 6, WRONG_ANSWER_ONCE = 7;
-    public final static int[] indicators = {R.drawable.button_yellow, R.drawable.button_red,
-            R.drawable.button_blue, R.drawable.button_green,
-            R.drawable.button_red, R.drawable.button_blue, R.drawable.button_blue,
-            R.drawable.button_red};
-    private static final boolean APPEAR = true, DISAPPEAR = false;
+            PROMPTED                     = 2, DECIDED_FIRSTLY = 3,
+            ANSWER_SHOWED                = 4, DECIDED_SECONDLY = 5,
+            DECIDED                      = 6, WRONG_ANSWER_ONCE = 7;
+
+    public final static  int[]   indicators = {R.drawable.button_yellow, R.drawable.button_red,
+                                               R.drawable.button_blue, R.drawable.button_green,
+                                               R.drawable.button_red, R.drawable.button_blue,
+                                               R.drawable.button_blue,
+                                               R.drawable.button_red};
+    private static final boolean APPEAR     = true, DISAPPEAR = false;
 
     int QUESTION_ID = 0;
-    int Number = 0;
+    int Number      = 0;
     LinearLayout mainLayout;
-    Context context;
+    Context      context;
     private String answer = "", separator = "&";
     private AnswerLayout answerLayout;
-    private TextView answerTextView;
-    private ImageButton answerClearButton;
+
     private int status = 0;
-    private TitleLayout titleLayout;
+    private TitleLayout        titleLayout;
     private DescriptionWebView description;
-    private Task.Exercise currentExercise;
+    private Task.Exercise      currentExercise;
     private boolean opened = false;
 
     public ExerciseWindow(Context context) {
@@ -55,15 +57,16 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
         initParams((currentExercise = exercise).getData());
         titleLayout.setNumber(Number);
         setStatus(exercise.getStatus());
-        answerTextView.setText(exercise.getTmpText());
-        description.reloadDescription();
+        answerLayout.getAnswerTextView().setText(exercise.getTmpText());
+        description.reloadDescription(QUESTION_ID);
         open();
-        ((MainActivity) context).getBackStack().addAction("ExerciseWindow.openExercise", new Runnable() {
-            @Override
-            public void run() {
-                closeExercise();
-            }
-        });
+        ((MainActivity) context).getBackStack()
+                .addAction("ExerciseWindow.openExercise", new Runnable() {
+                    @Override
+                    public void run() {
+                        closeExercise();
+                    }
+                });
     }
 
     protected void open() {
@@ -184,10 +187,17 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
                 UI.calcSize(9), UI.calcSize(5));
         mainLayout.setLayoutParams(lp);
         mainLayout.addView(titleLayout = new TitleLayout());
-        mainLayout.addView(description = new DescriptionWebView());
+        mainLayout.addView(description = new DescriptionWebView(context));
         mainLayout.addView(new ButtonsLayout());
-        mainLayout.addView(answerLayout = new AnswerLayout());
-        mainLayout.addView(new NumPad());
+        mainLayout.addView(answerLayout = new AnswerLayout(context, this));
+        answerLayout.getAnswerTextView().setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scrollDown();
+            }
+        });
+        ;
+        mainLayout.addView(new NumPad(context, this));
 
         this.addView(mainLayout);
     }
@@ -221,7 +231,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
 
     private void checkAnswer() {
 
-        boolean result = answerTextView.getText()
+        boolean result = answerLayout.getAnswerTextView().getText()
                 .toString().replace("|", "").equals(answer);
 
         ((MainActivity) context).ui.openExerciseResultWindow(result,
@@ -232,8 +242,8 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
                 )
         );
 
-        if (answerTextView.getText() != null && status != DECIDED_FIRSTLY
-                && status != DECIDED_SECONDLY && status != ANSWER_SHOWED) {
+        if (answerLayout.getAnswerTextView().getText() != null && status != DECIDED_FIRSTLY
+            && status != DECIDED_SECONDLY && status != ANSWER_SHOWED) {
 //                    if (status == PROMPTED || status == WRONG_ANSWER) {
 //                        setStatus(PROMPTED);
 //                    } else {
@@ -245,19 +255,16 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
 
                 if (status == NOT_DECIDED) {
                     setStatus(DECIDED_FIRSTLY);
-                }
-                else if (status == WRONG_ANSWER_ONCE) {
+                } else if (status == WRONG_ANSWER_ONCE) {
                     setStatus(DECIDED_SECONDLY);
-                }
-                else if (status == WRONG_ANSWER_ONCE || status == PROMPTED) {
+                } else if (status == WRONG_ANSWER_ONCE || status == PROMPTED) {
                     setStatus(DECIDED_SECONDLY);
                 }
 
             } else {
                 if (status == NOT_DECIDED) {
                     setStatus(WRONG_ANSWER_ONCE);
-                }
-                else if (status == WRONG_ANSWER_ONCE) {
+                } else if (status == WRONG_ANSWER_ONCE) {
                     setStatus(WRONG_ANSWER);
                 }
             }
@@ -274,34 +281,10 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
         return false;
     }
 
-    void clearAnswer() {
-        if (answerTextView.length() > 0) {
-            answerTextView.setText(answerTextView.getText().toString().replace("|", "")
-                    .subSequence(0, answerTextView.length() - 1));
-        }
-    }
-
-    void togglePositive_Negative() {
-        String text = (String) answerTextView.getText();
-        if (text == null || text.equals("")) {
-            answerTextView.setText("-");
-        } else if (text.charAt(0) == '-') {
-            answerTextView.setText(text.substring(1));
-        } else {
-            answerTextView.setText(String.format("-%s", text));
-        }
-    }
-
-    void setComma() {
-        if (answerTextView.getText() == null || answerTextView.getText().equals("")) {
-            answerTextView.setText("0,");
-        } else if (!((String) answerTextView.getText()).contains(",")) {
-            answerTextView.setText(String.format("%s,", answerTextView.getText()));
-        }
-    }
-
     @Override
     public void onClick(View v) {
+
+        // TODO: 07.08.17 refactor this
         try {
             if ((Integer) v.getTag() == R.drawable.btn_answer_show) {
                 showAnswer();
@@ -309,21 +292,22 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
                 showHint();
             } else if ((Integer) v.getTag() == R.drawable.btn_answer_check) {
                 checkAnswer();
-            } else if ((Integer) v.getTag() == R.drawable.button_answer_clear) {
-                clearAnswer();
             } else if ((Integer) v.getTag() == 10) {
-                togglePositive_Negative();
+                answerLayout.togglePositive_Negative();
             } else if ((Integer) v.getTag() == 12) {
-                setComma();
+                answerLayout.setComma();
             } else if ((Integer) v.getTag() == -1) {
 //            closeExercise();
 //            ((MainActivity) context).onBackPressed();
                 ((MainActivity) context).getBackStack().returnToState(
                         StateTags.EXERCISE_LIST_FRAGMENT);
             } else {
-                currentExercise.setTmpText(String.format("%s%s", answerTextView.getText().toString().replace("|", ""),
-                        String.valueOf(v.getTag())));
-                answerTextView.setText(currentExercise.getTmpText());
+                currentExercise.setTmpText(
+                        String.format("%s%s", answerLayout.getAnswerTextView().getText().toString()
+                                        .replace("|",
+                                                ""),
+                                String.valueOf(v.getTag())));
+                answerLayout.getAnswerTextView().setText(currentExercise.getTmpText());
             }
 
         } catch (Exception e) {
@@ -357,10 +341,246 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
         }
     }
 
+    public static class DescriptionWebView extends WebView {
+
+        Context context;
+        private boolean isLoaded = false;
+
+        public DescriptionWebView(Context context) {
+            super(context);
+
+            getSettings().setJavaScriptEnabled(true);
+            setDrawingCacheEnabled(true);
+            getSettings().setAppCacheEnabled(true);
+
+
+            this.setOnLongClickListener(new OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    //#3_2
+//                    Toast.makeText(context, context.getString(R.string.mess_text_copy_not_allowed), Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
+        }
+
+
+        public void reloadDescription() {
+            reloadDescription(((MainActivity) context).ui
+                    .exercisesListFragment.getExerciseWindow().QUESTION_ID);
+        }
+
+        public void reloadDescription(int id) {
+            loadUrl(DataLoader.ExcerciseDescriptionRequest + id);
+        }
+
+        public void reloadrepetitionTask(String id) {
+            loadUrl(DataLoader.getRepetitionTask(id));
+        }
+
+    }
+
+    public static class NumPad extends LinearLayout {
+
+        Context         context;
+        OnClickListener listener;
+
+        public NumPad(Context context, OnClickListener listener) {
+            super(context);
+            this.context = context;
+            this.listener = listener;
+            this.setOrientation(VERTICAL);
+            this.setLayoutParams(new LayoutParams(-1, -2));
+            setButtons();
+        }
+
+        void setButtons() {
+
+            for (int l = 0; l <= 9; l += 3) {
+                LinearLayout layout = new LinearLayout(context);
+                layout.setOrientation(HORIZONTAL);
+                layout.setLayoutParams(
+                        new LinearLayout.LayoutParams(-1, UI.calcSize(45)));
+                this.addView(layout);
+                for (int i = 1; i <= 3; i++) {
+                    Button b = new Button(context);
+                    b.setGravity(Gravity.CENTER);
+                    b.setLayoutParams(new LinearLayout.LayoutParams(-1, -1, 1));
+                    b.setText(String.valueOf(i + l));
+                    b.setTag(i + l);
+                    b.setOnClickListener(listener);
+                    b.setTextColor(getResources().getColor(R.color.task_text));
+                    layout.addView(b);
+                }
+            }
+
+            ((Button) findViewWithTag(10)).setText("+/-");
+            ((Button) findViewWithTag(11)).setText("0");
+            (findViewWithTag(11)).setTag(0);
+            ((Button) findViewWithTag(12)).setText(",");
+
+        }
+    }
+
+    public static class AnswerLayout extends LinearLayout implements OnClickListener {
+
+        private final OnClickListener listener;
+        private       TextIndicator   textIndicator;
+        private       TextView        answerTextView;
+        private       ImageButton     answerClearButton;
+        private       Context         context;
+
+        public AnswerLayout(Context context, OnClickListener listener) {
+            super(context);
+            this.listener = listener;
+            this.context = context;
+            setAnswerLabel();
+            setAnswerTextView();
+            setClearButton();
+        }
+
+        void setAnswerLabel() {
+            TextView text = new TextView(context);
+            text.setLayoutParams(new LayoutParams(-1,
+                    UI.calcSize(35), (float) 3.3));
+            text.setGravity(Gravity.CENTER);
+            text.setText(R.string.exercises_answer_label);
+            text.setTextSize(20);
+            text.setTextColor(
+                    context.getResources().getColor(R.color.task_text));
+            text.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startIndicator();
+                }
+            });
+            this.addView(text);
+        }
+
+        public TextView getAnswerTextView() {
+            return answerTextView;
+        }
+
+        public ImageButton getAnswerClearButton() {
+            return answerClearButton;
+        }
+
+        void clearAnswer() {
+            if (answerTextView.length() > 0) {
+                answerTextView.setText(answerTextView.getText().toString().replace("|", "")
+                        .subSequence(0, answerTextView.length() - 1));
+            }
+        }
+
+        public void togglePositive_Negative() {
+            String text = (String) answerTextView.getText();
+            if (text == null || text.equals("")) {
+                answerTextView.setText("-");
+            } else if (text.charAt(0) == '-') {
+                answerTextView.setText(text.substring(1));
+            } else {
+                answerTextView.setText(String.format("-%s", text));
+            }
+        }
+
+        public void setComma() {
+            if (answerTextView.getText() == null || answerTextView.getText().equals("")) {
+                answerTextView.setText("0,");
+            } else if (!((String) answerTextView.getText()).contains(",")) {
+                answerTextView.setText(String.format("%s,", answerTextView.getText()));
+            }
+        }
+
+        void setAnswerTextView() {
+            answerTextView = new TextView(context);
+            answerTextView.setLayoutParams(new LayoutParams(-1,
+                    UI.calcSize(35), 2));
+            answerTextView.setGravity(Gravity.LEFT);
+            answerTextView.setTextSize(20);
+            answerTextView.setTextColor(
+                    context.getResources().getColor(R.color.task_text));
+            //empty listener to make unclicked this view. WORKS! DO NOT TOUCH!!!
+            answerTextView.setOnClickListener(this);
+
+            this.addView(answerTextView);
+        }
+
+        void startIndicator() {
+            if (textIndicator == null) {
+                (textIndicator = new TextIndicator()).start();
+            } else if (textIndicator.isInterrupted()) {
+                textIndicator.start();
+            }
+        }
+
+        void stopIndicator() {
+            if (textIndicator != null) {
+                textIndicator.interrupt();
+            }
+        }
+
+        void setClearButton() {
+            answerClearButton = new ImageButton(context);
+            answerClearButton.setLayoutParams(new LayoutParams(-1,
+                    UI.calcSize(35), 4));
+            answerClearButton.setImageResource(R.drawable.button_answer_clear);
+            answerClearButton.setTag(R.drawable.button_answer_clear);
+            answerClearButton.setOnClickListener(this);
+            this.addView(answerClearButton);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (v == answerTextView) {
+                startIndicator();
+            }
+            if (v == answerClearButton) {
+                clearAnswer();
+            }
+            if (listener != null) {
+                listener.onClick(v);
+            }
+        }
+
+        class TextIndicator extends Thread {
+            @Override
+            public void run() {
+                while (!isInterrupted()) {
+                    ((MainActivity) context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            answerTextView.setText(answerTextView.getText() + "|");
+
+                        }
+                    });
+                    pause();
+                    ((MainActivity) context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            answerTextView
+                                    .setText(answerTextView.getText().toString().replace("|", ""));
+
+                        }
+                    });
+                    pause();
+                }
+            }
+
+            private void pause() {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
     class TitleLayout extends FrameLayout {
 
         ExerciseNumberImage numberView;
-        TextView title;
+        TextView            title;
 
         public TitleLayout() {
             super(context);
@@ -428,41 +648,14 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
 
     }
 
-    public class DescriptionWebView extends WebView {
-
-        private boolean isLoaded = false;
-
-        public DescriptionWebView() {
-            super(context);
-            getSettings().setJavaScriptEnabled(true);
-            setDrawingCacheEnabled(true);
-            getSettings().setAppCacheEnabled(true);
-
-            this.setOnLongClickListener(new OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    //#3_2
-//                    Toast.makeText(context, context.getString(R.string.mess_text_copy_not_allowed), Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-            });
-        }
-
-
-        public void reloadDescription() {
-            loadUrl(DataLoader.ExcerciseDescriptionRequest + QUESTION_ID);
-        }
-
-    }
-
     class ButtonsLayout extends LinearLayout {
 
-        int[] resIds = {R.drawable.btn_answer_show,
-                R.drawable.btn_answer_hint,
-                R.drawable.btn_answer_check};
-        String[] texts = {"СДАЮСЬ",
-                "ПОДСКАЗКА",
-                "ПРОВЕРИТЬ"};
+        int[]    resIds = {R.drawable.btn_answer_show,
+                           R.drawable.btn_answer_hint,
+                           R.drawable.btn_answer_check};
+        String[] texts  = {"СДАЮСЬ",
+                           "ПОДСКАЗКА",
+                           "ПРОВЕРИТЬ"};
 
         public ButtonsLayout() {
             super(context);
@@ -488,152 +681,6 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
                 button.setTag(resIds[i]);
                 this.addView(button);
             }
-        }
-    }
-
-    class AnswerLayout extends LinearLayout {
-
-        private TextIndicator textIndicator;
-
-        public AnswerLayout() {
-            super(context);
-            setAnswerLabel();
-            setAnswerTextView();
-            setClearButton();
-        }
-
-        void setAnswerLabel() {
-            TextView text = new TextView(context);
-            text.setLayoutParams(new LayoutParams(-1,
-                    UI.calcSize(35), (float) 3.3));
-            text.setGravity(Gravity.CENTER);
-            text.setText(R.string.exercises_answer_label);
-            text.setTextSize(20);
-            text.setTextColor(
-                    context.getResources().getColor(R.color.task_text));
-            //empty listener to make unclicked this view. WORKS! DO NOT TOUCH!!!
-            text.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startIndicator();
-                }
-            });
-            this.addView(text);
-        }
-
-        void setAnswerTextView() {
-            answerTextView = new TextView(context);
-            answerTextView.setLayoutParams(new LayoutParams(-1,
-                    UI.calcSize(35), 2));
-            answerTextView.setGravity(Gravity.LEFT);
-            answerTextView.setTextSize(20);
-            answerTextView.setTextColor(
-                    context.getResources().getColor(R.color.task_text));
-            //empty listener to make unclicked this view. WORKS! DO NOT TOUCH!!!
-            answerTextView.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    scrollDown();
-                    startIndicator();
-                }
-            });
-            this.addView(answerTextView);
-
-        }
-
-        void startIndicator() {
-            if (textIndicator == null) {
-                (textIndicator = new TextIndicator()).start();
-            } else if (textIndicator.isInterrupted()) {
-                textIndicator.start();
-            }
-        }
-
-        void stopIndicator() {
-            if (textIndicator != null) {
-                textIndicator.interrupt();
-            }
-        }
-
-        void setClearButton() {
-            answerClearButton = new ImageButton(context);
-            answerClearButton.setLayoutParams(new LayoutParams(-1,
-                    UI.calcSize(35), 4));
-            answerClearButton.setImageResource(R.drawable.button_answer_clear);
-            answerClearButton.setTag(R.drawable.button_answer_clear);
-            answerClearButton.setOnClickListener(ExerciseWindow.this);
-            this.addView(answerClearButton);
-
-        }
-
-        class TextIndicator extends Thread {
-            @Override
-            public void run() {
-                while (!isInterrupted()) {
-                    ((MainActivity) context).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            answerTextView.setText(answerTextView.getText() + "|");
-
-                        }
-                    });
-                    pause();
-                    ((MainActivity) context).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            answerTextView.setText(answerTextView.getText().toString().replace("|", ""));
-
-                        }
-                    });
-                    pause();
-                }
-            }
-
-            private void pause() {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-    }
-
-    class NumPad extends LinearLayout {
-
-        public NumPad() {
-            super(context);
-            this.setOrientation(VERTICAL);
-            this.setLayoutParams(new LayoutParams(-1, -2));
-            setButtons();
-        }
-
-        void setButtons() {
-
-            for (int l = 0; l <= 9; l += 3) {
-                LinearLayout layout = new LinearLayout(context);
-                layout.setOrientation(HORIZONTAL);
-                layout.setLayoutParams(
-                        new LinearLayout.LayoutParams(-1, UI.calcSize(45)));
-                this.addView(layout);
-                for (int i = 1; i <= 3; i++) {
-                    Button b = new Button(context);
-                    b.setGravity(Gravity.CENTER);
-                    b.setLayoutParams(new LinearLayout.LayoutParams(-1, -1, 1));
-                    b.setText(String.valueOf(i + l));
-                    b.setTag(i + l);
-                    b.setOnClickListener(ExerciseWindow.this);
-                    b.setTextColor(getResources().getColor(R.color.task_text));
-                    layout.addView(b);
-                }
-            }
-
-            ((Button) findViewWithTag(10)).setText("+/-");
-            ((Button) findViewWithTag(11)).setText("0");
-            (findViewWithTag(11)).setTag(0);
-            ((Button) findViewWithTag(12)).setText(",");
-
         }
     }
 }

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/notebook1_small_left">
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="33dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="60dp"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal">
+
+
+        <ru.mgvk.prostoege.ui.TimeButton
+            android:id="@+id/btn_time"
+            android:layout_width="match_parent"
+            android:layout_height="33dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginRight="45dp"
+            android:background="@drawable/btn_video_corners"
+            android:gravity="center|center_horizontal"
+            android:text="@string/videos"
+            android:textColor="#FFF"
+            android:textSize="17sp"/>
+
+
+        <ImageButton
+            android:id="@+id/btn_right"
+            android:layout_width="55dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+            android:background="@drawable/right"/>
+
+    </FrameLayout>
+
+
+    <ImageView
+        android:id="@+id/rings_ex"
+        android:layout_width="35dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:layout_marginBottom="45dp"
+        android:layout_marginTop="90dp"
+        android:background="@drawable/rings_left"
+        android:visibility="visible"/>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="13dp"
+        android:layout_marginLeft="13dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="45dp"
+        android:background="@drawable/white_background">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="32dp"
+            android:layout_marginTop="5dp"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="43dp"
+                android:background="@drawable/white_background">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="3dp"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginStart="3dp"
+                    android:background="@drawable/tasklist_title_bakground"/>
+
+                <TextView
+                    android:id="@+id/repetition_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="3dp"
+
+                    android:gravity="center"
+                    android:text="@string/repetition_title"
+                    android:textColor="#fff"
+                    android:textSize="22sp"/>
+
+            </FrameLayout>
+
+
+            <!--THIS-->
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:id="@+id/main_repetition_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+
+                </LinearLayout>
+
+
+            </ScrollView>
+
+
+        </LinearLayout>
+
+
+    </FrameLayout>
+
+
+</FrameLayout>

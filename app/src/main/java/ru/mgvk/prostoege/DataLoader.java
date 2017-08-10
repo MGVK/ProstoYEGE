@@ -374,6 +374,10 @@ public class DataLoader {
         }
     }
 
+    public static String getRepetitionTask(String id) {
+        return "";
+    }
+
     public interface onTaskLoadCompleted {
         void onTaskLoadStarted();
 

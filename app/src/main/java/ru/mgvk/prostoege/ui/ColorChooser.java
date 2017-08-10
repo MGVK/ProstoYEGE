@@ -1,4 +1,4 @@
-package ru.mgvk.prostoege;
+package ru.mgvk.prostoege.ui;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -9,8 +9,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
-import ru.mgvk.prostoege.ui.UI;
-
 /**
  * Created by mihail on 26.08.16.
  */
@@ -18,6 +16,9 @@ public class ColorChooser extends LinearLayout implements View.OnClickListener {
 
 
     PaintView paintView;
+    int[] colors = {Color.BLACK, Color.BLUE, Color.RED, Color.GREEN,
+                    Color.parseColor("#ff9c00"), Color.parseColor("#9100d1"),
+                    Color.parseColor("#ff118b"), Color.YELLOW};
 
     public ColorChooser(Context context) {
         super(context);
@@ -39,10 +40,6 @@ public class ColorChooser extends LinearLayout implements View.OnClickListener {
         super(context, attrs, defStyleAttr, defStyleRes);
         setParams();
     }
-
-    int[] colors = {Color.BLACK,Color.BLUE,Color.RED,Color.GREEN,
-            Color.parseColor("#ff9c00"),Color.parseColor("#9100d1"),
-            Color.parseColor("#ff118b"),Color.YELLOW};
 
     public void setPaintView(PaintView paintView) {
         this.paintView = paintView;

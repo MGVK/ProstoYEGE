@@ -167,6 +167,14 @@
     </FrameLayout>
 
 
+    <ImageButton
+        android:id="@+id/btn_home"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginLeft="28.5dp"
+        android:layout_marginTop="62.5dp"
+        android:background="@drawable/btn_home"/>
+
     <ImageView
         android:id="@+id/rings_ex"
         android:layout_width="35dp"
@@ -176,14 +184,5 @@
         android:layout_marginTop="90dp"
         android:background="@drawable/rings_left"
         android:visibility="visible"/>
-
-
-    <ImageButton
-        android:id="@+id/btn_home"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:layout_marginLeft="28.5dp"
-        android:layout_marginTop="62.5dp"
-        android:background="@drawable/btn_home"/>
 
 </FrameLayout>

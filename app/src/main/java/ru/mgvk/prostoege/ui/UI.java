@@ -19,10 +19,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import ru.mgvk.prostoege.*;
-import ru.mgvk.prostoege.ru.mgvk.prostoege.fragments.ExercisesListFragment;
-import ru.mgvk.prostoege.ru.mgvk.prostoege.fragments.TaskListFragment;
-import ru.mgvk.prostoege.ru.mgvk.prostoege.fragments.ToolsFragment;
-import ru.mgvk.prostoege.ru.mgvk.prostoege.fragments.VideoListFragment;
+import ru.mgvk.prostoege.fragments.*;
 import ru.mgvk.util.Reporter;
 import ru.mgvk.util.StateTags;
 
@@ -32,23 +29,25 @@ import ru.mgvk.util.StateTags;
 public class UI {
 
     private static int realDPI;
-    public int deviceWidth = 0, deviceHeight = 0;
 
+    public int deviceWidth = 0, deviceHeight = 0;
     public View rootView0, rootView1, rootView2;
-    public MainScrollView mainScroll;
-    public MainMenu mainMenu;
-    //    ImageButton backButton;
-    public TaskListFragment taskListFragment;
-    public VideoListFragment videoListFragment;
-    public Fragment currentFragment, previosFragment;
-    public ExercisesListFragment exercisesListFragment;
-    public ToolsFragment toolsFragment;
-    Context context;
-    MainActivity mainActivity;
-    FragmentTransaction tr;
-    FragmentManager manager;
-    boolean added = true;
-    private BalanceWindow balanceWindow;
+
+    public MainScrollView          mainScroll;
+    public MainMenu                mainMenu;
+    public TaskListFragment        taskListFragment;
+    public VideoListFragment       videoListFragment;
+    public Fragment                currentFragment;
+    public ExercisesListFragment   exercisesListFragment;
+    public ToolsFragment           toolsFragment;
+    public RepetitionFragmentLeft  repetitionFragmentLeft;
+    public RepetitionFragmentRight repetitionFragmentRight;
+    private boolean added = true;
+    private Context             context;
+    private MainActivity        mainActivity;
+    private FragmentTransaction tr;
+    private FragmentManager     manager;
+    private BalanceWindow       balanceWindow;
 
     public UI(Context context, boolean restoring) {
 
@@ -91,12 +90,12 @@ public class UI {
 
         ((MainActivity) context).findViewById(R.id.root_0)
                 .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LOW_PROFILE
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+                                       | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                       | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                       | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                       | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                       | View.SYSTEM_UI_FLAG_LOW_PROFILE
+                                       | View.SYSTEM_UI_FLAG_IMMERSIVE);
         try {
             ((MainActivity) context).getActionBar().hide();
         } catch (NullPointerException ignored) {
@@ -107,7 +106,7 @@ public class UI {
 
         ((MainActivity) context).findViewById(R.id.root_0)
                 .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_VISIBLE);
+                                       | View.SYSTEM_UI_FLAG_VISIBLE);
         try {
             ((MainActivity) context).getActionBar().show();
         } catch (NullPointerException ignored) {
@@ -116,7 +115,7 @@ public class UI {
 
     public static String getPriceLabel(int price) {
         String s;
-        int p = price % 10;
+        int    p = price % 10;
         if (p == 1) {
             s = " Ёж";
         } else if (p > 1 && p < 5) {
@@ -132,13 +131,22 @@ public class UI {
     public static void makeErrorMessage(Context context, String s) {
 
         HintWindow window = new HintWindow(context);
-        TextView text = new TextView(context);
+        TextView   text   = new TextView(context);
         text.setText(s);
         window.layout.setBackgroundResource(R.drawable.answer_incorrect);
         text.setTextColor(Color.WHITE);
         window.addView(text);
 
         window.open();
+    }
+
+    public static void openRepetitionResultWindow(Context context,
+                                                  RepetitionFragmentLeft.Result result) {
+        new AlertDialog.Builder(context)
+                .setTitle("Результаты тестирования")
+                .setMessage("Ваши баллы: " + result.getScoreSecondary())
+                .setPositiveButton("Закрыть", null)
+                .create().show();
     }
 
     private void openPolicyWindow() {
@@ -192,11 +200,12 @@ public class UI {
         mainScroll = (MainScrollView) mainActivity.findViewById(R.id.mainScroll);
         mainScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
+
         initMainMenu();
 
     }
 
-    void initFragments(boolean restoring) {
+    void initFragments(final boolean restoring) {
         if (restoring) {
 //            taskListFragment = (TaskListFragment) mainActivity.getFragmentManager()
 //                    .findFragmentByTag("TaskListFragment");
@@ -207,10 +216,19 @@ public class UI {
 //            toolsFragment = (ToolsFragment) mainActivity.getFragmentManager()
 //                    .findFragmentByTag("ToolsFragment");
             mainActivity.stopwatch.checkpoint("initFragments_1");
-            taskListFragment = (TaskListFragment) InstanceController.getObject("TasksFragment");
-            videoListFragment = (VideoListFragment) InstanceController.getObject("VideosFragment");
-            exercisesListFragment = (ExercisesListFragment) InstanceController.getObject("ExercisesFragment");
-            toolsFragment = (ToolsFragment) InstanceController.getObject("ToolsFragment");
+            taskListFragment = (TaskListFragment) InstanceController
+                    .getObject("TasksFragment");
+            videoListFragment = (VideoListFragment) InstanceController
+                    .getObject("VideosFragment");
+            exercisesListFragment = (ExercisesListFragment) InstanceController
+                    .getObject("ExercisesFragment");
+            toolsFragment = (ToolsFragment) InstanceController
+                    .getObject("ToolsFragment");
+            repetitionFragmentLeft = (RepetitionFragmentLeft) InstanceController
+                    .getObject("RepetitionFragmentLeft");
+            repetitionFragmentRight = (RepetitionFragmentRight) InstanceController
+                    .getObject("RepetitionFragmentRight");
+
         } else {
 
             taskListFragment = new TaskListFragment(context);
@@ -220,6 +238,8 @@ public class UI {
                     videoListFragment = new VideoListFragment(context);
                     exercisesListFragment = new ExercisesListFragment(context);
                     toolsFragment = new ToolsFragment(context);
+                    repetitionFragmentLeft = new RepetitionFragmentLeft();
+                    repetitionFragmentRight = new RepetitionFragmentRight();
                 }
             });
 
@@ -241,6 +261,16 @@ public class UI {
             }
             try {
                 InstanceController.putObject("ToolsFragment", toolsFragment);
+            } catch (InstanceController.NotInitializedError notInitializedError) {
+                notInitializedError.printStackTrace();
+            }
+            try {
+                InstanceController.putObject("RepetitionFragmentLeft", repetitionFragmentLeft);
+            } catch (InstanceController.NotInitializedError notInitializedError) {
+                notInitializedError.printStackTrace();
+            }
+            try {
+                InstanceController.putObject("RepetitionFragmentRight", repetitionFragmentRight);
             } catch (InstanceController.NotInitializedError notInitializedError) {
                 notInitializedError.printStackTrace();
             }
@@ -371,26 +401,26 @@ public class UI {
 
     }
 
-    private void addFragments() {
-        FragmentManager manager = mainActivity.getFragmentManager();
-        FragmentTransaction tr = manager.beginTransaction();
-        tr.add(R.id.root_1, exercisesListFragment, "ExercisesListFragment");
-        tr.add(R.id.root_2, toolsFragment, "ToolsFragment");
-        tr.add(R.id.root_2, videoListFragment, "VideoListFragment");
-        tr.add(R.id.root_1, taskListFragment, "TaskListFragment");
-
-        tr.hide(taskListFragment);
-        tr.hide(exercisesListFragment);
-        tr.hide(videoListFragment);
-        tr.hide(toolsFragment);
-        tr.commit();
-
-
-    }
+//    private void addFragments() {
+//        FragmentManager     manager = mainActivity.getFragmentManager();
+//        FragmentTransaction tr      = manager.beginTransaction();
+//        tr.add(R.id.root_1, exercisesListFragment, "ExercisesListFragment");
+//        tr.add(R.id.root_2, toolsFragment, "ToolsFragment");
+//        tr.add(R.id.root_2, videoListFragment, "VideoListFragment");
+//        tr.add(R.id.root_1, taskListFragment, "TaskListFragment");
+//
+//        tr.hide(taskListFragment);
+//        tr.hide(exercisesListFragment);
+//        tr.hide(videoListFragment);
+//        tr.hide(toolsFragment);
+//        tr.commit();
+//
+//
+//    }
 
     public void openExercisesOrToolsFragment(final boolean exercises) {
-        FragmentManager manager = mainActivity.getFragmentManager();
-        FragmentTransaction tr = manager.beginTransaction();
+        FragmentManager     manager = mainActivity.getFragmentManager();
+        FragmentTransaction tr      = manager.beginTransaction();
 
         if (manager.findFragmentById(exercisesListFragment.getId()) == null) {
             tr.add(R.id.root_1, exercisesListFragment, "ExercisesListFragment");
@@ -494,11 +524,54 @@ public class UI {
 
     }
 
-    public void openPreviousFragment() {
-        FragmentTransaction tr = mainActivity.getFragmentManager().beginTransaction();
-        tr.hide(currentFragment);
+    public void closeRepetitionFragment() {
+        FragmentManager     manager = mainActivity.getFragmentManager();
+        FragmentTransaction tr      = manager.beginTransaction();
+        tr.hide(repetitionFragmentLeft);
+        tr.hide(repetitionFragmentRight);
+        currentFragment = taskListFragment;
+
         tr.commit();
+
     }
+
+    public void openRepetitionFragment() {
+        mainActivity.addToBackStack(new Runnable() {
+            @Override
+            public void run() {
+                closeRepetitionFragment();
+            }
+        });
+
+        FragmentManager     manager = mainActivity.getFragmentManager();
+        FragmentTransaction tr      = manager.beginTransaction();
+
+        if (manager.findFragmentById(repetitionFragmentLeft.getId()) == null) {
+            tr.add(R.id.root_1, repetitionFragmentLeft, "RepetitionFragmentLeft");
+        }
+        if (manager.findFragmentById(repetitionFragmentRight.getId()) == null) {
+            tr.add(R.id.root_2, repetitionFragmentRight, "RepetitionFragmentRight");
+        }
+
+//        if (currentFragment != null) {
+//            hideCurrentFragments(tr, true);
+//            hideCurrentFragments(tr, false);
+//        }
+
+        tr.show(repetitionFragmentLeft);
+        tr.show(repetitionFragmentRight);
+
+        tr.commit();
+
+        currentFragment = repetitionFragmentLeft;
+
+    }
+
+//    public void openPreviousFragment() {
+//        FragmentTransaction tr = mainActivity.getFragmentManager().beginTransaction();
+//        tr.hide(currentFragment);
+//        tr.commit();
+//    }
 
     public void openBalanceDialog() {
         balanceWindow = new BalanceWindow(context);
@@ -518,14 +591,14 @@ public class UI {
 
     public void openHintPurchaseWindow(final Task.Exercise exercise) {
         final HintWindow window = new HintWindow(context);
-        LinearLayout layout = new LinearLayout(context);
+        LinearLayout     layout = new LinearLayout(context);
         layout.setLayoutParams(new ViewGroup.LayoutParams(-2, calcSize(80)));
 
         TextView txt = new TextView(context);
         txt.setText("Подсказка стоит "
-                + getPriceLabel(exercise.getHintPrice()) +
-                "\nПродолжить?\n" +
-                "У Вас " + getPriceLabel(mainActivity.profile.Coins));
+                    + getPriceLabel(exercise.getHintPrice()) +
+                    "\nПродолжить?\n" +
+                    "У Вас " + getPriceLabel(mainActivity.profile.Coins));
         txt.setTextSize(20);
         txt.setTextColor(Color.WHITE);
         txt.setLayoutParams(new ViewGroup.LayoutParams(-2, -2));
@@ -533,7 +606,8 @@ public class UI {
 
         ImageButton okBtn = new ImageButton(context);
         okBtn.setBackgroundResource(R.drawable.ok);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(UI.calcSize(40), UI.calcSize(40));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(UI.calcSize(40),
+                UI.calcSize(40));
         lp.gravity = Gravity.RIGHT;
         okBtn.setLayoutParams(lp);
 
@@ -551,7 +625,8 @@ public class UI {
                             mainActivity.updateCoins(-1 * exercise.getHintPrice());
                             updateCoins();
                             exercise.setHintIsBought();
-                            exercisesListFragment.getExerciseWindow().setStatus(ExerciseWindow.PROMPTED);
+                            exercisesListFragment.getExerciseWindow()
+                                    .setStatus(ExerciseWindow.PROMPTED);
                             openHintWindow(exercise);
                         } else {
                             makeErrorMessage(context, "Произошла ошибка:(\nПопробуйте еще раз.");
@@ -621,7 +696,7 @@ public class UI {
 
     public void openExerciseAnswerShowWindow(String answer) {
         final HintWindow window = new HintWindow(context);
-        TextView txt = new TextView(context);
+        TextView         txt    = new TextView(context);
         txt.setTextColor(Color.WHITE);
         txt.setText("Верный ответ: " + answer);
         txt.setTextSize(20);
@@ -635,8 +710,8 @@ public class UI {
     }
 
     public void openExerciseResultWindow(boolean correct, int bonus) {
-        final HintWindow window = new HintWindow(context);
-        TextView textView = new TextView(context);
+        final HintWindow window   = new HintWindow(context);
+        TextView         textView = new TextView(context);
         textView.setTextColor(Color.WHITE);
         if (correct) {
             String text = "Верный ответ!";
@@ -660,8 +735,6 @@ public class UI {
         window.closeWithDelay(2500);
 
     }
-
-
 
     public void updateCoins() {
         mainActivity.runOnUiThread(new Runnable() {
@@ -702,7 +775,7 @@ public class UI {
         okBtn.setBackgroundResource(R.drawable.btn_answer_check);
         okBtn.setText("ЗАЙТИ!");
         okBtn.setTextSize(20);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2,-2);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, -2);
         lp.gravity = Gravity.CENTER_HORIZONTAL;
         okBtn.setLayoutParams(lp);
 
@@ -727,7 +800,8 @@ public class UI {
                                 try {
                                     openTaskOrVideoFragment(true);
                                 } catch (Exception e) {
-                                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                    Reporter.report(context, e,
+                                            ((MainActivity) context).reportSubject);
                                 }
                             }
                         });
@@ -742,7 +816,8 @@ public class UI {
                                 try {
                                     openMenu(mainMenu);
                                 } catch (Exception e) {
-                                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                    Reporter.report(context, e,
+                                            ((MainActivity) context).reportSubject);
                                 }
                             }
                         });
