@@ -16,13 +16,15 @@ import java.util.ArrayList;
  */
 public class DataLoader {
 
-    public final static String ExcerciseDescriptionRequest = "http://213.159.214.5/script/mobile/1/question_load.php?ID=";
-    public final static String ExcerciseHintRequest = "http://213.159.214.5/script/mobile/1/hint_load.php?ID=";
-    public final static String PolicyURL = "http://213.159.214.5/policy.html";
-    private final static String POLICY_SETTINGS = "POLICY";
-    private final static Object b = new Object();
-    static ArrayList<Task> taskList = new ArrayList<>();
-    static int tasks_ready = 0;
+    public final static  String          ExcerciseDescriptionRequest
+                                                         = "http://213.159.214.5/script/mobile/1/question_load.php?ID=";
+    public final static  String          ExcerciseHintRequest
+                                                         = "http://213.159.214.5/script/mobile/1/hint_load.php?ID=";
+    public final static  String          PolicyURL       = "http://213.159.214.5/policy.html";
+    private final static String          POLICY_SETTINGS = "POLICY";
+    private final static Object          b               = new Object();
+    static               ArrayList<Task> taskList        = new ArrayList<>();
+    static               int             tasks_ready     = 0;
     static Context context;
     static boolean loadingInThread = true;
     static Profile p;
@@ -94,10 +96,10 @@ public class DataLoader {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int task_i = p.Tasks.length/2; task_i < p.Tasks.length; task_i++) {
+                for (int task_i = p.Tasks.length / 2; task_i < p.Tasks.length; task_i++) {
                     long t = System.currentTimeMillis();
 
-                    taskList.set(task_i,new Task(context, p.Tasks[task_i]));
+                    taskList.set(task_i, new Task(context, p.Tasks[task_i]));
 
                     Log.d("time_loadTask_" + task_i, (System.currentTimeMillis() - t) + "");
                 }
@@ -105,15 +107,15 @@ public class DataLoader {
             }
         }).start();
 
-        for (int task_i = 0; task_i < p.Tasks.length/2; task_i++) {
+        for (int task_i = 0; task_i < p.Tasks.length / 2; task_i++) {
             long t = System.currentTimeMillis();
 
-            taskList.set(task_i,new Task(context, p.Tasks[task_i]));
+            taskList.set(task_i, new Task(context, p.Tasks[task_i]));
 
             Log.d("time_loadTask_" + task_i, (System.currentTimeMillis() - t) + "");
         }
 
-        while(loadingInThread){
+        while (loadingInThread) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -129,6 +131,13 @@ public class DataLoader {
     public static ArrayList<Task> __loadTasks(Context pcontext) {
         context = pcontext;
         taskList = new ArrayList<>();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                loadRepetitionTasks();
+            }
+        }).start();
 
         p = ((MainActivity) context).profile;
         Log.d("taskLoading", "Profile " + p);
@@ -172,64 +181,75 @@ public class DataLoader {
         return taskList;
     }
 
+    private static void loadRepetitionTasks() {
 
-    public static String getProfile(String profileId) throws Exception{
+
+    }
+
+
+    public static String getProfile(String profileId) throws Exception {
         //        Log.d("Profile",s);
-        return getResponse("http://213.159.214.5/script/mobile/2/profile.php", "ProfileID=" + profileId);
+        return getResponse("http://213.159.214.5/script/mobile/2/profile.php",
+                "ProfileID=" + profileId);
     }
 
-    public static String getVideo(int number) throws Exception{
+    public static String getVideo(int number) throws Exception {
         return "{\"Video\":" +
-                getResponse("http://213.159.214.5/script/mobile/2/video/array.php",
-                        "ProfileID=" + MainActivity.PID + "&TaskNumber=" + number) + "}";
+               getResponse("http://213.159.214.5/script/mobile/2/video/array.php",
+                       "ProfileID=" + MainActivity.PID + "&TaskNumber=" + number) + "}";
     }
 
-    public static String getQuestion(int number) throws Exception{
+    public static String getQuestion(int number) throws Exception {
         return "{\"Questions\":" +
-                getResponse("http://213.159.214.5/script/mobile/2/question/array.php",
-                        "ProfileID=" + MainActivity.PID + "&TaskNumber=" + number) + "}";
+               getResponse("http://213.159.214.5/script/mobile/2/question/array.php",
+                       "ProfileID=" + MainActivity.PID + "&TaskNumber=" + number) + "}";
     }
 
 
-    public static String buyVideo(int id) throws Exception{
-        return getResponse("http://213.159.214.5/script/mobile/2/video/buy.php", "ProfileID=" + MainActivity.PID + "+&VideoID=" + id);
+    public static String buyVideo(int id) throws Exception {
+        return getResponse("http://213.159.214.5/script/mobile/2/video/buy.php",
+                "ProfileID=" + MainActivity.PID + "+&VideoID=" + id);
     }
 
-    public static String buyHint(int id) throws Exception{
-        return getResponse("http://213.159.214.5/script/mobile/2/question/hint/buy.php", "ProfileID=" + MainActivity.PID + "&QuestionID=" + id);
+    public static String buyHint(int id) throws Exception {
+        return getResponse("http://213.159.214.5/script/mobile/2/question/hint/buy.php",
+                "ProfileID=" + MainActivity.PID + "&QuestionID=" + id);
     }
 
-    public static String buyCoins(int count) throws Exception{
-        return getResponse("http://213.159.214.5/script/mobile/2/buy.php", "ProfileID=" + MainActivity.PID + "&Coins=" + count);
+    public static String buyCoins(int count) throws Exception {
+        return getResponse("http://213.159.214.5/script/mobile/2/buy.php",
+                "ProfileID=" + MainActivity.PID + "&Coins=" + count);
     }
 
-    public static String sendQuestions() throws Exception{
-        return getResponse("http://213.159.214.5/script/mobile/2/ProfileID.php", "ProfileID=" + MainActivity.PID);
+    public static String sendQuestions() throws Exception {
+        return getResponse("http://213.159.214.5/script/mobile/2/ProfileID.php",
+                "ProfileID=" + MainActivity.PID);
     }
 
     public static String putRepost() throws Exception {
-        return getResponse("http://213.159.214.5/script/mobile/2/repost.php", "ProfileID=" + MainActivity.PID + "&Check=1");
+        return getResponse("http://213.159.214.5/script/mobile/2/repost.php",
+                "ProfileID=" + MainActivity.PID + "&Check=1");
     }
 
     public static String putQuestion(int id, int status) throws Exception {
-        return getResponse("http://213.159.214.5/script/mobile/2/question/save.php", "ProfileID=" + MainActivity.PID + "&Question=" + id + ":" + status + "|");
+        return getResponse("http://213.159.214.5/script/mobile/2/question/save.php",
+                "ProfileID=" + MainActivity.PID + "&Question=" + id + ":" + status + "|");
     }
-
 
     static String getResponse(String url, String params) throws Exception {
 
         String line = "", result = "";
 
-            HttpURLConnection connection = (HttpURLConnection)
-                    new URL(url).openConnection();
-            connection.setDoOutput(true);
-            connection.setRequestMethod("POST");
-            connection.getOutputStream().write(params.getBytes());
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            while ((line = br.readLine()) != null) {
-                result = line;
-            }
-            br.close();
+        HttpURLConnection connection = (HttpURLConnection)
+                new URL(url).openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestMethod("POST");
+        connection.getOutputStream().write(params.getBytes());
+        BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        while ((line = br.readLine()) != null) {
+            result = line;
+        }
+        br.close();
 
         return result;
     }
@@ -302,7 +322,8 @@ public class DataLoader {
     public static boolean isLicenseAccepted(Context context) {
 
         try {
-            return 1 == context.getSharedPreferences(MainActivity.APP_SETTINGS, Context.MODE_PRIVATE)
+            return 1 == context
+                    .getSharedPreferences(MainActivity.APP_SETTINGS, Context.MODE_PRIVATE)
                     .getInt(POLICY_SETTINGS, 0);
         } catch (Exception e) {
             Reporter.report(context, e, ((MainActivity) context).reportSubject);
@@ -374,8 +395,46 @@ public class DataLoader {
         }
     }
 
+
+    /**
+     * @return names of files to load during QuickTest in the right order
+     */
+    public static String[] getQuickTestTasks(int videoID) {
+
+        try {
+            String result = getResponse("http://213.159.214.5/script/mobile/3/video/test/array.php",
+                    "ProfileID=" + MainActivity.PID + "&VideoID=" + videoID);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
+
+    public static String getRepetitionTasksJson() {
+
+        String result = "";
+
+        try {
+            result = getResponse("http://213.159.214.5/script/mobile/3/video/test/array.php",
+                    "ProfileID=" + MainActivity.PID);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     public static String getRepetitionTask(String id) {
         return "";
+    }
+
+    public static String getRepetitionFolder(Context context) {
+        return context.getApplicationContext().getFilesDir() + "/Repetition/";
     }
 
     public interface onTaskLoadCompleted {

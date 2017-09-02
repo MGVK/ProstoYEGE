@@ -15,6 +15,7 @@ import ru.mgvk.prostoege.*;
 import ru.mgvk.prostoege.ui.MyCoordinatorLayout;
 import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.prostoege.ui.VerticalScrollView;
+import ru.mgvk.prostoege.ui.statistic.MainStatisticView;
 import ru.mgvk.util.Reporter;
 
 import java.util.ArrayList;
@@ -28,12 +29,13 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
     public  MyCoordinatorLayout myCoordinatorLayout;
     private LinearLayout        taskListLayout, mainTaskListLayout;
     private MainActivity mainActivity;
-    private Context context;
-    private Task currentTask;
-    private ImageButton menuButton, forwardButton;
+    private Context      context;
+    private Task         currentTask;
+    private ImageButton  menuButton, forwardButton;
     private TextView balanceView;
     private ArrayList<Task> taskList = new ArrayList<>();
-    private ImageView rings;
+    private ImageView         rings;
+    private MainStatisticView mainStatisticView;
 
     @SuppressLint("ValidFragment")
     public TaskListFragment() {
@@ -47,7 +49,8 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_tasklist, container, false);
         mainActivity = (MainActivity) (this.context = inflater.getContext());
 
@@ -62,13 +65,18 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
         taskScroll = (VerticalScrollView) mainActivity.findViewById(R.id.task_scroll);
         myCoordinatorLayout = (MyCoordinatorLayout) mainActivity
                 .findViewById(R.id.coordinator_layout);
-        (menuButton = (ImageButton) mainActivity.findViewById(R.id.btn_menu)).setOnClickListener(this);
-        (forwardButton = (ImageButton) mainActivity.findViewById(R.id.btn_forward_task)).setOnClickListener(this);
-        (balanceView = (TextView) mainActivity.findViewById(R.id.btn_coins)).setOnClickListener(this);
+        (menuButton = (ImageButton) mainActivity.findViewById(R.id.btn_menu))
+                .setOnClickListener(this);
+        (forwardButton = (ImageButton) mainActivity.findViewById(R.id.btn_forward_task))
+                .setOnClickListener(this);
+        (balanceView = (TextView) mainActivity.findViewById(R.id.btn_coins))
+                .setOnClickListener(this);
         rings = (ImageView) mainActivity.findViewById(R.id.rings);
         mainTaskListLayout = (LinearLayout) mainActivity.findViewById(R.id.main_tasklist_layout);
+        mainStatisticView = (MainStatisticView) mainActivity.findViewById(R.id.main_statistic_view);
 
-        if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+        if (context.getResources().getConfiguration().orientation
+            == Configuration.ORIENTATION_PORTRAIT) {
             setPortraitMode();
         }
 
@@ -90,7 +98,8 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
             rings.setVisibility(View.GONE);
         }
         if (mainTaskListLayout != null) {
-            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainTaskListLayout.getLayoutParams());
+            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainTaskListLayout
+                    .getLayoutParams());
             lp.rightMargin = 0;
             mainTaskListLayout.setLayoutParams(lp);
         }
@@ -105,7 +114,8 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
             rings.setVisibility(View.VISIBLE);
         }
         if (mainTaskListLayout != null) {
-            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainTaskListLayout.getLayoutParams());
+            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainTaskListLayout
+                    .getLayoutParams());
             lp.rightMargin = UI.calcSize(32);
             mainTaskListLayout.setLayoutParams(lp);
         }
@@ -124,9 +134,10 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
             initViews();
 
             taskList = (ArrayList<Task>) InstanceController.getObject("TaskList");
-            if (taskList == null) {
-                taskList = new ArrayList<>();
 
+            if (taskList == null) {
+
+                taskList = new ArrayList<>();
 
                 DataLoader.setOnTaskLoadCompleted(new DataLoader.onTaskLoadCompleted() {
                     @Override
@@ -380,5 +391,9 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
         super.onDestroyView();
         Log.d("ActivityState_Tasks", "onDestroyView");
 
+    }
+
+    public Object getMainStatistic() {
+        return mainStatisticView;
     }
 }

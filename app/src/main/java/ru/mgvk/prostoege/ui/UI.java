@@ -63,7 +63,9 @@ public class UI {
         }
 
         initSizes();
+
         initFragments(restoring);
+
 //        addFragments();
 
         initViews();
@@ -216,6 +218,7 @@ public class UI {
 //            toolsFragment = (ToolsFragment) mainActivity.getFragmentManager()
 //                    .findFragmentByTag("ToolsFragment");
             mainActivity.stopwatch.checkpoint("initFragments_1");
+
             taskListFragment = (TaskListFragment) InstanceController
                     .getObject("TasksFragment");
             videoListFragment = (VideoListFragment) InstanceController
@@ -232,6 +235,7 @@ public class UI {
         } else {
 
             taskListFragment = new TaskListFragment(context);
+
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

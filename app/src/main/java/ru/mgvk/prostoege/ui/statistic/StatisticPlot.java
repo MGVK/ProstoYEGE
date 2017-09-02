@@ -1,15 +1,15 @@
 package ru.mgvk.prostoege.ui.statistic;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.fragments.RepetitionFragmentLeft;
 import ru.mgvk.prostoege.ui.UI;
@@ -23,7 +23,8 @@ import java.util.Locale;
 /**
  * Created by mike on 24.07.17.
  */
-public class StatisticPlot extends LinearLayout {
+public class StatisticPlot extends LinearLayout
+        implements MainActivity.OnConfigurationUpdateListener {
 
 
     private Surface surface;
@@ -40,18 +41,25 @@ public class StatisticPlot extends LinearLayout {
         setOrientation(HORIZONTAL);
         surface = new Surface(context, height);
         addView(surface);
-
+        ((MainActivity) context).addOnConfigurationUpdateListener(this);
     }
 
     void addColumn(RepetitionFragmentLeft.Result result) {
         surface.addColumn(result);
     }
 
+    @Override
+    public void onConfigurationUpdate(Configuration configuration) {
+        if (surface != null) {
+            surface.initSizesForced();
+        }
+    }
+
     interface OnPlotScaleChangeListener {
         void onChange();
     }
 
-    private static class Surface extends TextView {
+    private static class Surface extends View {
 
 
         private final int COLUMN_UNCHOOSED_COLOR = Color.parseColor("#ffbfbfbf");
@@ -65,7 +73,7 @@ public class StatisticPlot extends LinearLayout {
         Paint currentColumnPaint;
         private int               axisStartX            = 0;
         private int               axisLabelStartX       = UI.calcSize(5);
-        private int               axisLabelMarginBottom = UI.calcSize(4);
+        private int               axisLabelMarginBottom = UI.calcSize(5);
         private int               axisLabelMarginTop    = UI.calcSize(10);
         private int               height                = 0;
         private double            columnDX              = 0;
@@ -79,6 +87,8 @@ public class StatisticPlot extends LinearLayout {
         private int               plotHeight            = 0;
         private float             threshold             = 0;
         private int               columnWidth           = 10;
+        private int               indexOffset           = 0;
+        private double            heightRatio           = 5 / 6.0;
         private Paint   axisPaint;
         private Paint   axisLabelPaint;
         private Paint   axis0Paint;
@@ -87,11 +97,10 @@ public class StatisticPlot extends LinearLayout {
         private Context context;
         private float   thresholdCommon;
         private Paint   columnPaintChoosed;
-        private int indexOffset = 0;
 
         public Surface(Context context, int height) {
             super(context);
-            this.plotHeight = (int) (5 / 6.0 * (this.height = height));
+            this.plotHeight = (int) (heightRatio * (this.height = height));
             this.context = context;
             init();
         }
@@ -119,9 +128,32 @@ public class StatisticPlot extends LinearLayout {
 
         }
 
+        void initSizesForced() {
+            plotHeight = (int) (heightRatio * getHeight());
+            width = getWidth();
+            axisLabelStartX = width - UI.calcSize(8);
+
+            columnDxCommon = (axisLabelStartX) / (double) (columnsList.size() + 1);
+
+            //так как добавление всегда последовательно, то мы определяем размер только пока
+            // кол-во < 8, а потом просто используем старое значение, которое было при кол-ве == 7
+            if (columnsList.size() < 8) {
+                columnDX = columnDxCommon;
+                threshold = (float) ((columnDX + columnWidth / 2) % columnDX) * 2;
+                indexOffset = 0;
+            } else {
+                indexOffset = columnsList.size() - 7;
+            }
+            thresholdCommon = (float) ((columnDX + columnWidth / 2) % columnDxCommon) /* * 2*/;
+
+//            Log.d(TAG, "initSizesForced: " + width + " " + height);
+
+
+        }
+
         void initSizes() {
             if (plotHeight == 0) {
-                plotHeight = getHeight();
+                plotHeight = (int) (heightRatio * getHeight());
             }
             if (width == 0) {
                 width = getWidth();
@@ -156,7 +188,7 @@ public class StatisticPlot extends LinearLayout {
         @Override
         protected void onDraw(Canvas canvas) {
 
-            initSizes();
+            initSizesForced();
 
             drawAXIS(canvas);
 
@@ -245,19 +277,8 @@ public class StatisticPlot extends LinearLayout {
                     (float) (result.getScoreSecondary() / 100.0 * (plotHeight
                                                                    - 2 * axisLabelMarginBottom))));
 
-            columnDxCommon = (axisLabelStartX) / (double) (columnsList.size() + 1);
-
-            //так как добавление всегда последовательно, то мы определяем размер только пока
-            // кол-во < 8, а потом просто используем старое значение, которое было при кол-ве == 7
-            if (columnsList.size() < 8) {
-                columnDX = columnDxCommon;
-                threshold = (float) ((columnDX + columnWidth / 2) % columnDX) * 2;
-                indexOffset = 0;
-            } else {
-                indexOffset = columnsList.size() - 7;
-            }
-            thresholdCommon = (float) ((columnDX + columnWidth / 2) % columnDxCommon) /* * 2*/;
-            Log.d(TAG, "addColumn: " + columnDX + " " + threshold);
+            initSizesForced();
+//            Log.d(TAG, "addColumn: " + columnDX + " " + threshold);
             postInvalidate();
         }
 
@@ -369,7 +390,6 @@ public class StatisticPlot extends LinearLayout {
             postInvalidate();
 
         }
-
     }
 
     static class Column {

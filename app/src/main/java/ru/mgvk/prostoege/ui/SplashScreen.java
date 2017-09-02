@@ -23,7 +23,8 @@ public class SplashScreen extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
 
-        final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll()
+                .build();
         StrictMode.setThreadPolicy(policy);
 
         new InstanceController();
@@ -66,12 +67,14 @@ public class SplashScreen extends Activity {
                                     .setTitle("Ошибка!")
                                     .setMessage("Не могу запуститься без интернета :(")
                                     .setCancelable(false)
-                                    .setPositiveButton("Выход", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            System.exit(1);
-                                        }
-                                    })
+                                    .setPositiveButton("Выход",
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog,
+                                                                    int which) {
+                                                    System.exit(1);
+                                                }
+                                            })
                                     .create().show();
                         }
                     });
@@ -81,9 +84,7 @@ public class SplashScreen extends Activity {
 
 
             }
-        })
-                .start()
-        ;
+        }).start();
 
     }
 }

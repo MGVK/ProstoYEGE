@@ -63,8 +63,33 @@ public class MainStatisticView extends LinearLayout {
         context = getContext();
         initViews();
 
+        initTestData();
+
+
         setCurrentPoints(0);
         setDesiredPoints(0);
+    }
+
+    private void initTestData() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.currentThread().sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                ((MainActivity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        plot.addColumn(new RepetitionFragmentLeft.Result(0, 0));
+                        plot.addColumn(new RepetitionFragmentLeft.Result(25, 50));
+                        plot.addColumn(new RepetitionFragmentLeft.Result(50, 100));
+                    }
+                });
+
+            }
+        }).start();
     }
 
     private void initViews() {
@@ -73,12 +98,12 @@ public class MainStatisticView extends LinearLayout {
         setPoints();
         setPlot();
         setTestButton();
-        setChengeScaleButton();
+        setChangeScaleButton();
         setRepetitionBtn();
         setTaskLabel();
     }
 
-    private void setChengeScaleButton() {
+    private void setChangeScaleButton() {
         scaleButton = new Button(context);
         scaleButton.setText("Показать все");
         scaleButton.setLayoutParams(new LayoutParams(-1, UI.calcSize(50)));
@@ -96,6 +121,10 @@ public class MainStatisticView extends LinearLayout {
             }
         });
 
+    }
+
+    public void addResult(RepetitionFragmentLeft.Result result) {
+        plot.addColumn(result);
     }
 
     private void changeScaleButtonLabel() {
@@ -214,25 +243,7 @@ public class MainStatisticView extends LinearLayout {
     private void setPlot() {
         plot = new StatisticPlot(context);
         addView(plot);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.currentThread().sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                ((MainActivity) context).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        plot.addColumn(new RepetitionFragmentLeft.Result(0, 0));
-                        plot.addColumn(new RepetitionFragmentLeft.Result(25, 50));
-                        plot.addColumn(new RepetitionFragmentLeft.Result(50, 100));
-                    }
-                });
 
-            }
-        }).start();
     }
 
     public int getCurrentPoints() {

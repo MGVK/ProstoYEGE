@@ -32,7 +32,8 @@ public class Profile {
 
     Videos loadVideo(TaskData taskData) {
         try {
-            return taskData.Videos = new Gson().fromJson(DataLoader.getVideo(taskData.Number), Videos.class);
+            return taskData.Videos = new Gson()
+                    .fromJson(DataLoader.getVideo(taskData.Number), Videos.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -102,11 +103,15 @@ public class Profile {
 
     }
 
+    public static class Questions {
+        TaskData.ExercizesData Questions[];
+    }
+
     public class TaskData {
-        public Videos Videos;
+        public Videos    Videos;
         public Questions Questions;
         String Description = "Описание";
-        int Points = 2;
+        int    Points      = 2;
         int Number;
 
         public int getPictureID() {
@@ -114,31 +119,27 @@ public class Profile {
         }
 
         public class VideoData {
-            public int ID = 0;
-            public int Number = 0;
+            public int    ID          = 0;
+            public int    Number      = 0;
             public String Description = "description";
-            public int Price = 0;
-            public String YouTube = "";
+            public int    Price       = 0;
+            public String YouTube     = "";
         }
 
         public class ExercizesData {
-            public int ID = 0;
-            public int Number = 0;
-            public int PriceHint = 0;
-            public String Answer = "_0_o__...";
-            public int Status = 0;
+            public int     ID           = 0;
+            public int     Number       = 0;
+            public int     PriceHint    = 0;
+            public String  Answer       = "_0_o__...";
+            public int     Status       = 0;
             public boolean hintIsBought = false;
-            public int Bonus1 = 0;
-            public int Bonus2 = 0;
+            public int     Bonus1       = 0;
+            public int     Bonus2       = 0;
         }
     }
 
     public class Videos {
         TaskData.VideoData Video[];
-    }
-
-    public class Questions {
-        TaskData.ExercizesData Questions[];
     }
 
 }

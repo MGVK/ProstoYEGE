@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import ru.mgvk.prostoege.MainActivity;
-import ru.mgvk.prostoege.fragments.RepetitionFragmentLeft;
+import ru.mgvk.util.RepetitionTimer;
 
 /**
  * Created by mike on 10.08.17.
@@ -16,13 +16,13 @@ import ru.mgvk.prostoege.fragments.RepetitionFragmentLeft;
 public class TimeButton extends TextView implements View.OnClickListener {
 
 
-    private static final int TIME_ALL       = 0;
-    private static final int TIME_TO_FINISH = 1;
-    private static final int EMPTY          = 2;
-    RepetitionFragmentLeft.RepetitionTimer currentTimer;
+    public static final int TIME_ALL       = 0;
+    public static final int TIME_TO_FINISH = 1;
+    public static final int EMPTY          = 2;
+    RepetitionTimer currentTimer;
     private int currentState = 0;
-    private OnClickListener                                       externalListener;
-    private RepetitionFragmentLeft.RepetitionTimer.OnTimerTicking currentTicking;
+    private OnClickListener                externalListener;
+    private RepetitionTimer.OnTimerTicking currentTicking;
 
     public TimeButton(Context context) {
         super(context);
@@ -50,12 +50,12 @@ public class TimeButton extends TextView implements View.OnClickListener {
         super.setOnClickListener(this);
     }
 
-    public RepetitionFragmentLeft.RepetitionTimer getTimer() {
+    public RepetitionTimer getTimer() {
         return currentTimer;
     }
 
     public void setTimer(
-            RepetitionFragmentLeft.RepetitionTimer currentTimer) {
+            RepetitionTimer currentTimer) {
         this.currentTimer = currentTimer;
     }
 
@@ -69,7 +69,7 @@ public class TimeButton extends TextView implements View.OnClickListener {
         externalListener = l;
     }
 
-    void changeState(int newState) {
+    public void changeState(int newState) {
         disableTicking();
         switch (newState) {
             case TIME_ALL: {
@@ -103,7 +103,7 @@ public class TimeButton extends TextView implements View.OnClickListener {
 
     private void showTimeToFinish() {
         Toast.makeText(getContext(), "TTL", Toast.LENGTH_SHORT).show();
-        currentTimer.addOnTimerTicking(currentTicking = new RepetitionFragmentLeft.RepetitionTimer
+        currentTimer.addOnTimerTicking(currentTicking = new RepetitionTimer
                 .OnTimerTicking() {
             @Override
             public void onStart() {
@@ -124,9 +124,11 @@ public class TimeButton extends TextView implements View.OnClickListener {
             public void onAnticlockwiseTick(long remainingTime) {
                 final String time = "осталось: "
                                     + remainingTime / 3600
-                                    + " ч "
-                                    + remainingTime % 60
-                                    + "м";
+                                    + ":"
+                                    + (remainingTime % 3600) / 60
+                                    + ":"
+                                    + remainingTime % 60;
+
                 ((MainActivity) getContext()).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -139,7 +141,7 @@ public class TimeButton extends TextView implements View.OnClickListener {
 
     private void showPastTime() {
         Toast.makeText(getContext(), "PastTime", Toast.LENGTH_SHORT).show();
-        currentTimer.addOnTimerTicking(currentTicking = new RepetitionFragmentLeft.RepetitionTimer
+        currentTimer.addOnTimerTicking(currentTicking = new RepetitionTimer
                 .OnTimerTicking() {
             @Override
             public void onStart() {
@@ -153,7 +155,12 @@ public class TimeButton extends TextView implements View.OnClickListener {
 
             @Override
             public void onClockwiseTick(final long pastTime) {
-                final String time = "прошло: " + pastTime / 3600 + " ч " + pastTime % 60 + "м";
+                final String time = "прошло: "
+                                    + pastTime / 3600
+                                    + ":"
+                                    + (pastTime % 3600) / 60
+                                    + ":"
+                                    + pastTime % 60;
                 ((MainActivity) getContext()).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

@@ -18,10 +18,11 @@ import java.util.ArrayList;
  */
 public class PaintView extends View {
 
+    Paint backgroundPaint;
     private int lineColor, alpha, lineWidth;
-    private ArrayList<Point> points = new ArrayList<>();
-    private Paint paint = new Paint();
-    private int backgroundColor = Color.WHITE;
+    private ArrayList<Point> points          = new ArrayList<>();
+    private Paint            paint           = new Paint();
+    private int              backgroundColor = Color.WHITE;
 
     public PaintView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -40,10 +41,18 @@ public class PaintView extends View {
         super(context);
     }
 
-    public void setParams(int linecolor, int alpha, int lwidth) {
+    public void setParams(int linecolor, int alpha, int lwidth, int backgroundColor) {
         this.lineColor = linecolor;
         this.alpha = alpha;
         this.lineWidth = lwidth;
+        this.backgroundColor = backgroundColor;
+        initBackgroundPaint();
+        paint.setStyle(Paint.Style.FILL);
+
+    }
+
+    public void setParams(int linecolor, int alpha, int lwidth) {
+        setParams(linecolor, alpha, lwidth, backgroundColor);
     }
 
     public void setParams(int linecolor, int lwidth) {
@@ -55,9 +64,8 @@ public class PaintView extends View {
     }
 
     public void setLineWidth(int lineWidth) {
-        this.lineWidth = lineWidth+1;
+        this.lineWidth = lineWidth + 1;
     }
-
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
@@ -87,23 +95,27 @@ public class PaintView extends View {
         postInvalidate();
     }
 
+    void initBackgroundPaint() {
+        backgroundPaint = new Paint();
+        backgroundPaint.setColor(backgroundColor);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
 
-        Paint p = new Paint();
-        p.setColor(backgroundColor);
-        canvas.drawPaint(p);
+        canvas.drawPaint(backgroundPaint);
         Point currPoint = null;
         for (Point newPoint : getPoints()) {
             if (currPoint != null && newPoint != null) {
-                paint.setStyle(Paint.Style.FILL);
                 paint.setColor(newPoint.getColor());
                 paint.setAlpha(newPoint.getAlpha());
                 paint.setStrokeWidth(currPoint.getWidth());
 
-                canvas.drawLine(currPoint.getX(),currPoint.getY(),newPoint.getX(),newPoint.getY(), paint);
+                canvas.drawLine(currPoint.getX(), currPoint.getY(), newPoint.getX(),
+                        newPoint.getY(), paint);
 
-                canvas.drawCircle(currPoint.getX(), currPoint.getY(),currPoint.getWidth()/2, paint);
+                canvas.drawCircle(currPoint.getX(), currPoint.getY(), currPoint.getWidth() / 2,
+                        paint);
             }
             currPoint = newPoint;
         }

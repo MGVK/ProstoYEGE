@@ -10,19 +10,19 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.*;
+import ru.mgvk.prostoege.DataLoader;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
 import ru.mgvk.prostoege.ui.ExerciseWindow;
 import ru.mgvk.prostoege.ui.TimeButton;
 import ru.mgvk.prostoege.ui.UI;
+import ru.mgvk.util.RepetitionTimer;
+import ru.mgvk.util.Reporter;
 
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * Created by mike on 28.07.17.
@@ -43,6 +43,8 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     private boolean stopped            = false;
     // duration in  seconds
     private int     repetitionDuration = (3/*hour*/ * 60 + 55)/*minutes*/ * 60;
+    private RepetitionData data;
+    private Result         currentResult;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,6 +63,7 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
 
         if (!isStopped()) {
+
             initViews();
 
             initTimer();
@@ -68,12 +71,55 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         }
         setStopped(false);
 
+        prepareData();
+
         openStartDialog();
 
         super.onStart();
 
     }
 
+    private void prepareData() {
+        if (data == null) {
+            data = RepetitionData.fromFuckingJSON(context, DataLoader
+                    .getRepetitionTasksJson());
+        }
+
+
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+
+
+        if (!hidden) {        // start
+
+            onStart();
+
+        } else {              // stop
+
+            finishRepetition();
+
+        }
+    }
+
+    private void onRepetitionFinished() {
+        Toast.makeText(context, getString(R.string.toast_repetition_finish), Toast.LENGTH_SHORT)
+                .show();
+
+        // TODO: 12.08.17 Выкидываем результат в статистику
+
+        currentResult = new Result((int) (Math.random() * 100));
+
+//        mainActivity.ui.taskListFragment.getMainStatistic().addResult(currentResult);
+
+    }
+
+
+    private void finishRepetition() {
+        repetitionTimer.stop();
+    }
 
     private void openStartDialog() {
         new AlertDialog.Builder(context)
@@ -86,11 +132,12 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
                 })
                 .setNegativeButton("Отмена", null)
                 .create().show();
-
     }
+
 
     private void startRepetition() {
         repetitionTimer.start();
+        timeButton.changeState(TimeButton.TIME_ALL);
     }
 
     private void initTimer() {
@@ -98,12 +145,12 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         repetitionTimer.addOnTimerTicking(new RepetitionTimer.OnTimerTicking() {
             @Override
             public void onStart() {
-
+                onRepetitionStarted();
             }
 
             @Override
             public void onFinish() {
-
+                onRepetitionFinished();
             }
 
             @Override
@@ -119,6 +166,10 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
         timeButton.setTimer(repetitionTimer);
 
+
+    }
+
+    private void onRepetitionStarted() {
 
     }
 
@@ -164,15 +215,42 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
     private void setTitleLayout() {
         titleLayout = new TitleLayout(context);
+        titleLayout.setRepetitionControl(new TitleLayout.RepetitionControl() {
+            @Override
+            public void onNextTask() {
+                openNextTask();
+            }
+
+            @Override
+            public void onPrevTask() {
+                openPrevTask();
+            }
+
+            @Override
+            public void onFinish() {
+                finishRepetition();
+            }
+        });
         mainLayout.addView(titleLayout);
+    }
+
+    private void openPrevTask() {
+
+    }
+
+    private void openNextTask() {
+
     }
 
     private void setTaskDescription() {
 
         ExerciseWindow.DescriptionWebView description = new ExerciseWindow.DescriptionWebView
                 (context);
-        description.loadUrl("yandex.ru");
+        description
+                .loadUrl("file://" + context.getApplicationContext().getFilesDir() + "/test.html");
+//        description.loadUrl();
         description.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
+        description.setMinimumHeight(UI.calcSize(100));
 
         mainLayout.addView(description);
     }
@@ -188,7 +266,6 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
                 break;
             }
-
             default: {
                 if ((Integer) v.getTag() == 10) {
                     answerLayout.togglePositive_Negative();
@@ -203,7 +280,6 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
                                     String.valueOf(v.getTag())));
                 }
             }
-
         }
     }
 
@@ -220,12 +296,196 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     }
 
     private void switchMode(boolean portrait) {
+
         if (portrait) {
 
         } else {
 
         }
 
+    }
+
+
+    public static class RepetitionData {
+
+        private static HashMap<Integer, RepetitionTask> map = new HashMap<>();
+
+        static RepetitionData fromFuckingJSON(Context context, String json) {
+
+            if (json.length() < 3) {
+                return null;
+            }
+            RepetitionData repetitionData = new RepetitionData();
+
+            json = json.substring(1, json.length() - 1);
+
+            int i = 0, currentIndex = 0;
+
+            try {
+
+                for (String s : json.split(":")) {
+                    for (String s1 : s.split(",")) {
+                        if (s1.equals("null")) {
+                            i = 0;
+                        } else {
+                            if (i == 0) {
+                                //number
+                                map.put(currentIndex = Integer
+                                                .parseInt(s1.substring(1, s1.length() - 1)),
+                                        new RepetitionFragmentLeft.RepetitionData.RepetitionTask());
+                            }
+                            if (i == 2) {
+                                //ID
+                                map.get(currentIndex).ID = Integer
+                                        .parseInt(s1.substring(1, s1.length() - 1));
+                            }
+                            if (i == 4) {
+                                //description
+                                map.get(currentIndex).Description = s1
+                                        .substring(1, s1.length() - 2);
+                            }
+                            i = increment(i);
+                        }
+
+                    }
+                }
+            } catch (Exception e) {
+                Reporter.report(context, e, MainActivity.PID);
+            }
+
+            repetitionData.setMap(map);
+
+            return repetitionData;
+        }
+
+        private static int increment(int i) {
+            return i >= 4 ? 0 : ++i;
+        }
+
+        public void setMap(
+                HashMap<Integer, RepetitionTask> map) {
+            this.map = map;
+        }
+
+        public static class RepetitionTask {
+
+            int    ID          = 0;
+            String Description = "";
+
+        }
+
+    }
+
+    private static class TitleLayout extends LinearLayout implements View.OnClickListener {
+
+        private Context           context;
+        private TextView          textView;
+        private RepetitionControl repetitionControl;
+
+        public TitleLayout(Context context) {
+            super(context);
+            this.context = context;
+            setOrientation(HORIZONTAL);
+            setLayoutParams(new LayoutParams(-1, UI.calcSize(65)));
+            setTitleTextView();
+            setButtons();
+
+        }
+
+        public void setRepetitionControl(
+                RepetitionControl repetitionControl) {
+            this.repetitionControl = repetitionControl;
+        }
+
+        private void setTitleTextView() {
+            textView = new TextView(context);
+            textView.setTextSize(20);
+            textView.setGravity(Gravity.CENTER);
+            textView.setLayoutParams(new LayoutParams(-1, -1, 3));
+            textView.setText("Заданиe ");
+            addView(textView);
+        }
+
+        private void setButtons() {
+
+            Button prevBtn   = new Button(context);
+            Button finishBtn = new Button(context);
+            Button nextBtn   = new Button(context);
+
+            prevBtn.setLayoutParams(new LayoutParams(-1, -1, 5));
+            finishBtn.setLayoutParams(new LayoutParams(-1, -1, 5));
+            nextBtn.setLayoutParams(new LayoutParams(-1, -1, 5));
+
+            prevBtn.setOnClickListener(this);
+            finishBtn.setOnClickListener(this);
+            nextBtn.setOnClickListener(this);
+
+            prevBtn.setTag(0);
+            finishBtn.setTag(1);
+            nextBtn.setTag(2);
+
+            prevBtn.setBackgroundResource(R.drawable.repetition_left);
+            finishBtn.setBackgroundResource(R.drawable.repetition_finish);
+            nextBtn.setBackgroundResource(R.drawable.repetition_right);
+
+            addView(prevBtn);
+            addView(finishBtn);
+            addView(nextBtn);
+
+        }
+
+
+        public void setTitle(String title) {
+            if (textView != null) {
+                textView.setText(title);
+            }
+        }
+
+        @Override
+        public void onClick(View v) {
+            switch ((Integer) v.getTag()) {
+                case 0: {
+                    onPrevTask();
+                }
+                case 1: {
+                    onFinish();
+                }
+                case 2: {
+                    onNextTask();
+
+                }
+            }
+
+
+        }
+
+        private void onPrevTask() {
+            if (repetitionControl != null) {
+                repetitionControl.onPrevTask();
+            }
+        }
+
+        private void onFinish() {
+            if (repetitionControl != null) {
+                repetitionControl.onFinish();
+            }
+        }
+
+        private void onNextTask() {
+            if (repetitionControl != null) {
+                repetitionControl.onNextTask();
+            }
+        }
+
+        public interface RepetitionControl {
+
+            void onNextTask();
+
+            void onPrevTask();
+
+            void onFinish();
+
+        }
     }
 
     public static class Result {
@@ -251,163 +511,52 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         }
     }
 
-    private static class TitleLayout extends LinearLayout implements View.OnClickListener {
+    public static class RepetitionTask {
 
+        String ID;
+        String Description;
+        String URL;
+        private Context context;
 
-        private Context           context;
-        private TextView          textView;
-        private RepetitionControl repetitionControl;
-
-
-        public TitleLayout(Context context) {
-            super(context);
+        public RepetitionTask(Context context, String ID, String description) {
+            this.ID = ID;
+            Description = description;
             this.context = context;
-            setOrientation(HORIZONTAL);
-            setLayoutParams(new LayoutParams(-1, UI.calcSize(100)));
-            setTitleTextView();
-            setButtons();
         }
 
-        private void setTitleTextView() {
-            textView = new TextView(context);
-            textView.setTextSize(20);
-            textView.setGravity(Gravity.CENTER);
-            textView.setLayoutParams(new LayoutParams(-1, -1, 3));
+        public String getURL() {
+            return URL;
         }
 
-        private void setButtons() {
-            Button prevBtn   = new Button(context);
-            Button finishBtn = new Button(context);
-            Button nextBtn   = new Button(context);
-
-            prevBtn.setLayoutParams(new LayoutParams(-1, -1, 1));
-            finishBtn.setLayoutParams(new LayoutParams(-1, -1, 1));
-            nextBtn.setLayoutParams(new LayoutParams(-1, -1, 1));
-
-            prevBtn.setOnClickListener(this);
-            finishBtn.setOnClickListener(this);
-            nextBtn.setOnClickListener(this);
-
-            prevBtn.setTag(0);
-            finishBtn.setTag(1);
-            nextBtn.setTag(2);
-
+        public String getID() {
+            return ID;
         }
 
+        public void setID(String ID) {
+            this.ID = ID;
+        }
 
-        public void setTitle(String title) {
-            if (textView != null) {
-                textView.setText(title);
+        public String getDescription() {
+            return Description;
+        }
+
+        public void setDescription(String description) {
+            Description = description;
+            writeToFile();
+            URL = "file://" + URL;
+        }
+
+        private void writeToFile() {
+            try {
+                FileWriter writer = new FileWriter(URL = (DataLoader.getRepetitionFolder(context) +
+                                                          ID + ".html"));
+                writer.write(Description);
+                writer.flush();
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
-
-        @Override
-        public void onClick(View v) {
-            switch ((Integer) v.getTag()) {
-                case 0: {
-
-                }
-                case 1: {
-
-                }
-                case 2: {
-
-                }
-            }
-
-
-        }
-
-        public static interface RepetitionControl {
-
-            void onNextTask();
-
-            void onPrevTask();
-
-            void onFinish();
-
-        }
     }
-
-
-    public static class RepetitionTimer extends TimerTask {
-
-        Timer currentTimer;
-        //        OnTimerTicking onTimerTicking;
-        ArrayList<OnTimerTicking> tickings = new ArrayList<>();
-        long                      period   = 1000;  // 1s
-        long                      dealy    = 1000;   // 1s
-        long pastTime;
-        long startTime;
-        long duration;
-
-
-        /**
-         * @param duration - Duration of timer in seconds
-         */
-        public RepetitionTimer(long duration) {
-            this.duration = duration * 1000;
-            startTime = System.currentTimeMillis();
-        }
-
-        void start() {
-            (currentTimer = new Timer()).schedule(this, dealy, period);
-            for (OnTimerTicking ticking : tickings) {
-                ticking.onStart();
-            }
-        }
-
-        public void addOnTimerTicking(
-                OnTimerTicking onTimerTicking) {
-            this.tickings.add(onTimerTicking);
-        }
-
-        @Override
-        public void run() {
-            //disable timer
-            if (pastTime >= duration) {
-                currentTimer.cancel();
-
-                for (OnTimerTicking ticking : tickings) {
-                    ticking.onFinish();
-                }
-
-            }
-
-            for (OnTimerTicking ticking : tickings) {
-
-                ticking.onClockwiseTick(pastTime / 1000);
-                ticking.onAnticlockwiseTick((duration - pastTime) / 1000);
-
-            }
-
-        }
-
-        public void removeOnTimerTicking(
-                OnTimerTicking currentTicking) {
-            tickings.remove(currentTicking);
-        }
-
-
-        public interface OnTimerTicking {
-
-            void onStart();
-
-            void onFinish();
-
-            /**
-             * @param pastTime time from the start in seconds
-             */
-            void onClockwiseTick(long pastTime);
-
-            /**
-             * @param remainingTime time to the finish in seconds
-             */
-            void onAnticlockwiseTick(long remainingTime);
-
-
-        }
-    }
-
 }

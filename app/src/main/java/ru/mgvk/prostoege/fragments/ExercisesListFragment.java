@@ -79,8 +79,6 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
     public void onStart() {
         super.onStart();
         try {
-
-
             mainActivity.stopwatch.checkpoint("ExercisesListFragment_onStart");
             initViews();
             loadExcercises();
@@ -285,64 +283,6 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
 
     public ExerciseWindow getExerciseWindow() {
         return exerciseWindow;
-    }
-
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        Log.d("ActivityState_Exercises", "onPause");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d("ActivityState_Exercises", "onResume");
-
-    }
-
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        Log.d("ActivityState_Exercises", "onStop");
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        Log.d("ActivityState_Exercises", "onLowMemory");
-//        onDestroy();
-    }
-
-
-    @Override
-    public void onTrimMemory(int level) {
-        super.onTrimMemory(level);
-        Log.d("ActivityState_Exercises", "onTrimMemory");
-    }
-
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        Log.d("ActivityState_Exercises", "onAttach");
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        Log.d("ActivityState_Exercises", "onDetach");
-    }
-
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.d("ActivityState_Exercises", "onDestroyView");
-
     }
 
 

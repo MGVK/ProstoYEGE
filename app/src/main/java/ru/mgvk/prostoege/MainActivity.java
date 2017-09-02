@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import ru.mgvk.prostoege.ui.MainScrollView;
 import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.util.BackStack;
+import ru.mgvk.util.MathJaxPreparer;
 import ru.mgvk.util.Reporter;
 import ru.mgvk.util.Stopwatch;
 
@@ -32,19 +33,19 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity implements MainScrollView.OnScreenSwitchedListener {
 
-    static final String APP_SETTINGS = "SETTINGS_EGE";
-    public static String PID = "default";
-    public UI ui;
-    public volatile Profile profile;
-    public Pays pays;
-    public Stopwatch stopwatch;
-    public String reportSubject;
-    private Context context;
-    private OnConfigurationUpdate onConfigurationUpdate;
-    private boolean restoring = false;
+    static final  String APP_SETTINGS = "SETTINGS_EGE";
+    public static String PID          = "default";
+    public          UI        ui;
+    public volatile Profile   profile;
+    public          Pays      pays;
+    public          Stopwatch stopwatch;
+    public          String    reportSubject;
+    private         Context   context;
+    private ArrayList<OnConfigurationUpdateListener> configurationUpdatesList = new ArrayList<>();
+    private boolean                                  restoring                = false;
     private BackStack backStack;
     //    private Stack<Runnable> backStack = new Stack<>();
-    private boolean profileIsLoading = false;
+    private boolean                            profileIsLoading    = false;
     private ArrayList<Profile.OnLoadCompleted> onLoadCompletedList = new ArrayList<>();
 
     // TODO: 10.08.16 user-friendly ошибки
@@ -106,10 +107,13 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
 
             ui = new UI(context, restoring);
 
+
             ui.mainScroll.addOnScreenSwitchedListener(this);
 
             stopwatch.checkpoint("MainActivity_onCreate_finish");
             Log.d("ActivityState", "onCreate");
+
+            MathJaxPreparer.prepare(this);
 
         } catch (Exception e) {
             Reporter.report(this, e, reportSubject);
@@ -119,7 +123,7 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
 
     int getStatusBarHeight() {
         int result = 0;
-        int resID = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        int resID  = getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resID > 0) {
             result = getResources().getDimensionPixelSize(resID);
         }
@@ -185,7 +189,8 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
     boolean prepare() {
 
         stopwatch.checkpoint("prepare");
-        final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        final StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll()
+                .build();
         StrictMode.setThreadPolicy(policy);
 
 
@@ -238,7 +243,8 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
             public void run() {
                 try {
                     //prepare image for sharing
-                    File sharefile = new File(context.getApplicationContext().getExternalCacheDir(), "share_image.png");
+                    File sharefile = new File(context.getApplicationContext().getExternalCacheDir(),
+                            "share_image.png");
                     if (!sharefile.exists()) {
                         Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),
                                 R.drawable.share_image);
@@ -286,8 +292,15 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         ui.updateSizes(newConfig.orientation);
-        if (onConfigurationUpdate != null) {
-            onConfigurationUpdate.onUpdate();
+        for (OnConfigurationUpdateListener onConfigurationUpdateListener : configurationUpdatesList) {
+            onConfigurationUpdateListener.onConfigurationUpdate(newConfig);
+        }
+    }
+
+    public void addOnConfigurationUpdateListener(OnConfigurationUpdateListener
+                                                         onConfigurationUpdateListener) {
+        if (onConfigurationUpdateListener != null) {
+            configurationUpdatesList.add(onConfigurationUpdateListener);
         }
     }
 
@@ -369,7 +382,7 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
         super.onActivityResult(requestCode, resultCode, data);
 
         Log.d("ActResult", "onActivityResult(" + requestCode + "," + resultCode + ","
-                + data);
+                           + data);
 
         // Pass on the activity result to the helper for handling
         if (!pays.mHelper.handleActivityResult(requestCode, resultCode, data)) {
@@ -391,7 +404,8 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState, PersistableBundle persistentState) {
+    public void onRestoreInstanceState(Bundle savedInstanceState,
+                                       PersistableBundle persistentState) {
         super.onRestoreInstanceState(savedInstanceState, persistentState);
         Log.d("ActivityState", "onRestoreInstanceState_2");
     }
@@ -507,8 +521,8 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
 
     }
 
-    public interface OnConfigurationUpdate {
-        void onUpdate();
+    public interface OnConfigurationUpdateListener {
+        void onConfigurationUpdate(Configuration configuration);
     }
 
 

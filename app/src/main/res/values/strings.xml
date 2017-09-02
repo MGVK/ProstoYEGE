@@ -35,4 +35,5 @@
     <string name="statistic_main_tasklabel">Задания:</string>
     <string name="statistic_main_repbtn">Репетиция ЕГЭ</string>
     <string name="repetition_title">Идет экзамен</string>
+    <string name="toast_repetition_finish">Репетиция ЕГЭ завершена</string>
 </resources>

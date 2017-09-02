@@ -104,6 +104,7 @@
                     android:background="#f5f5f5">
 
                     <ru.mgvk.prostoege.ui.statistic.MainStatisticView
+                        android:id="@+id/main_statistic_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="27dp"
