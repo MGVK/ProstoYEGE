@@ -525,7 +525,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
                     UI.calcSize(35), 4));
             answerClearButton.setImageResource(R.drawable.button_answer_clear);
             answerClearButton.setTag(R.drawable.button_answer_clear);
-            answerClearButton.setOnClickListener(this);
+            answerClearButton.setOnClickListener(AnswerLayout.this);
             this.addView(answerClearButton);
         }
 
@@ -533,11 +533,9 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
         public void onClick(View v) {
             if (v == answerTextView) {
                 startIndicator();
-            }
-            if (v == answerClearButton) {
+            } else if (v == answerClearButton) {
                 clearAnswer();
-            }
-            if (listener != null) {
+            } else if (listener != null) {
                 listener.onClick(v);
             }
         }

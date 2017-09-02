@@ -196,8 +196,10 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
         setTitleLayout();
         setTaskDescription();
-        setAnswerLayout();
-        setNumPad();
+        if (true) {
+            setAnswerLayout();
+            setNumPad();
+        }
     }
 
     private void setAnswerLayout() {
@@ -283,13 +285,27 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         }
     }
 
+    private void setLanscapeMode() {
+
+        mainLayout.removeView(answerLayout);
+        mainLayout.removeView(numPad);
+        mainActivity.ui.repetitionFragmentRight.getLayout().addView(answerLayout);
+        mainActivity.ui.repetitionFragmentRight.getLayout().addView(numPad);
+    }
+
+    private void setPotraitMode() {
+        mainActivity.ui.repetitionFragmentRight.getLayout().removeView(answerLayout);
+        mainActivity.ui.repetitionFragmentRight.getLayout().removeView(numPad);
+        mainLayout.addView(answerLayout);
+        mainLayout.addView(numPad);
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            switchMode(true);
+            setPotraitMode();
         } else {
-            switchMode(false);
+            setLanscapeMode();
         }
 
         super.onConfigurationChanged(newConfig);

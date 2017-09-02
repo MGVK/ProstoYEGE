@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
+import ru.mgvk.prostoege.ui.ExerciseWindow;
 
 /**
  * Created by mike on 28.07.17.
@@ -18,6 +20,10 @@ public class RepetitionFragmentRight extends Fragment {
     private Context      context;
     private MainActivity mainActivity;
     private ViewGroup    container;
+
+    private ExerciseWindow.NumPad       numPad;
+    private ExerciseWindow.AnswerLayout answerLayout;
+    private LinearLayout                mainLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -42,7 +48,12 @@ public class RepetitionFragmentRight extends Fragment {
     }
 
     private void initViews() {
-
-
+        mainLayout = (LinearLayout) container.findViewById(R.id.main_right_layout);
     }
+
+    public LinearLayout getLayout() {
+        return mainLayout;
+    }
+
+
 }
