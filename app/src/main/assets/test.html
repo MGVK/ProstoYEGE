@@ -1,0 +1,63 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="stylesheet" href="style.css">
+
+<script type="text/x-mathjax-config">
+//
+//  Do NOT use this page as a template for your own pages.  It includes
+//  code that is needed for testing your site's installation of MathJax,
+//  and that should not be used in normal web pages.  Use sample.html as
+//  the example for how to call MathJax in your own pages.
+//
+  MathJax.HTML.Cookie.Set("menu",{});
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX","output/HTML-CSS"],
+    "HTML-CSS": {
+      availableFonts:[], preferredFont: "TeX", webFont: "TeX",
+      styles: {".MathJax_Preview": {visibility: "hidden"}}
+    }
+  });
+
+(function (HUB) {
+
+  var MINVERSION = {
+    Firefox: 3.0,
+    Opera: 9.52,
+    MSIE: 6.0,
+    Chrome: 0.3,
+    Safari: 2.0,
+    Konqueror: 4.0,
+    Unknown: 10000.0 // always disable unknown browsers
+  };
+
+  if (!HUB.Browser.versionAtLeast(MINVERSION[HUB.Browser]||0.0)) {
+    HUB.Config({
+      jax: [],                   // don't load any Jax
+      extensions: [],            // don't load any extensions
+      "v1.0-compatible": false   // skip warning message due to no jax
+    });
+    setTimeout('document.getElementById("badBrowser").style.display = ""',0);
+  }
+
+  if (HUB.Browser.isMSIE && !HUB.Browser.versionAtLeast("7.0")) {
+    setTimeout('document.getElementById("MSIE6").style.display = ""');
+  }
+
+})(MathJax.Hub);
+
+
+
+</script>
+<script type="text/javascript" src="MathJax/MathJax.js"></script>
+
+<div class="TEST">
+    <p style="text-align:justify">В ходе распада радиоактивного изотопа его масса уменьшается по
+        закону <span class="math-tex">\(m(t)=m_0·2^{-t\over T}\)</span>, где <span class="math-tex">\(m_0\)</span>
+        (мг) &mdash; начальная масса изотопа, <span class="math-tex">\(t\)</span> &nbsp;(мин.)
+        &mdash; время, прошедшее от начального момента. <span class="math-tex">\(T\)</span> (мин.)
+        &mdash;&nbsp;период полураспада. В начальный момент времени масса изотопа <span
+                class="math-tex">\(m_0=200\)</span>&nbsp;мг. Период его полураспада <span
+                class="math-tex">\(Т = 4\)</span> мин. Через сколько минут масса изотопа будет равна
+        <span class="math-tex">\(25\)</span> мг?</p>
+    <img src="49.png"></div>
