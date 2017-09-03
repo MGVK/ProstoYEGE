@@ -539,6 +539,14 @@ public class UI {
 
     }
 
+    public void openRightRepetitionComponent() {
+        this.mainScroll.toRight();
+    }
+
+    public void openLeftRepetitionComponent() {
+        this.mainScroll.toLeft();
+    }
+
     public void openRepetitionFragment() {
         mainActivity.addToBackStack(new Runnable() {
             @Override

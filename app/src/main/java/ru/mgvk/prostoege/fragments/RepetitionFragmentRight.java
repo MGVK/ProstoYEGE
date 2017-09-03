@@ -6,24 +6,22 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
-import ru.mgvk.prostoege.ui.ExerciseWindow;
 
 /**
  * Created by mike on 28.07.17.
  */
-public class RepetitionFragmentRight extends Fragment {
+public class RepetitionFragmentRight extends Fragment implements View.OnClickListener {
 
 
     private Context      context;
     private MainActivity mainActivity;
     private ViewGroup    container;
-
-    private ExerciseWindow.NumPad       numPad;
-    private ExerciseWindow.AnswerLayout answerLayout;
-    private LinearLayout                mainLayout;
+    private LinearLayout mainLayout;
+    private ImageButton  LeftButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,7 +35,6 @@ public class RepetitionFragmentRight extends Fragment {
 
     }
 
-
     @Override
     public void onStart() {
 
@@ -47,8 +44,23 @@ public class RepetitionFragmentRight extends Fragment {
 
     }
 
+
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btn_left: {
+                mainActivity.ui.openLeftRepetitionComponent();
+                break;
+            }
+            default: {
+
+            }
+        }
+    }
+
     private void initViews() {
         mainLayout = (LinearLayout) container.findViewById(R.id.main_right_layout);
+        LeftButton = (ImageButton) container.findViewById(R.id.btn_left);
+        LeftButton.setOnClickListener(this);
     }
 
     public LinearLayout getLayout() {

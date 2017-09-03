@@ -92,14 +92,15 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
 
-
         if (!hidden) {        // start
 
             onStart();
+            mainActivity.ui.mainScroll.setScrollEnabled(false);
 
         } else {              // stop
 
             finishRepetition();
+            mainActivity.ui.mainScroll.setScrollEnabled(true);
 
         }
     }
@@ -194,12 +195,17 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         rightButton.setOnClickListener(this);
         mainLayout = (LinearLayout) container.findViewById(R.id.main_repetition_layout);
 
+        if (context.getResources().getConfiguration().orientation
+            == Configuration.ORIENTATION_PORTRAIT) {
+            setPotraitMode();
+        } else {
+            setLanscapeMode();
+        }
+
         setTitleLayout();
         setTaskDescription();
-        if (true) {
-            setAnswerLayout();
-            setNumPad();
-        }
+        setAnswerLayout();
+        setNumPad();
     }
 
     private void setAnswerLayout() {
@@ -265,7 +271,7 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
                 break;
             }
             case R.id.btn_right: {
-
+                mainActivity.ui.openRightRepetitionComponent();
                 break;
             }
             default: {
@@ -289,6 +295,7 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
         mainLayout.removeView(answerLayout);
         mainLayout.removeView(numPad);
+        mainActivity.ui.mainScroll.setScrollEnabled(true);
         mainActivity.ui.repetitionFragmentRight.getLayout().addView(answerLayout);
         mainActivity.ui.repetitionFragmentRight.getLayout().addView(numPad);
     }
@@ -296,6 +303,7 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     private void setPotraitMode() {
         mainActivity.ui.repetitionFragmentRight.getLayout().removeView(answerLayout);
         mainActivity.ui.repetitionFragmentRight.getLayout().removeView(numPad);
+        mainActivity.ui.mainScroll.setScrollEnabled(false);
         mainLayout.addView(answerLayout);
         mainLayout.addView(numPad);
     }
