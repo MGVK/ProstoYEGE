@@ -73,7 +73,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
                 .setOnClickListener(this);
         rings = (ImageView) mainActivity.findViewById(R.id.rings);
         mainTaskListLayout = (LinearLayout) mainActivity.findViewById(R.id.main_tasklist_layout);
-//        mainStatisticView = (MainStatisticView) mainActivity.findViewById(R.id.main_statistic_view);
+        mainStatisticView = (MainStatisticView) mainActivity.findViewById(R.id.main_statistic_view);
 
         if (context.getResources().getConfiguration().orientation
             == Configuration.ORIENTATION_PORTRAIT) {
@@ -393,7 +393,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 
     }
 
-    public Object getMainStatistic() {
+    public MainStatisticView getMainStatistic() {
         return mainStatisticView;
     }
 }

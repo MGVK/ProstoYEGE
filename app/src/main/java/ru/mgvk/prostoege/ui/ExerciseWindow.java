@@ -354,16 +354,20 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
             getSettings().setAppCacheEnabled(true);
 
 
-            this.setOnLongClickListener(new OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    //#3_2
-//                    Toast.makeText(context, context.getString(R.string.mess_text_copy_not_allowed), Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-            });
+//            this.setOnLongClickListener(new OnLongClickListener() {
+//                @Override
+//                public boolean onLongClick(View v) {
+//                    //#3_2
+////                    Toast.makeText(context, context.getString(R.string.mess_text_copy_not_allowed), Toast.LENGTH_SHORT).show();
+//                    return true;
+//                }
+//            });
         }
 
+
+        public void loadHTMLFile(String path) {
+            loadUrl("file://" + path);
+        }
 
         public void reloadDescription() {
             reloadDescription(((MainActivity) context).ui

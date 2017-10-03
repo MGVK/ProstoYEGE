@@ -6,6 +6,7 @@ import android.util.Log;
 import ru.mgvk.util.Reporter;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -17,12 +18,15 @@ import java.util.ArrayList;
 public class DataLoader {
 
     public final static  String          ExcerciseDescriptionRequest
-                                                         = "http://213.159.214.5/script/mobile/1/question_load.php?ID=";
+                                                         =
+            "http://213.159.214.5/script/mobile/2/question/load.php?ID=";
     public final static  String          ExcerciseHintRequest
-                                                         = "http://213.159.214.5/script/mobile/1/hint_load.php?ID=";
+                                                         =
+            "http://213.159.214.5/script/mobile/2/hint/load.php?ID=";
     public final static  String          PolicyURL       = "http://213.159.214.5/policy.html";
     private final static String          POLICY_SETTINGS = "POLICY";
     private final static Object          b               = new Object();
+    public static        String          DefaultHTMLFile = "test.html";
     static               ArrayList<Task> taskList        = new ArrayList<>();
     static               int             tasks_ready     = 0;
     static Context context;
@@ -64,7 +68,7 @@ public class DataLoader {
             }).start();
         }
 
-        while (tasks_ready < taskList.size()) {
+        while (tasks_ready <= taskList.size()) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -132,13 +136,6 @@ public class DataLoader {
         context = pcontext;
         taskList = new ArrayList<>();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                loadRepetitionTasks();
-            }
-        }).start();
-
         p = ((MainActivity) context).profile;
         Log.d("taskLoading", "Profile " + p);
 
@@ -179,11 +176,6 @@ public class DataLoader {
         ((MainActivity) context).stopwatch.checkpoint("Loading Tasks finish");
 
         return taskList;
-    }
-
-    private static void loadRepetitionTasks() {
-
-
     }
 
 
@@ -374,7 +366,7 @@ public class DataLoader {
     }
 
     public static String getHintRequest(int id) {
-        return "http://213.159.214.5/script/mobile/1/hint_load.php?ID=" + id;
+        return "http://213.159.214.5/script/mobile/2/question/hint/load.php?ID=" + id;
     }
 
     public static void setOnTaskLoadCompleted(DataLoader.onTaskLoadCompleted onTaskLoadCompleted) {
@@ -419,7 +411,7 @@ public class DataLoader {
         String result = "";
 
         try {
-            result = getResponse("http://213.159.214.5/script/mobile/3/video/test/array.php",
+            result = getResponse("http://213.159.214.5/script/mobile/3/rehearsal/array.php",
                     "ProfileID=" + MainActivity.PID);
 
 
@@ -429,11 +421,23 @@ public class DataLoader {
         return result;
     }
 
+
+    public static String saveRepetition(String repetitionData, String time) throws Exception {
+        return getResponse("http://213.159.214.5/script/mobile/3/rehearsal/array.php?",
+                "ProfileID=" + MainActivity.PID + "&Question=" + repetitionData + "&Time=" + time);
+    }
+
     public static String getRepetitionTask(String id) {
         return "";
     }
 
     public static String getRepetitionFolder(Context context) {
+
+        File dir;
+        if (!(dir = new File(context.getApplicationContext().getFilesDir() + "/Repetition/")).exists
+                ()) {
+            dir.mkdir();
+        }
         return context.getApplicationContext().getFilesDir() + "/Repetition/";
     }
 

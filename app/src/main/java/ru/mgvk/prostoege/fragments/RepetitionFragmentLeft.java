@@ -11,6 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import ru.mgvk.prostoege.DataLoader;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
@@ -20,9 +23,11 @@ import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.util.RepetitionTimer;
 import ru.mgvk.util.Reporter;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * Created by mike on 28.07.17.
@@ -41,10 +46,13 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     private ExerciseWindow.AnswerLayout answerLayout;
     private RepetitionTimer             repetitionTimer;
     private boolean stopped            = false;
+    private boolean inited             = false;
     // duration in  seconds
     private int     repetitionDuration = (3/*hour*/ * 60 + 55)/*minutes*/ * 60;
-    private RepetitionData data;
-    private Result         currentResult;
+    private RepetitionData                    data;
+    private Result                            currentResult;
+    private ExerciseWindow.DescriptionWebView descriptionWebView;
+    private int currentTaskNumber = 1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,19 +69,19 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     @Override
     public void onStart() {
 
+        prepareData();
 
-        if (!isStopped()) {
+        if (!isStopped() && !isInited()) {
 
             initViews();
 
             initTimer();
 
         }
-        setStopped(false);
-
-        prepareData();
 
         openStartDialog();
+
+        setStopped(false);
 
         super.onStart();
 
@@ -84,8 +92,6 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
             data = RepetitionData.fromFuckingJSON(context, DataLoader
                     .getRepetitionTasksJson());
         }
-
-
     }
 
     @Override
@@ -106,15 +112,20 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     }
 
     private void onRepetitionFinished() {
-        Toast.makeText(context, getString(R.string.toast_repetition_finish), Toast.LENGTH_SHORT)
-                .show();
+
+        mainActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, getString(R.string.toast_repetition_finish),
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        });
+
 
         // TODO: 12.08.17 Выкидываем результат в статистику
 
         currentResult = new Result((int) (Math.random() * 100));
-
-//        mainActivity.ui.taskListFragment.getMainStatistic().addResult(currentResult);
-
     }
 
 
@@ -142,7 +153,7 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     }
 
     private void initTimer() {
-        repetitionTimer = new RepetitionTimer(repetitionDuration);
+        repetitionTimer = new RepetitionTimer(data.getRepetitionDuration());
         repetitionTimer.addOnTimerTicking(new RepetitionTimer.OnTimerTicking() {
             @Override
             public void onStart() {
@@ -171,7 +182,8 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     }
 
     private void onRepetitionStarted() {
-
+        currentTaskNumber = 0;
+        openNextTask();
     }
 
     @Override
@@ -195,17 +207,18 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         rightButton.setOnClickListener(this);
         mainLayout = (LinearLayout) container.findViewById(R.id.main_repetition_layout);
 
+
+        setTitleLayout();
+        setTaskDescription();
+        setAnswerLayout();
+        setNumPad();
+
         if (context.getResources().getConfiguration().orientation
             == Configuration.ORIENTATION_PORTRAIT) {
             setPotraitMode();
         } else {
             setLanscapeMode();
         }
-
-        setTitleLayout();
-        setTaskDescription();
-        setAnswerLayout();
-        setNumPad();
     }
 
     private void setAnswerLayout() {
@@ -243,24 +256,28 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     }
 
     private void openPrevTask() {
-
+        descriptionWebView
+                .loadHTMLFile(DataLoader.getRepetitionFolder(context) + data.getHtmlFilePath
+                        (--currentTaskNumber));
+        titleLayout.setTaskNumber(currentTaskNumber);
     }
 
     private void openNextTask() {
-
+        descriptionWebView
+                .loadHTMLFile(DataLoader.getRepetitionFolder(context) + data.getHtmlFilePath
+                        (++currentTaskNumber));
+        titleLayout.setTaskNumber(currentTaskNumber);
     }
 
     private void setTaskDescription() {
 
-        ExerciseWindow.DescriptionWebView description = new ExerciseWindow.DescriptionWebView
+        descriptionWebView = new ExerciseWindow.DescriptionWebView
                 (context);
-        description
-                .loadUrl("file://" + context.getApplicationContext().getFilesDir() + "/test.html");
-//        description.loadUrl();
-        description.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
-        description.setMinimumHeight(UI.calcSize(100));
+//        descriptionWebView.loadUrl();
+        descriptionWebView.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
+        descriptionWebView.setMinimumHeight(UI.calcSize(100));
 
-        mainLayout.addView(description);
+        mainLayout.addView(descriptionWebView);
     }
 
 
@@ -292,20 +309,27 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     }
 
     private void setLanscapeMode() {
-
-        mainLayout.removeView(answerLayout);
-        mainLayout.removeView(numPad);
-        mainActivity.ui.mainScroll.setScrollEnabled(true);
-        mainActivity.ui.repetitionFragmentRight.getLayout().addView(answerLayout);
-        mainActivity.ui.repetitionFragmentRight.getLayout().addView(numPad);
+        try {
+            mainLayout.removeView(answerLayout);
+            mainLayout.removeView(numPad);
+            mainActivity.ui.mainScroll.setScrollEnabled(true);
+            mainActivity.ui.repetitionFragmentRight.getLayout().addView(answerLayout);
+            mainActivity.ui.repetitionFragmentRight.getLayout().addView(numPad);
+        } catch (Exception e) {
+            Reporter.report(context, e, MainActivity.PID);
+        }
     }
 
     private void setPotraitMode() {
-        mainActivity.ui.repetitionFragmentRight.getLayout().removeView(answerLayout);
-        mainActivity.ui.repetitionFragmentRight.getLayout().removeView(numPad);
-        mainActivity.ui.mainScroll.setScrollEnabled(false);
-        mainLayout.addView(answerLayout);
-        mainLayout.addView(numPad);
+        try {
+            mainActivity.ui.repetitionFragmentRight.getLayout().removeView(answerLayout);
+            mainActivity.ui.repetitionFragmentRight.getLayout().removeView(numPad);
+            mainActivity.ui.mainScroll.setScrollEnabled(false);
+            mainLayout.addView(answerLayout);
+            mainLayout.addView(numPad);
+        } catch (Exception e) {
+            Reporter.report(context, e, MainActivity.PID);
+        }
     }
 
     @Override
@@ -319,76 +343,159 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         super.onConfigurationChanged(newConfig);
     }
 
-    private void switchMode(boolean portrait) {
-
-        if (portrait) {
-
-        } else {
-
-        }
-
+    public boolean isInited() {
+        return inited;
     }
-
 
     public static class RepetitionData {
 
-        private static HashMap<Integer, RepetitionTask> map = new HashMap<>();
+        private static LinkedHashMap<Integer, RepetitionTask> map = new LinkedHashMap<>();
+        private int repetitionDuration;
+
 
         static RepetitionData fromFuckingJSON(Context context, String json) {
 
             if (json.length() < 3) {
                 return null;
             }
+
             RepetitionData repetitionData = new RepetitionData();
-
-            json = json.substring(1, json.length() - 1);
-
-            int i = 0, currentIndex = 0;
 
             try {
 
-                for (String s : json.split(":")) {
-                    for (String s1 : s.split(",")) {
-                        if (s1.equals("null")) {
-                            i = 0;
-                        } else {
-                            if (i == 0) {
-                                //number
-                                map.put(currentIndex = Integer
-                                                .parseInt(s1.substring(1, s1.length() - 1)),
-                                        new RepetitionFragmentLeft.RepetitionData.RepetitionTask());
-                            }
-                            if (i == 2) {
-                                //ID
-                                map.get(currentIndex).ID = Integer
-                                        .parseInt(s1.substring(1, s1.length() - 1));
-                            }
-                            if (i == 4) {
-                                //description
-                                map.get(currentIndex).Description = s1
-                                        .substring(1, s1.length() - 2);
-                            }
-                            i = increment(i);
-                        }
+                JsonElement element = new JsonParser().parse(json);
 
-                    }
+
+                for (int j = 1; j <= 19; j++) {
+
+                    JsonObject o           = element.getAsJsonObject().getAsJsonObject(j + "");
+                    int        id          = o.get("ID").getAsInt();
+                    String     description = o.get("Description").getAsString();
+
+                    map.put(j, new RepetitionFragmentLeft.RepetitionData.RepetitionTask(id,
+                            description));
+
                 }
+
+                repetitionData.setRepetitionDuration(element.getAsJsonObject().get("Time")
+                                                             .getAsInt() * 60);
+
+
             } catch (Exception e) {
                 Reporter.report(context, e, MainActivity.PID);
             }
 
             repetitionData.setMap(map);
+            for (RepetitionTask repetitionTask : map.values()) {
+                repetitionTask.Description = repetitionTask.Description.replace("\\\"", "\"");
+                repetitionTask.Description = repetitionTask.Description.replace("\\/", "");
+                repetitionTask.Description = repetitionTask.Description.replace("\\\\", "\\");
+            }
+
+            dataToHtml(context, map);
 
             return repetitionData;
         }
 
-        private static int increment(int i) {
-            return i >= 4 ? 0 : ++i;
+        private static void dataToHtml(Context context,
+                                       HashMap<Integer, RepetitionTask> map) {
+            for (RepetitionTask repetitionTask : map.values()) {
+                File file = new File(DataLoader.getRepetitionFolder(context) + repetitionTask
+                        .ID + ".html");
+                try {
+
+                    file.createNewFile();
+
+                    FileWriter writer = new FileWriter(file);
+
+                    String s =
+                            "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
+                            + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n"
+                            + "<link rel=\"stylesheet\" href=\"style.css\">\n"
+                            + "\n"
+                            + "<script type=\"text/x-mathjax-config\">\n"
+                            + "//\n"
+                            + "//  Do NOT use this page as a template for your own pages.  It includes\n"
+                            + "//  code that is needed for testing your site's installation of MathJax,\n"
+                            + "//  and that should not be used in normal web pages.  Use sample.html as\n"
+                            + "//  the example for how to call MathJax in your own pages.\n"
+                            + "//\n"
+                            + "  MathJax.HTML.Cookie.Set(\"menu\",{});\n"
+                            + "  MathJax.Hub.Config({\n"
+                            + "    extensions: [\"tex2jax.js\"],\n"
+                            + "    jax: [\"input/TeX\",\"output/HTML-CSS\"],\n"
+                            + "    messageStyle: \"none\",\n"
+                            + "    \"HTML-CSS\": {\n"
+                            + "      availableFonts:[], preferredFont: \"TeX\", webFont: \"TeX\",\n"
+                            + "      styles: {\".MathJax_Preview\": {visibility: \"hidden\"}},\n"
+                            + "    }\n"
+                            + "  });\n"
+                            + "\n"
+                            + "(function (HUB) {\n"
+                            + "\n"
+                            + "  var MINVERSION = {\n"
+                            + "    Firefox: 3.0,\n"
+                            + "    Opera: 9.52,\n"
+                            + "    MSIE: 6.0,\n"
+                            + "    Chrome: 0.3,\n"
+                            + "    Safari: 2.0,\n"
+                            + "    Konqueror: 4.0,\n"
+                            + "    Unknown: 10000.0 // always disable unknown browsers\n"
+                            + "  };\n"
+                            + "\n"
+                            + "  if (!HUB.Browser.versionAtLeast(MINVERSION[HUB.Browser]||0.0)) {\n"
+                            + "    HUB.Config({\n"
+                            + "      jax: [],                   // don't load any Jax\n"
+                            + "      extensions: [],            // don't load any extensions\n"
+                            + "      \"v1.0-compatible\": false   // skip warning message due to no jax\n"
+                            + "    });\n"
+                            + "    setTimeout('document.getElementById(\"badBrowser\").style.display = \"\"',0);\n"
+                            + "  }\n"
+                            + "\n"
+                            + "  if (HUB.Browser.isMSIE && !HUB.Browser.versionAtLeast(\"7.0\")) {\n"
+                            + "    setTimeout('document.getElementById(\"MSIE6\").style.display = \"\"');\n"
+                            + "  }\n"
+                            + "\n"
+                            + "})(MathJax.Hub);\n"
+                            + "\n"
+                            + "</script>\n"
+                            + "<script type=\"text/javascript\" src=\"MathJax/MathJax"
+                            + ".js\"></script>";
+
+                    writer.write(s + repetitionTask.Description);
+                    writer.flush();
+                    writer.close();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
+//        private static int increment(int i) {
+//            return i >= 4 ? 0 : ++i;
+//        }
+
         public void setMap(
-                HashMap<Integer, RepetitionTask> map) {
+                LinkedHashMap<Integer, RepetitionTask> map) {
             this.map = map;
+        }
+
+        public String getHtmlFilePath(int number) {
+            RepetitionTask t = map.get(number);
+            if (t == null) {
+                return "test.html";
+            } else {
+                return t.ID + ".html";
+            }
+        }
+
+        public long getRepetitionDuration() {
+            return repetitionDuration;
+        }
+
+        public void setRepetitionDuration(int repetitionDuration) {
+            this.repetitionDuration = repetitionDuration;
         }
 
         public static class RepetitionTask {
@@ -396,6 +503,14 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
             int    ID          = 0;
             String Description = "";
 
+            public RepetitionTask() {
+
+            }
+
+            public RepetitionTask(int ID, String description) {
+                this.ID = ID;
+                Description = description;
+            }
         }
 
     }
@@ -470,13 +585,15 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
             switch ((Integer) v.getTag()) {
                 case 0: {
                     onPrevTask();
+                    break;
                 }
                 case 1: {
                     onFinish();
+                    break;
                 }
                 case 2: {
                     onNextTask();
-
+                    break;
                 }
             }
 
@@ -501,6 +618,10 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
             }
         }
 
+        public void setTaskNumber(int number) {
+            textView.setText("Задание " + number);
+        }
+
         public interface RepetitionControl {
 
             void onNextTask();
@@ -517,8 +638,8 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         private int scoreSecondary;
         private int scorePrimary;
 
-        public Result(int scorePrimary) {
-            this.scorePrimary = scorePrimary;
+        public Result(int scoreSecondary) {
+            this.scoreSecondary = scoreSecondary;
         }
 
         public Result(int scorePrimary, int scoreSecondary) {

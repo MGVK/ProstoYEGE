@@ -29,7 +29,7 @@ public class SplashScreen extends Activity {
 
         new InstanceController();
 
-        counter = (AnimatedCounter) findViewById(R.id.counter);
+//        counter = (AnimatedCounter) findViewById(R.id.counter);
 
 
     }
@@ -40,7 +40,6 @@ public class SplashScreen extends Activity {
 
         //hotfix #3_14
 //        counter.startCounting();
-
 
         new Thread(new Runnable() {
             @Override
@@ -81,7 +80,6 @@ public class SplashScreen extends Activity {
 
                     e.printStackTrace();
                 }
-
 
             }
         }).start();

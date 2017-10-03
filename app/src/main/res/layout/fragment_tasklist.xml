@@ -94,95 +94,95 @@
                 android:layout_height="match_parent">
 
 
-                <!--<android.support.design.widget.AppBarLayout-->
-                <!--android:id="@+id/app_bar_layout"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginBottom="3dp"-->
-                <!--android:layout_marginEnd="3dp"-->
-                <!--android:layout_marginStart="3dp"-->
-                <!--android:layout_marginTop="3dp"-->
-                <!--android:background="#f5f5f5">-->
+                <android.support.design.widget.AppBarLayout
+                    android:id="@+id/app_bar_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="3dp"
+                    android:layout_marginEnd="3dp"
+                    android:layout_marginStart="3dp"
+                    android:layout_marginTop="3dp"
+                    android:background="#f5f5f5">
 
-                <!--<ru.mgvk.prostoege.ui.statistic.MainStatisticView-->
-                <!--android:id="@+id/main_statistic_view"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:minHeight="27dp"-->
-                <!--android:orientation="vertical"-->
-                <!--android:paddingEnd="5dp"-->
-                <!--android:paddingStart="5dp"-->
-                <!--app:layout_scrollFlags="scroll|exitUntilCollapsed">-->
+                    <ru.mgvk.prostoege.ui.statistic.MainStatisticView
+                        android:id="@+id/main_statistic_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="27dp"
+                        android:orientation="vertical"
+                        android:paddingEnd="5dp"
+                        android:paddingStart="5dp"
+                        app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-                <!--</ru.mgvk.prostoege.ui.statistic.MainStatisticView>-->
-
-
-                <!--&lt;!&ndash; <LinearLayout-->
-                <!--android:id="@+id/collapsing_toolbar"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--app:layout_scrollFlags="scroll|exitUntilCollapsed"-->
-                <!--android:minHeight="33dp"-->
-                <!--android:orientation="vertical"-->
-                <!--android:background="#00000000">-->
-
-                <!--<TextView-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="33dp"-->
-                <!--android:gravity="left|center_vertical"-->
-                <!--android:layout_gravity="center_horizontal"-->
-                <!--android:layout_marginStart="3dp"-->
-                <!--android:layout_marginTop="3dp"-->
-                <!--android:layout_marginBottom="3dp"-->
-                <!--android:layout_marginEnd="3dp"-->
-                <!--android:paddingLeft="10dp"-->
-                <!--android:text="@string/statistic"-->
-                <!--android:textColor="#000"-->
-                <!--android:textSize="22sp"/>-->
-
-                <!--<TextView-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:text="Желаемый балл: NaN"-->
-                <!--android:gravity="center"-->
-                <!--android:textSize="20dp"/>-->
-
-                <!--<TextView-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:text="Текущий балл: Nan"-->
-                <!--android:gravity="center"-->
-                <!--android:textSize="20dp"/>-->
-
-                <!--ru.mgvk.prostoege.ui.statistic.StatisticPlotPlot-->
-                <!--android:layout_height="80dp"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:background="@drawable/plot_demo"/>-->
-
-                <!--<Button-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:text="Репетиция ЕГЭ"-->
-                <!--android:paddingStart="10dp"-->
-                <!--android:paddingEnd="10dp"-->
-                <!--android:background="@drawable/task_back_1"-->
-                <!--android:layout_gravity="right"/>-->
-
-                <!--<TextView-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="33dp"-->
-                <!--android:gravity="left|center_vertical"-->
-                <!--android:layout_gravity="center_horizontal"-->
-                <!--android:layout_marginTop="5dp"-->
-                <!--android:layout_marginBottom="3dp"-->
-                <!--android:paddingLeft="10dp"-->
-                <!--android:text="Задания:"-->
-                <!--android:textColor="#000"-->
-                <!--android:textSize="22sp"/>-->
+                    </ru.mgvk.prostoege.ui.statistic.MainStatisticView>
 
 
-                <!--</LinearLayout>&ndash;&gt;-->
-                <!--</android.support.design.widget.AppBarLayout>-->
+                    <!-- <LinearLayout
+                    android:id="@+id/collapsing_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                    android:minHeight="33dp"
+                    android:orientation="vertical"
+                    android:background="#00000000">
+
+                    <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="33dp"
+                    android:gravity="left|center_vertical"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginStart="3dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:layout_marginEnd="3dp"
+                    android:paddingLeft="10dp"
+                    android:text="@string/statistic"
+                    android:textColor="#000"
+                    android:textSize="22sp"/>
+
+                    <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Желаемый балл: NaN"
+                    android:gravity="center"
+                    android:textSize="20dp"/>
+
+                    <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Текущий балл: Nan"
+                    android:gravity="center"
+                    android:textSize="20dp"/>
+
+                    ru.mgvk.prostoege.ui.statistic.StatisticPlotPlot
+                    android:layout_height="80dp"
+                    android:layout_width="match_parent"
+                    android:background="@drawable/plot_demo"/>
+
+                    <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Репетиция ЕГЭ"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:background="@drawable/task_back_1"
+                    android:layout_gravity="right"/>
+
+                    <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="33dp"
+                    android:gravity="left|center_vertical"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="3dp"
+                    android:paddingLeft="10dp"
+                    android:text="Задания:"
+                    android:textColor="#000"
+                    android:textSize="22sp"/>
+
+
+                    </LinearLayout>-->
+                </android.support.design.widget.AppBarLayout>
 
 
                 <ru.mgvk.prostoege.ui.VerticalScrollView

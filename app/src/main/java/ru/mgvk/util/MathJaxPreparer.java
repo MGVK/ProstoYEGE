@@ -37,10 +37,10 @@ public class MathJaxPreparer {
         File   file      = new File(outputDir + "MathJax.zip");
 
         /*TESTTESTTEST*/
-        File html = new File(outputDir + "test.html");
-        File png  = new File(outputDir + "49.png");
+        File html = new File(DataLoader.DefaultHTMLFile = outputDir + "test.html");
+        File png  = new File(outputDir + "smile.png");
         copy(context, "test.html", html);
-        copy(context, "49.png", png);
+        copy(context, "smile.png", png);
         /**/
 
 
