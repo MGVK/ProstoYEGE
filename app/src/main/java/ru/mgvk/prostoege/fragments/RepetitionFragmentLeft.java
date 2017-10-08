@@ -258,15 +258,23 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     private void openPrevTask() {
         descriptionWebView
                 .loadHTMLFile(DataLoader.getRepetitionFolder(context) + data.getHtmlFilePath
-                        (--currentTaskNumber));
+                        (decrementTaskNumber()));
         titleLayout.setTaskNumber(currentTaskNumber);
     }
 
     private void openNextTask() {
         descriptionWebView
                 .loadHTMLFile(DataLoader.getRepetitionFolder(context) + data.getHtmlFilePath
-                        (++currentTaskNumber));
+                        (incrementTaskNumber()));
         titleLayout.setTaskNumber(currentTaskNumber);
+    }
+
+    private int incrementTaskNumber() {
+        return currentTaskNumber < 19 ? ++currentTaskNumber : currentTaskNumber;
+    }
+
+    private int decrementTaskNumber() {
+        return currentTaskNumber > 0 ? --currentTaskNumber : currentTaskNumber;
     }
 
     private void setTaskDescription() {
