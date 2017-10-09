@@ -79,6 +79,10 @@ public class RepetitionTimer extends TimerTask {
         this.finished = true;
     }
 
+    public String getTime() {
+        return "";
+    }
+
 
     public interface OnTimerTicking {
 

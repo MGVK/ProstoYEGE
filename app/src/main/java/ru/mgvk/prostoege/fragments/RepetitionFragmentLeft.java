@@ -1,16 +1,21 @@
 package ru.mgvk.prostoege.fragments;
 
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -26,6 +31,7 @@ import ru.mgvk.util.Reporter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
@@ -35,6 +41,9 @@ import java.util.LinkedHashMap;
 public class RepetitionFragmentLeft extends Fragment implements View.OnClickListener {
 
 
+    private static final int                      MAX_TASK_NUMBER   = 19;
+    private static final int                      MIN_TASK_NUMBER   = 1;
+    private static       ArrayList<OnTaskChanged> onTaskChangedList = new ArrayList<>();
     private Context                     context;
     private MainActivity                mainActivity;
     private TimeButton                  timeButton;
@@ -52,7 +61,14 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     private RepetitionData                    data;
     private Result                            currentResult;
     private ExerciseWindow.DescriptionWebView descriptionWebView;
-    private int currentTaskNumber = 1;
+    private int               currentTaskNumber = 1;
+    private ArrayList<String> answers           = new ArrayList<>();
+
+    public static void addOnTaskChangedList(OnTaskChanged onTaskChanged) {
+        if (onTaskChanged != null) {
+            RepetitionFragmentLeft.onTaskChangedList.add(onTaskChanged);
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -92,6 +108,12 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
             data = RepetitionData.fromFuckingJSON(context, DataLoader
                     .getRepetitionTasksJson());
         }
+        if (answers.size() == 0 || answers.get(0) == null) {
+            answers.clear();
+            for (int i = 0; i < MAX_TASK_NUMBER; i++) {
+                answers.add("");
+            }
+        }
     }
 
     @Override
@@ -113,19 +135,90 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
     private void onRepetitionFinished() {
 
-        mainActivity.runOnUiThread(new Runnable() {
+        new AsyncTask<Void, Void, String>() {
+
+            ProgressDialog dialog;
+
             @Override
-            public void run() {
-                Toast.makeText(context, getString(R.string.toast_repetition_finish),
-                        Toast.LENGTH_SHORT)
-                        .show();
+            protected void onPreExecute() {
+
+                mainActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog = new ProgressDialog(context);
+                        dialog.setMessage("Пожалуйста, подождите...");
+                        dialog.show();
+                    }
+                });
+
+
             }
-        });
 
 
-        // TODO: 12.08.17 Выкидываем результат в статистику
+            @Override
+            protected String doInBackground(Void... voids) {
 
-        currentResult = new Result((int) (Math.random() * 100));
+                String s = "";
+                try {
+                    s = DataLoader
+                            .sendRepetitionAnswers(completeAnswers(), repetitionTimer.getTime());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                StringBuilder results = new StringBuilder("Номер задания | Баллы\n");
+
+                JsonElement element = new JsonParser().parse(s);
+                JsonObject  object  = element.getAsJsonObject().get("Answers").getAsJsonObject();
+                for (int i = 1; i <= 19; i++) {
+
+                    results.append("\t").append(i).append("\t->\t")
+                            .append(object.get(i + "").getAsString())
+                            .append("\n");
+
+                }
+
+                return results.toString();
+
+            }
+
+            @Override
+            protected void onPostExecute(final String result) {
+
+                mainActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if (dialog.isShowing()) dialog.dismiss();
+
+                        new AlertDialog.Builder(context)
+                                .setPositiveButton("Ok!", null)
+                                .setTitle("Ваши Результаты")
+                                .setMessage(result)
+                                .create().show();
+                    }
+                });
+
+            }
+        }.execute();
+
+
+//
+//        currentResult = new Result((int) (Math.random() * 100));
+//
+//        mainActivity.ui.taskListFragment.getMainStatistic().addResult(currentResult);
+//
+
+    }
+
+    private String completeAnswers() {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < answers.size(); i++) {
+            result.append(data.getMap().get(i + 1).ID).append(":").append(answers.get(i))
+                    .append("|");
+        }
+
+        return result.toString();
     }
 
 
@@ -178,6 +271,7 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
         timeButton.setTimer(repetitionTimer);
 
+        setInited(true);
 
     }
 
@@ -219,11 +313,14 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         } else {
             setLanscapeMode();
         }
+        setInited(true);
+
     }
 
     private void setAnswerLayout() {
         answerLayout = new ExerciseWindow.AnswerLayout(context, this);
         answerLayout.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
+
 
         mainLayout.addView(answerLayout);
     }
@@ -259,22 +356,46 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         descriptionWebView
                 .loadHTMLFile(DataLoader.getRepetitionFolder(context) + data.getHtmlFilePath
                         (decrementTaskNumber()));
-        titleLayout.setTaskNumber(currentTaskNumber);
+        changeTask();
     }
 
     private void openNextTask() {
         descriptionWebView
                 .loadHTMLFile(DataLoader.getRepetitionFolder(context) + data.getHtmlFilePath
                         (incrementTaskNumber()));
+        changeTask();
+    }
+
+    private void changeTask() {
         titleLayout.setTaskNumber(currentTaskNumber);
+        try {
+            answerLayout.getAnswerTextView().setText(answers.get(currentTaskNumber - 1));
+        } catch (Exception ignored) {
+        }
     }
 
     private int incrementTaskNumber() {
-        return currentTaskNumber < 19 ? ++currentTaskNumber : currentTaskNumber;
+        if (currentTaskNumber < MAX_TASK_NUMBER) {
+            changeTaskNumber(++currentTaskNumber);
+            return currentTaskNumber;
+        }
+        return MAX_TASK_NUMBER;
     }
 
     private int decrementTaskNumber() {
-        return currentTaskNumber > 0 ? --currentTaskNumber : currentTaskNumber;
+        if (currentTaskNumber > MIN_TASK_NUMBER) {
+            changeTaskNumber(--currentTaskNumber);
+            return currentTaskNumber;
+        }
+        return MIN_TASK_NUMBER;
+    }
+
+    void changeTaskNumber(int newNumber) {
+        currentTaskNumber = newNumber;
+        for (OnTaskChanged onTaskChanged : onTaskChangedList) {
+            onTaskChanged.onChanged(currentTaskNumber);
+        }
+
     }
 
     private void setTaskDescription() {
@@ -287,7 +408,6 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
         mainLayout.addView(descriptionWebView);
     }
-
 
     @Override
     public void onClick(View v) {
@@ -312,6 +432,8 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
                                                     ""),
                                     String.valueOf(v.getTag())));
                 }
+                answers.set(currentTaskNumber - 1,
+                        answerLayout.getAnswerTextView().getText().toString());
             }
         }
     }
@@ -353,6 +475,16 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
     public boolean isInited() {
         return inited;
+    }
+
+    public void setInited(boolean inited) {
+        this.inited = inited;
+    }
+
+    private static interface OnTaskChanged {
+
+        void onChanged(int taskNumber);
+
     }
 
     public static class RepetitionData {
@@ -480,6 +612,10 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
             }
         }
 
+        public LinkedHashMap<Integer, RepetitionTask> getMap() {
+            return map;
+        }
+
 //        private static int increment(int i) {
 //            return i >= 4 ? 0 : ++i;
 //        }
@@ -519,6 +655,14 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
                 this.ID = ID;
                 Description = description;
             }
+
+            public int getID() {
+                return ID;
+            }
+
+            public String getDescription() {
+                return Description;
+            }
         }
 
     }
@@ -555,9 +699,9 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
         private void setButtons() {
 
-            Button prevBtn   = new Button(context);
-            Button finishBtn = new Button(context);
-            Button nextBtn   = new Button(context);
+            final Button prevBtn   = new Button(context);
+            Button       finishBtn = new Button(context);
+            final Button nextBtn   = new Button(context);
 
             prevBtn.setLayoutParams(new LayoutParams(-1, -1, 5));
             finishBtn.setLayoutParams(new LayoutParams(-1, -1, 5));
@@ -571,9 +715,29 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
             finishBtn.setTag(1);
             nextBtn.setTag(2);
 
-            prevBtn.setBackgroundResource(R.drawable.repetition_left);
-            finishBtn.setBackgroundResource(R.drawable.repetition_finish);
+            RepetitionFragmentLeft.addOnTaskChangedList(new OnTaskChanged() {
+                @Override
+                public void onChanged(int taskNumber) {
+                    if (taskNumber >= RepetitionFragmentLeft.MAX_TASK_NUMBER) {
+                        nextBtn.setEnabled(false);
+                        nextBtn.setBackgroundResource(R.drawable.repetition_right_disabled);
+                    } else if (taskNumber <= RepetitionFragmentLeft
+                            .MIN_TASK_NUMBER) {
+                        prevBtn.setEnabled(false);
+                        prevBtn.setBackgroundResource(R.drawable.repetition_left_disabled);
+                    } else {
+                        nextBtn.setEnabled(true);
+                        prevBtn.setEnabled(true);
+                        prevBtn.setBackgroundResource(R.drawable.repetition_left);
+                        nextBtn.setBackgroundResource(R.drawable.repetition_right);
+                    }
+                }
+            });
+
+            prevBtn.setBackgroundResource(R.drawable.repetition_left_disabled);
+            prevBtn.setEnabled(false);
             nextBtn.setBackgroundResource(R.drawable.repetition_right);
+            finishBtn.setBackgroundResource(R.drawable.repetition_finish);
 
             addView(prevBtn);
             addView(finishBtn);

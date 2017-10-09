@@ -422,8 +422,9 @@ public class DataLoader {
     }
 
 
-    public static String saveRepetition(String repetitionData, String time) throws Exception {
-        return getResponse("http://213.159.214.5/script/mobile/3/rehearsal/array.php?",
+    public static String sendRepetitionAnswers(String repetitionData, String time) throws
+            Exception {
+        return getResponse("http://213.159.214.5/script/mobile/3/rehearsal/save.php?",
                 "ProfileID=" + MainActivity.PID + "&Question=" + repetitionData + "&Time=" + time);
     }
 
@@ -440,6 +441,7 @@ public class DataLoader {
         }
         return context.getApplicationContext().getFilesDir() + "/Repetition/";
     }
+
 
     public interface onTaskLoadCompleted {
         void onTaskLoadStarted();
