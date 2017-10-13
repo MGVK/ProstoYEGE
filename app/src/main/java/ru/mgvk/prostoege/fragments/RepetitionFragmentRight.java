@@ -11,6 +11,8 @@ import android.widget.LinearLayout;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
 
+import java.util.ArrayList;
+
 /**
  * Created by mike on 28.07.17.
  */
@@ -22,6 +24,7 @@ public class RepetitionFragmentRight extends Fragment implements View.OnClickLis
     private ViewGroup    container;
     private LinearLayout mainLayout;
     private ImageButton  LeftButton;
+    private ArrayList<OnMainLayoutInited> onMainLayoutIniteds = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,6 +62,9 @@ public class RepetitionFragmentRight extends Fragment implements View.OnClickLis
 
     private void initViews() {
         mainLayout = (LinearLayout) container.findViewById(R.id.main_right_layout);
+        for (OnMainLayoutInited onMainLayoutInited : onMainLayoutIniteds) {
+            onMainLayoutInited.onInited(mainLayout);
+        }
         LeftButton = (ImageButton) container.findViewById(R.id.btn_left);
         LeftButton.setOnClickListener(this);
     }
@@ -67,5 +73,46 @@ public class RepetitionFragmentRight extends Fragment implements View.OnClickLis
         return mainLayout;
     }
 
+    public void addToMainLayout(final View v) {
+        if (mainLayout == null) {
+            addOnMainLayoutIniteds(new OnMainLayoutInited() {
+                @Override
+                public void onInited(LinearLayout mainLyout) {
+                    if (mainLyout.indexOfChild(v) == -1) {
+                        mainLyout.addView(v);
+                    }
+                }
+            });
+        } else {
+            mainLayout.addView(v);
+        }
+
+    }
+
+    public void removeFromMainLayout(final View v) {
+        if (mainLayout == null) {
+            addOnMainLayoutIniteds(new OnMainLayoutInited() {
+                @Override
+                public void onInited(LinearLayout mainLyout) {
+                    if (mainLyout.indexOfChild(v) != -1) {
+                        mainLyout.removeView(v);
+                    }
+                }
+            });
+        } else {
+            mainLayout.removeView(v);
+        }
+
+    }
+
+    public void addOnMainLayoutIniteds(
+            OnMainLayoutInited onMainLayoutInited) {
+        this.onMainLayoutIniteds.add(onMainLayoutInited);
+    }
+
+    interface OnMainLayoutInited {
+
+        void onInited(LinearLayout mainLyout);
+    }
 
 }
