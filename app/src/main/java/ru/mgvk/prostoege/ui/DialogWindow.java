@@ -29,11 +29,12 @@ public class DialogWindow extends RelativeLayout implements View.OnClickListener
         setBackgroundColor(Color.argb(194, 0, 0, 0));
         setLayoutParams(new FrameLayout.LayoutParams(-1, -1));
         setGravity(Gravity.CENTER);
-        (rootView = ((ViewGroup) ((Activity) context).getWindow().getDecorView().getRootView())).addView(this);
         setOnClickListener(this);
     }
 
     protected void open(){
+        (rootView = ((ViewGroup) ((Activity) context).getWindow().getDecorView().getRootView()))
+                .addView(this);
         animateAlpha(APPEAR);
         ((MainActivity) context).addToBackStack(new Runnable() {
             @Override
@@ -47,7 +48,6 @@ public class DialogWindow extends RelativeLayout implements View.OnClickListener
     @Override
     public void onClick(View v) {
         close();
-        ((MainActivity) context).getBackStack().removeLastAction();
     }
 
 
@@ -88,10 +88,15 @@ public class DialogWindow extends RelativeLayout implements View.OnClickListener
     }
 
     public void close(){
-        animateAlpha(DISAPPEAR);
-        if(onClosingListener!=null){
+        if(onClosingListener != null){
             onClosingListener.onClose(this);
         }
+        animateAlpha(DISAPPEAR);
+        ((MainActivity) context).getBackStack().removeLastAction();
+    }
+
+    public void forceClose() {
+        animateAlpha(DISAPPEAR);
     }
 
     public void closeWithDelay(final long ms) {

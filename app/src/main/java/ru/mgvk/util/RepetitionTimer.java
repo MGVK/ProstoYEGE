@@ -9,13 +9,14 @@ import java.util.TimerTask;
  */
 public class RepetitionTimer extends TimerTask {
 
-    Timer currentTimer;
-    ArrayList<OnTimerTicking> tickings = new ArrayList<>();
-    long                      period   = 1000;  // 1s
-    long                      dealy    = 1000;   // 1s
-    long pastTime;
-    long startTime;
-    long duration;
+    private Timer currentTimer;
+    private ArrayList<OnTimerTicking> tickings = new ArrayList<>();
+    private long                      period   = 1000;  // 1s
+    private long                      dealy    = 1000;   // 1s
+    private long pastTime;
+    private long startTime;
+    private long duration;
+    private boolean started  = false;
     private boolean finished = false;
 
     /**
@@ -35,6 +36,7 @@ public class RepetitionTimer extends TimerTask {
         for (OnTimerTicking ticking : tickings) {
             ticking.onStart();
         }
+        setStarted(true);
     }
 
     public void addOnTimerTicking(
@@ -45,18 +47,23 @@ public class RepetitionTimer extends TimerTask {
     @Override
     public void run() {
 
-
         //TICK MOTHER FUCKER!!!!!
         pastTime++;
 
-
         //disable timer
-        if (pastTime >= duration || isFinished()) {
-            currentTimer.cancel();
+
+        if (pastTime >= duration) {
+            stop();
+        }
+
+
+        if (isFinished()) {
 
             for (OnTimerTicking ticking : tickings) {
                 ticking.onFinish();
             }
+
+            cancel();
 
         }
 
@@ -75,12 +82,29 @@ public class RepetitionTimer extends TimerTask {
     }
 
 
+    public boolean isStarted() {
+        return started;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
+
     public void stop() {
-        this.finished = true;
+        if (isStarted()) {
+            this.finished = true;
+        }
+    }
+
+    @Override
+    public boolean cancel() {
+        currentTimer.cancel();
+        currentTimer.purge();
+        return super.cancel();
     }
 
     public String getTime() {
-        return "";
+        return pastTime / 60 + ":" + pastTime % 60;
     }
 
 

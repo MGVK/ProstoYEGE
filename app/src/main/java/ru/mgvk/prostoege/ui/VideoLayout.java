@@ -1,19 +1,18 @@
 package ru.mgvk.prostoege.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.*;
 import ru.mgvk.prostoege.*;
 import ru.mgvk.util.Reporter;
 
@@ -28,13 +27,13 @@ import java.util.HashMap;
 public class VideoLayout extends LinearLayout {
 
     private static final String TAG = "VideoLayout";
-    private Context context;
-    private Task currentTask;
+    private Context                      context;
+    private Task                         currentTask;
     private Profile.TaskData.VideoData[] videoData;
-    private int maxCardsCount = 0;
-    private ArrayList<VideoCard> currentVideosList = new ArrayList<>();
-    private HashMap<Integer, Drawable> videoBackgrounds = new HashMap<>();
-    private ArrayList<VideoCard> cardsList = new ArrayList<>();
+    private int                        maxCardsCount     = 0;
+    private ArrayList<VideoCard>       currentVideosList = new ArrayList<>();
+    private HashMap<Integer, Drawable> videoBackgrounds  = new HashMap<>();
+    private ArrayList<VideoCard>       cardsList         = new ArrayList<>();
     private VideoPlayer playingVideo;
 
     public VideoLayout(Context context) {
@@ -46,8 +45,7 @@ public class VideoLayout extends LinearLayout {
         this.context = context;
         if (InstanceController.getObject("VideoLayout_maxCardsCount") == null) {
             this.maxCardsCount = maxCardsCount;
-        }
-        else {
+        } else {
             this.maxCardsCount = (int) InstanceController.getObject("VideoLayout_maxCardsCount");
         }
 
@@ -146,20 +144,22 @@ public class VideoLayout extends LinearLayout {
                 currentVideosList : new ArrayList<VideoCard>();
     }
 
-    public class VideoCard extends FrameLayout {
+    public class VideoCard extends FrameLayout implements OnClickListener {
 
-        int videoID = 0;
-        byte m = (byte) UI.calcSize(5);
-        LinearLayout mainLayout;
-        FrameLayout numberLayout;
+        int  videoID = 0;
+        byte m       = (byte) UI.calcSize(5);
+        LinearLayout    mainLayout;
+        FrameLayout     numberLayout;
         VideoCardLayout videoLayout;
-        ImageView buyingIndicator;
-        private String youtubeID = "";
-        private String description = "";
+        ImageView       buyingIndicator;
+        private int    QUICKTEST_BTN_TAG = 1;
+        private int    YOUTUBE_BTN_TAG   = 2;
+        private String youtubeID         = "";
+        private String description       = "";
         private VideoPlayer player;
-        private boolean buyed = false;
-        private int number = 1;
-        private int price = 0;
+        private boolean buyed  = false;
+        private int     number = 1;
+        private int     price  = 0;
         private TextView descriptionView;
 
         /**
@@ -183,6 +183,39 @@ public class VideoLayout extends LinearLayout {
             initPlayer();
             initViews();
             setVideoDescrition();
+            setButtons();
+
+        }
+
+        private void setButtons() {
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
+            lp.setMargins(0, UI.calcSize(5), UI.calcSize(7), 0);
+            int c = Color.parseColor("#ffff9634");
+
+            Button quickTestBtn = new Button(context);
+            quickTestBtn.setOnClickListener(this);
+            quickTestBtn.setLayoutParams(lp);
+            quickTestBtn.setText(context.getString(R.string.run_quick_test));
+            quickTestBtn.setTextColor(Color.WHITE);
+            quickTestBtn.setTextSize(16);
+            quickTestBtn.setBackgroundColor(c);
+            quickTestBtn.setTransformationMethod(null);
+
+            Button youtubeBtn = new Button(context);
+            youtubeBtn.setOnClickListener(this);
+
+            youtubeBtn.setLayoutParams(lp);
+            youtubeBtn.setText(context.getString(R.string.open_on_youtube));
+            youtubeBtn.setTextColor(Color.WHITE);
+            youtubeBtn.setTextSize(16);
+            youtubeBtn.setBackgroundColor(c);
+            youtubeBtn.setTransformationMethod(null);
+
+            mainLayout.addView(quickTestBtn);
+            mainLayout.addView(youtubeBtn);
+
+            quickTestBtn.setTag(QUICKTEST_BTN_TAG);
+            youtubeBtn.setTag(YOUTUBE_BTN_TAG);
 
         }
 
@@ -197,8 +230,7 @@ public class VideoLayout extends LinearLayout {
                 if (youtubeID == null || youtubeID.equals("")) {
                     setBuyed(false);
                     setOnClickListener();
-                }
-                else {
+                } else {
                     setBuyed(true);
                     setYoutubeID(youtubeID);
                 }
@@ -412,12 +444,10 @@ public class VideoLayout extends LinearLayout {
 
             if (!buyed) {
                 player.setPicture(context.getResources().getDrawable(R.drawable.video_back));
-            }
-            else {
+            } else {
                 if (videoBackgrounds.get(getVideoID()) != null) {
                     player.setBuyed(videoBackgrounds.get(getVideoID()));
-                }
-                else {
+                } else {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -472,6 +502,23 @@ public class VideoLayout extends LinearLayout {
             player.setVideoID(youtubeID);
             if (youtubeID != null && player == null) {
                 setPlayer();
+            }
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (v.getTag().equals(YOUTUBE_BTN_TAG)) {
+
+
+                if (youtubeID != null && youtubeID.length() > 2) {
+                    context.startActivity(new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("http://www.youtube.com/watch?v=" + youtubeID)));
+                }
+
+            }
+
+            if (v.getTag().equals(QUICKTEST_BTN_TAG)) {
+                new QuickTestWindow(context, videoID);
             }
         }
 

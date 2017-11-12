@@ -17,7 +17,6 @@ import ru.mgvk.prostoege.ui.UI;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -284,7 +283,8 @@ public class StatisticPlot extends LinearLayout
 
         void addColumn(RepetitionFragmentLeft.Result result) {
 
-            addColumn(new SimpleDateFormat("d MMMM", symbols).format(new Date()), result);
+            addColumn(new SimpleDateFormat("d MMMM", symbols)
+                    .format(result.getDate(context)), result);
 
         }
 
@@ -314,8 +314,9 @@ public class StatisticPlot extends LinearLayout
                             columnsList.size() - 1);
 //                    );
 
-                    columnsList.get(currentColumnIndex).setChoosed(true);
-
+                    if (currentColumnIndex < columnsList.size() && currentColumnIndex >= 0) {
+                        columnsList.get(currentColumnIndex).setChoosed(true);
+                    }
                     postInvalidate();
 
 
@@ -323,7 +324,8 @@ public class StatisticPlot extends LinearLayout
 
                     //click on empty place
                     emptyPlaceTouched = true;
-                    if (currentColumnIndex != -1) {
+                    if (currentColumnIndex >= 0
+                        && currentColumnIndex < columnsList.size()) {
                         columnsList.get(currentColumnIndex).setChoosed(false);
                         barTouched = false;
                         currentColumnIndex = -1;
@@ -335,10 +337,7 @@ public class StatisticPlot extends LinearLayout
             }
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 if (barTouched) {
-                    UI.openRepetitionResultWindow(context,
-                            columnsList.get(currentColumnIndex)
-                                    .getResult
-                                            ());
+                    columnsList.get(currentColumnIndex).onClick(context);
                     columnsList.get(currentColumnIndex)
                             .setChoosed(false);
                     barTouched = false;
@@ -361,7 +360,6 @@ public class StatisticPlot extends LinearLayout
 
             }
 
-
 //            return super.onTouchEvent(event);
             return false;
         }
@@ -371,12 +369,8 @@ public class StatisticPlot extends LinearLayout
          * @return Math.round in [min,max];
          */
         int round(double d, int min, int max) {
-
             double res = Math.round(d) - 1;
-
-
             return (res = (res < min ? min : (int) res)) > max ? max : (int) res;
-
         }
 
         void changeScale() {
@@ -435,7 +429,12 @@ public class StatisticPlot extends LinearLayout
         }
 
         void setChoosed(boolean choosed) {
+
             this.choosed = choosed;
+        }
+
+        public void onClick(Context context) {
+            ((MainActivity) context).ui.openRepetitionResultWindow(result);
         }
     }
 

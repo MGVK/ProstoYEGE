@@ -1,6 +1,8 @@
 package ru.mgvk.prostoege;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParser;
+import ru.mgvk.prostoege.ui.statistic.StatisticData;
 
 /**
  * Created by mihail on 14.09.16.
@@ -11,6 +13,7 @@ public class Profile {
     public int Repost = 0;
     public TaskData Tasks[];
     public int maxVideoCount = 0;
+    StatisticData[] statisticData;
     private OnMaxVideosCountIncreased onMaxVideosCountIncreased;
 
     void getVideos() {
@@ -42,12 +45,25 @@ public class Profile {
 
     Questions loadQuestion(TaskData taskData) {
         try {
-            return taskData.Questions = new Gson().fromJson(DataLoader.getQuestion(taskData.Number), Questions.class);
+            return taskData.Questions = new Gson()
+                    .fromJson(DataLoader.getQuestion(taskData.Number), Questions.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    void loadRepetitionStatistic() {
+
+        try {
+            statisticData = new Gson().fromJson(new JsonParser().parse(DataLoader
+                    .getRepetitionStatistic()).getAsJsonArray(), StatisticData[].class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
     @Deprecated
     void _prepareData() {
@@ -87,10 +103,15 @@ public class Profile {
                 onMaxVideosCountIncreased.onIncrease(maxVideoCount);
             }
         }
+
     }
 
     public void setOnMaxVideosCountIncreased(OnMaxVideosCountIncreased onMaxVideosCountIncreased) {
         this.onMaxVideosCountIncreased = onMaxVideosCountIncreased;
+    }
+
+    public StatisticData[] getStatistic() {
+        return statisticData;
     }
 
     public interface OnLoadCompleted {

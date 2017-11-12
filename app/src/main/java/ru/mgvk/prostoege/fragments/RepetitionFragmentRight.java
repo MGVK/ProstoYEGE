@@ -110,6 +110,10 @@ public class RepetitionFragmentRight extends Fragment implements View.OnClickLis
         this.onMainLayoutIniteds.add(onMainLayoutInited);
     }
 
+    public void onClose() {
+
+    }
+
     interface OnMainLayoutInited {
 
         void onInited(LinearLayout mainLyout);

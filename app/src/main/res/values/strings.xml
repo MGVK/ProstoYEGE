@@ -36,4 +36,6 @@
     <string name="statistic_main_repbtn">Репетиция ЕГЭ</string>
     <string name="repetition_title">Идет экзамен</string>
     <string name="toast_repetition_finish">Репетиция ЕГЭ завершена</string>
+    <string name="run_quick_test">Пройти Quick-Тест</string>
+    <string name="open_on_youtube">Посмотреть на YouTube</string>
 </resources>

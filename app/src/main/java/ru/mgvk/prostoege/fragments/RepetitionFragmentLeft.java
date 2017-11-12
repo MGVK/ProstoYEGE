@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,24 +17,29 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import ru.mgvk.prostoege.DataLoader;
-import ru.mgvk.prostoege.MainActivity;
-import ru.mgvk.prostoege.R;
+import ru.mgvk.prostoege.*;
 import ru.mgvk.prostoege.ui.ExerciseWindow;
 import ru.mgvk.prostoege.ui.TimeButton;
 import ru.mgvk.prostoege.ui.UI;
+import ru.mgvk.prostoege.ui.statistic.StatisticData;
 import ru.mgvk.util.RepetitionTimer;
 import ru.mgvk.util.Reporter;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Locale;
+
+import static ru.mgvk.prostoege.DataLoader.dataToHtml;
 
 /**
  * Created by mike on 28.07.17.
@@ -64,6 +70,13 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     private int               currentTaskNumber = 1;
     private ArrayList<String> answers           = new ArrayList<>();
 
+    public RepetitionFragmentLeft(Context context) {
+        Log.d("Rep!", "RepetitionFragmentLeft: 1");
+        mainActivity = (MainActivity) (this.context = context);
+        prepareData();
+
+    }
+
     public static void addOnTaskChangedList(OnTaskChanged onTaskChanged) {
         if (onTaskChanged != null) {
             RepetitionFragmentLeft.onTaskChangedList.add(onTaskChanged);
@@ -77,6 +90,9 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         View view = inflater.inflate(R.layout.fragment_repetition_left, container, false);
         mainActivity = (MainActivity) (this.context = inflater.getContext());
         this.container = container;
+//        prepareData();
+        Log.d("Rep!", "RepetitionFragmentLeft: 2");
+
 
         return view;
 
@@ -85,7 +101,6 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     @Override
     public void onStart() {
 
-        prepareData();
 
         if (!isStopped() && !isInited()) {
 
@@ -94,6 +109,7 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
             initTimer();
 
         }
+
 
         openStartDialog();
 
@@ -127,7 +143,6 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
         } else {              // stop
 
-            finishRepetition();
             mainActivity.ui.mainScroll.setScrollEnabled(true);
 
         }
@@ -135,7 +150,8 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
     private void onRepetitionFinished() {
 
-        new AsyncTask<Void, Void, String>() {
+
+        new AsyncTask<Void, Void, Result>() {
 
             ProgressDialog dialog;
 
@@ -151,12 +167,10 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
                     }
                 });
 
-
             }
 
-
             @Override
-            protected String doInBackground(Void... voids) {
+            protected Result doInBackground(Void... voids) {
 
                 String s = "";
                 try {
@@ -166,24 +180,26 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
                     e.printStackTrace();
                 }
 
-                StringBuilder results = new StringBuilder("Номер задания | Баллы\n");
+                StatisticData data = new Gson().fromJson(s, StatisticData.class);
 
                 JsonElement element = new JsonParser().parse(s);
                 JsonObject  object  = element.getAsJsonObject().get("Answers").getAsJsonObject();
-                for (int i = 1; i <= 19; i++) {
+                data.marks = new int[19];
 
-                    results.append("\t").append(i).append("\t->\t")
-                            .append(object.get(i + "").getAsString())
-                            .append("\n");
+                data.TimeSpent = repetitionTimer.getTime();
+                data.Time = new SimpleDateFormat("HH:mm").format(new Date());
 
+                for (int i = 0; i < 19; i++) {
+
+                    data.marks[i] = object.get((i + 1) + "").getAsInt();
                 }
 
-                return results.toString();
+                return new Result(data);
 
             }
 
             @Override
-            protected void onPostExecute(final String result) {
+            protected void onPostExecute(final Result result) {
 
                 mainActivity.runOnUiThread(new Runnable() {
                     @Override
@@ -191,11 +207,11 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
                         if (dialog.isShowing()) dialog.dismiss();
 
-                        new AlertDialog.Builder(context)
-                                .setPositiveButton("Ok!", null)
-                                .setTitle("Ваши Результаты")
-                                .setMessage(result)
-                                .create().show();
+                        mainActivity.ui.openRepetitionResultWindow(result);
+
+                        mainActivity.ui.closeRepetitionFragment();
+
+
                     }
                 });
 
@@ -235,13 +251,27 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
                         startRepetition();
                     }
                 })
-                .setNegativeButton("Отмена", null)
+                .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mainActivity.ui.closeRepetitionFragment();
+                    }
+                })
+                .setCancelable(false)
                 .create().show();
+
+        MainActivity.stopwatch.checkpoint("repetition fragment ready");
+
     }
 
 
     private void startRepetition() {
-        repetitionTimer.start();
+        try {
+            repetitionTimer.start();
+        } catch (Exception e) {
+            initTimer();
+            repetitionTimer.start();
+        }
         timeButton.changeState(TimeButton.TIME_ALL);
     }
 
@@ -307,13 +337,14 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         setAnswerLayout();
         setNumPad();
 
+        setInited(true);
+
         if (context.getResources().getConfiguration().orientation
             == Configuration.ORIENTATION_PORTRAIT) {
             setPotraitMode();
         } else {
             setLanscapeMode();
         }
-        setInited(true);
 
     }
 
@@ -346,7 +377,21 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
             @Override
             public void onFinish() {
-                finishRepetition();
+
+
+                new AlertDialog.Builder(context)
+                        .setTitle("Вы действительно хотите закончить репетицию ЕГЭ?")
+                        .setPositiveButton("Да!", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                finishRepetition();
+
+                            }
+                        })
+                        .setNegativeButton("Отмена", null)
+                        .create().show();
+
             }
         });
         mainLayout.addView(titleLayout);
@@ -405,7 +450,7 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 //        descriptionWebView.loadUrl();
         descriptionWebView.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
         descriptionWebView.setMinimumHeight(UI.calcSize(100));
-
+        ;
         mainLayout.addView(descriptionWebView);
     }
 
@@ -440,11 +485,15 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
     private void setLanscapeMode() {
         try {
-            mainLayout.removeView(answerLayout);
-            mainLayout.removeView(numPad);
+            if (mainLayout.indexOfChild(answerLayout) != -1) {
+                mainLayout.removeView(answerLayout);
+            }
+            if (mainLayout.indexOfChild(numPad) != -1) {
+                mainLayout.removeView(numPad);
+            }
             mainActivity.ui.mainScroll.setScrollEnabled(true);
-            mainActivity.ui.repetitionFragmentRight.getLayout().addView(answerLayout);
-            mainActivity.ui.repetitionFragmentRight.getLayout().addView(numPad);
+            mainActivity.ui.repetitionFragmentRight.addToMainLayout(answerLayout);
+            mainActivity.ui.repetitionFragmentRight.addToMainLayout(numPad);
         } catch (Exception e) {
             Reporter.report(context, e, MainActivity.PID);
         }
@@ -452,8 +501,8 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
     private void setPotraitMode() {
         try {
-            mainActivity.ui.repetitionFragmentRight.getLayout().removeView(answerLayout);
-            mainActivity.ui.repetitionFragmentRight.getLayout().removeView(numPad);
+            mainActivity.ui.repetitionFragmentRight.removeFromMainLayout(answerLayout);
+            mainActivity.ui.repetitionFragmentRight.removeFromMainLayout(numPad);
             mainActivity.ui.mainScroll.setScrollEnabled(false);
             mainLayout.addView(answerLayout);
             mainLayout.addView(numPad);
@@ -481,6 +530,10 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         this.inited = inited;
     }
 
+    public void onClose() {
+        finishRepetition();
+    }
+
     private static interface OnTaskChanged {
 
         void onChanged(int taskNumber);
@@ -489,7 +542,7 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
     public static class RepetitionData {
 
-        private static LinkedHashMap<Integer, RepetitionTask> map = new LinkedHashMap<>();
+        private static LinkedHashMap<Integer, HTMLTask> map = new LinkedHashMap<>();
         private int repetitionDuration;
 
 
@@ -511,108 +564,38 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
                     JsonObject o           = element.getAsJsonObject().getAsJsonObject(j + "");
                     int        id          = o.get("ID").getAsInt();
                     String     description = o.get("Description").getAsString();
+                    boolean    hasImage;
+                    try {
+                        hasImage = o.get("Image").getAsBoolean();
+                    } catch (Exception e) {
+                        hasImage = false;
+                    }
 
-                    map.put(j, new RepetitionFragmentLeft.RepetitionData.RepetitionTask(id,
-                            description));
+                    map.put(j, new HTMLTask(id, description, hasImage, Constants.REPETITION));
 
                 }
 
                 repetitionData.setRepetitionDuration(element.getAsJsonObject().get("Time")
                                                              .getAsInt() * 60);
 
-
             } catch (Exception e) {
                 Reporter.report(context, e, MainActivity.PID);
             }
 
             repetitionData.setMap(map);
-            for (RepetitionTask repetitionTask : map.values()) {
-                repetitionTask.Description = repetitionTask.Description.replace("\\\"", "\"");
-                repetitionTask.Description = repetitionTask.Description.replace("\\/", "");
-                repetitionTask.Description = repetitionTask.Description.replace("\\\\", "\\");
+            for (HTMLTask HTMLTask : map.values()) {
+                HTMLTask.Description = HTMLTask.Description.replace("\\\"", "\"");
+                HTMLTask.Description = HTMLTask.Description.replace("\\/", "");
+                HTMLTask.Description = HTMLTask.Description.replace("\\\\", "\\");
             }
 
-            dataToHtml(context, map);
+            dataToHtml(DataLoader.getRepetitionFolder(context), map);
 
             return repetitionData;
         }
 
-        private static void dataToHtml(Context context,
-                                       HashMap<Integer, RepetitionTask> map) {
-            for (RepetitionTask repetitionTask : map.values()) {
-                File file = new File(DataLoader.getRepetitionFolder(context) + repetitionTask
-                        .ID + ".html");
-                try {
 
-                    file.createNewFile();
-
-                    FileWriter writer = new FileWriter(file);
-
-                    String s =
-                            "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
-                            + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n"
-                            + "<link rel=\"stylesheet\" href=\"style.css\">\n"
-                            + "\n"
-                            + "<script type=\"text/x-mathjax-config\">\n"
-                            + "//\n"
-                            + "//  Do NOT use this page as a template for your own pages.  It includes\n"
-                            + "//  code that is needed for testing your site's installation of MathJax,\n"
-                            + "//  and that should not be used in normal web pages.  Use sample.html as\n"
-                            + "//  the example for how to call MathJax in your own pages.\n"
-                            + "//\n"
-                            + "  MathJax.HTML.Cookie.Set(\"menu\",{});\n"
-                            + "  MathJax.Hub.Config({\n"
-                            + "    extensions: [\"tex2jax.js\"],\n"
-                            + "    jax: [\"input/TeX\",\"output/HTML-CSS\"],\n"
-                            + "    messageStyle: \"none\",\n"
-                            + "    \"HTML-CSS\": {\n"
-                            + "      availableFonts:[], preferredFont: \"TeX\", webFont: \"TeX\",\n"
-                            + "      styles: {\".MathJax_Preview\": {visibility: \"hidden\"}},\n"
-                            + "    }\n"
-                            + "  });\n"
-                            + "\n"
-                            + "(function (HUB) {\n"
-                            + "\n"
-                            + "  var MINVERSION = {\n"
-                            + "    Firefox: 3.0,\n"
-                            + "    Opera: 9.52,\n"
-                            + "    MSIE: 6.0,\n"
-                            + "    Chrome: 0.3,\n"
-                            + "    Safari: 2.0,\n"
-                            + "    Konqueror: 4.0,\n"
-                            + "    Unknown: 10000.0 // always disable unknown browsers\n"
-                            + "  };\n"
-                            + "\n"
-                            + "  if (!HUB.Browser.versionAtLeast(MINVERSION[HUB.Browser]||0.0)) {\n"
-                            + "    HUB.Config({\n"
-                            + "      jax: [],                   // don't load any Jax\n"
-                            + "      extensions: [],            // don't load any extensions\n"
-                            + "      \"v1.0-compatible\": false   // skip warning message due to no jax\n"
-                            + "    });\n"
-                            + "    setTimeout('document.getElementById(\"badBrowser\").style.display = \"\"',0);\n"
-                            + "  }\n"
-                            + "\n"
-                            + "  if (HUB.Browser.isMSIE && !HUB.Browser.versionAtLeast(\"7.0\")) {\n"
-                            + "    setTimeout('document.getElementById(\"MSIE6\").style.display = \"\"');\n"
-                            + "  }\n"
-                            + "\n"
-                            + "})(MathJax.Hub);\n"
-                            + "\n"
-                            + "</script>\n"
-                            + "<script type=\"text/javascript\" src=\"MathJax/MathJax"
-                            + ".js\"></script>";
-
-                    writer.write(s + repetitionTask.Description);
-                    writer.flush();
-                    writer.close();
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        public LinkedHashMap<Integer, RepetitionTask> getMap() {
+        public LinkedHashMap<Integer, HTMLTask> getMap() {
             return map;
         }
 
@@ -621,12 +604,12 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 //        }
 
         public void setMap(
-                LinkedHashMap<Integer, RepetitionTask> map) {
+                LinkedHashMap<Integer, HTMLTask> map) {
             this.map = map;
         }
 
         public String getHtmlFilePath(int number) {
-            RepetitionTask t = map.get(number);
+            HTMLTask t = map.get(number);
             if (t == null) {
                 return "test.html";
             } else {
@@ -642,28 +625,6 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
             this.repetitionDuration = repetitionDuration;
         }
 
-        public static class RepetitionTask {
-
-            int    ID          = 0;
-            String Description = "";
-
-            public RepetitionTask() {
-
-            }
-
-            public RepetitionTask(int ID, String description) {
-                this.ID = ID;
-                Description = description;
-            }
-
-            public int getID() {
-                return ID;
-            }
-
-            public String getDescription() {
-                return Description;
-            }
-        }
 
     }
 
@@ -807,8 +768,9 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
     public static class Result {
 
-        private int scoreSecondary;
-        private int scorePrimary;
+        private StatisticData statisticDatum;
+        private int           scoreSecondary;
+        private int           scorePrimary;
 
         public Result(int scoreSecondary) {
             this.scoreSecondary = scoreSecondary;
@@ -819,12 +781,89 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
             this.scorePrimary = scorePrimary;
         }
 
+        public Result(StatisticData statisticDatum) {
+            this.statisticDatum = statisticDatum;
+            if (statisticDatum.marks != null && statisticDatum.marks.length != 0) {
+                createTMPfile();
+            }
+        }
+
+        private void createTMPfile() {
+
+            String s1 = "<!DOCTYPE html> <head> <style> td{ text-align: center; } </style> <body> "
+                        + "<table border=\"1px solidh black\" width = \"100%\" align=\"center\"> "
+                        + "<tr> <td>Задание</td>  <td>Баллы</td> </tr> \n";
+
+            String s2 = " </table> </body> </head>";
+
+            File f = new File(DataLoader.getRepetitionFolder(null) + "stat_tmp.html");
+            try {
+                if (f.createNewFile() || f.exists()) {
+                    FileWriter w = new FileWriter(f);
+                    w.write(s1);
+                    for (int i = 0; i < statisticDatum.marks.length; i++) {
+                        w.write(String.format(Locale.ENGLISH,
+                                "<tr>  <td>%d</td> " + "<td>%d</td> </tr>\n",
+                                i + 1, statisticDatum.marks[i]));
+                    }
+                    w.write(s2);
+                    w.flush();
+                    w.close();
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
         public int getScoreSecondary() {
-            return scoreSecondary;
+            if (statisticDatum == null) {
+                return scoreSecondary;
+            } else {
+                try {
+                    return Integer.parseInt(statisticDatum.TestAll);
+                } catch (NumberFormatException e) {
+                    return 0;
+                }
+            }
+
         }
 
         public int getScorePrimary() {
-            return scorePrimary;
+            if (statisticDatum == null) {
+                return scorePrimary;
+            } else {
+                try {
+                    return Integer.parseInt(statisticDatum.PrimaryFirst);
+                } catch (NumberFormatException e) {
+                    return 0;
+                }
+            }
+        }
+
+        public StatisticData getStatisticDatum() {
+            return statisticDatum;
+        }
+
+        public Date getDate(Context context) {
+            if (getStatisticDatum().Date != null) {
+                try {
+                    return new SimpleDateFormat("yyyy-MM-dd").parse(getStatisticDatum().Date);
+                } catch (ParseException e) {
+                    Reporter.report(context, e, MainActivity.PID);
+                }
+            }
+            return new Date();
+        }
+
+        public String getTime() {
+            return statisticDatum.Time;
+        }
+
+        public String getDuration() {
+            return statisticDatum.TimeSpent;
         }
     }
 

@@ -35,10 +35,10 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
 
     static final  String APP_SETTINGS = "SETTINGS_EGE";
     public static String PID          = "default";
+    public static   Stopwatch stopwatch;
     public          UI        ui;
     public volatile Profile   profile;
     public          Pays      pays;
-    public          Stopwatch stopwatch;
     public          String    reportSubject;
     private         Context   context;
     private ArrayList<OnConfigurationUpdateListener> configurationUpdatesList = new ArrayList<>();
@@ -104,6 +104,18 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
             }
 
 //            getBackStack().addState(StateTags.MAIN_ACTIVITY);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        MathJaxPreparer.prepare(MainActivity.this);
+                    } catch (Exception e) {
+                        Reporter.report(MainActivity.this, e, reportSubject);
+                    }
+
+                }
+            }).start();
+
 
             ui = new UI(context, restoring);
 
@@ -113,7 +125,6 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
             stopwatch.checkpoint("MainActivity_onCreate_finish");
             Log.d("ActivityState", "onCreate");
 
-            MathJaxPreparer.prepare(this);
 
         } catch (Exception e) {
             Reporter.report(this, e, reportSubject);

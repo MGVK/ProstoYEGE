@@ -861,7 +861,8 @@ public class VideoPlayer {
     }
 
 
-    class VideoSeek extends android.widget.SeekBar implements OnSeekBarChangeListener {
+    class VideoSeek extends android.support.v7.widget.AppCompatSeekBar
+            implements OnSeekBarChangeListener {
 
         public VideoSeek(Context context) {
             super(context);

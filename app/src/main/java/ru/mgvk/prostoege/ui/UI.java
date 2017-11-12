@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
@@ -22,6 +23,8 @@ import ru.mgvk.prostoege.*;
 import ru.mgvk.prostoege.fragments.*;
 import ru.mgvk.util.Reporter;
 import ru.mgvk.util.StateTags;
+
+import java.text.SimpleDateFormat;
 
 /**
  * Created by Michael_Admin on 08.08.2016.
@@ -62,7 +65,10 @@ public class UI {
             openPolicyWindow();
         }
 
+        initFolders();
+
         initSizes();
+
 
         initFragments(restoring);
 
@@ -142,13 +148,65 @@ public class UI {
         window.open();
     }
 
-    public static void openRepetitionResultWindow(Context context,
-                                                  RepetitionFragmentLeft.Result result) {
+    public static void openQuickTestResultDialog(Context context, String testResult,
+                                                 int tasksCount, long testDuration) {
         new AlertDialog.Builder(context)
-                .setTitle("Результаты тестирования")
-                .setMessage("Ваши баллы: " + result.getScoreSecondary())
-                .setPositiveButton("Закрыть", null)
+                .setTitle("Результаты теста")
+                .setMessage("Вы ответили правильно " + testResult + " из " + tasksCount + "\nза "
+                            + testDuration + " секунд")
+                .setPositiveButton("Ok", null)
                 .create().show();
+    }
+
+    public static ProgressDialog openProgressDialog(Context context, String s) {
+        ProgressDialog dialog = new ProgressDialog(context);
+        dialog.setMessage(s);
+        dialog.show();
+        return dialog;
+    }
+
+    private void initFolders() {
+        DataLoader.getRepetitionFolder(context);
+        DataLoader.getQuickTestFolder(context);
+    }
+
+    public void openRepetitionResultWindow(RepetitionFragmentLeft.Result result) {
+
+        final AlertDialog.Builder b = new AlertDialog.Builder(context)
+                .setTitle("Результаты тестирования:")
+                .setMessage("Дата: " + (new SimpleDateFormat("dd MMMM")
+                        .format(result.getDate(context))) + " в "
+                            + result.getTime() + "\n"
+                            + "Длительность экзамена:" + result.getDuration() + "\n"
+                            + "Первичный балл: " + result.getScorePrimary() + "\n"
+                            + "Вторичный балл: " + result.getScoreSecondary() + "\n"
+                )
+                .setPositiveButton("Закрыть", null);
+
+        if (result.getStatisticDatum().marks != null
+            && result.getStatisticDatum().marks.length != 0) {
+            b.setNeutralButton("Баллы по задачам", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    WebView v = new WebView(context);
+                    v.setVerticalScrollBarEnabled(false);
+                    v.getSettings().setSupportZoom(false);
+                    v.setLayoutParams(new ViewGroup.LayoutParams(-1, UI.calcSize(200)));
+                    v.loadUrl("file://" + DataLoader.getRepetitionFolder(null) + "stat_tmp.html");
+
+                    new AlertDialog.Builder(context)
+                            .setTitle("Баллы по задачам")
+                            .setView(v)
+                            .setPositiveButton("Ok", null)
+                            .show();
+
+                }
+            });
+        }
+
+        b.create().show();
+
     }
 
     private void openPolicyWindow() {
@@ -242,8 +300,8 @@ public class UI {
                     videoListFragment = new VideoListFragment(context);
                     exercisesListFragment = new ExercisesListFragment(context);
                     toolsFragment = new ToolsFragment(context);
-                    repetitionFragmentLeft = new RepetitionFragmentLeft();
                     repetitionFragmentRight = new RepetitionFragmentRight();
+                    repetitionFragmentLeft = new RepetitionFragmentLeft(context);
                 }
             });
 
@@ -344,6 +402,23 @@ public class UI {
         });
     }
 
+//    private void addFragments() {
+//        FragmentManager     manager = mainActivity.getFragmentManager();
+//        FragmentTransaction tr      = manager.beginTransaction();
+//        tr.add(R.id.root_1, exercisesListFragment, "ExercisesListFragment");
+//        tr.add(R.id.root_2, toolsFragment, "ToolsFragment");
+//        tr.add(R.id.root_2, videoListFragment, "VideoListFragment");
+//        tr.add(R.id.root_1, taskListFragment, "TaskListFragment");
+//
+//        tr.hide(taskListFragment);
+//        tr.hide(exercisesListFragment);
+//        tr.hide(videoListFragment);
+//        tr.hide(toolsFragment);
+//        tr.commit();
+//
+//
+//    }
+
     public void updateSizes(int orientation) {
         initSizes();
         double k = orientation == Configuration.ORIENTATION_PORTRAIT ? 1 : 0.5;
@@ -404,23 +479,6 @@ public class UI {
         }
 
     }
-
-//    private void addFragments() {
-//        FragmentManager     manager = mainActivity.getFragmentManager();
-//        FragmentTransaction tr      = manager.beginTransaction();
-//        tr.add(R.id.root_1, exercisesListFragment, "ExercisesListFragment");
-//        tr.add(R.id.root_2, toolsFragment, "ToolsFragment");
-//        tr.add(R.id.root_2, videoListFragment, "VideoListFragment");
-//        tr.add(R.id.root_1, taskListFragment, "TaskListFragment");
-//
-//        tr.hide(taskListFragment);
-//        tr.hide(exercisesListFragment);
-//        tr.hide(videoListFragment);
-//        tr.hide(toolsFragment);
-//        tr.commit();
-//
-//
-//    }
 
     public void openExercisesOrToolsFragment(final boolean exercises) {
         FragmentManager     manager = mainActivity.getFragmentManager();
@@ -529,6 +587,24 @@ public class UI {
     }
 
     public void closeRepetitionFragment() {
+
+//        new AlertDialog.Builder(context)
+//                .setTitle("Вы действительно хотите закончить репетицию ЕГЭ?")
+//                .setPositiveButton("Да!", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//
+//                        if(result!=null) {
+//                            openRepetitionResultWindow(result);
+//                        }
+//
+//                    }
+//                })
+//                .setNegativeButton("Отмена",null)
+//                .create().show();
+
+        repetitionFragmentLeft.onClose();
+
         FragmentManager     manager = mainActivity.getFragmentManager();
         FragmentTransaction tr      = manager.beginTransaction();
         tr.hide(repetitionFragmentLeft);
@@ -537,11 +613,18 @@ public class UI {
 
         tr.commit();
 
+
     }
 
     public void openRightRepetitionComponent() {
         this.mainScroll.toRight();
     }
+
+//    public void openPreviousFragment() {
+//        FragmentTransaction tr = mainActivity.getFragmentManager().beginTransaction();
+//        tr.hide(currentFragment);
+//        tr.commit();
+//    }
 
     public void openLeftRepetitionComponent() {
         this.mainScroll.toLeft();
@@ -557,6 +640,8 @@ public class UI {
 
         FragmentManager     manager = mainActivity.getFragmentManager();
         FragmentTransaction tr      = manager.beginTransaction();
+
+        MainActivity.stopwatch.checkpoint("repetition fragment asked");
 
         if (manager.findFragmentById(repetitionFragmentLeft.getId()) == null) {
             tr.add(R.id.root_1, repetitionFragmentLeft, "RepetitionFragmentLeft");
@@ -575,15 +660,11 @@ public class UI {
 
         tr.commit();
 
+        MainActivity.stopwatch.checkpoint("repetition fragment showed");
+
         currentFragment = repetitionFragmentLeft;
 
     }
-
-//    public void openPreviousFragment() {
-//        FragmentTransaction tr = mainActivity.getFragmentManager().beginTransaction();
-//        tr.hide(currentFragment);
-//        tr.commit();
-//    }
 
     public void openBalanceDialog() {
         balanceWindow = new BalanceWindow(context);

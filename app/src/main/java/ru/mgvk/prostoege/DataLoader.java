@@ -1,16 +1,18 @@
 package ru.mgvk.prostoege;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.util.Log;
+import ru.mgvk.prostoege.ui.statistic.StatisticData;
 import ru.mgvk.util.Reporter;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by mihail on 10.08.16.
@@ -33,10 +35,18 @@ public class DataLoader {
     static boolean loadingInThread = true;
     static Profile p;
     private static String url = null;
-    private static onTaskLoadCompleted onTaskLoadCompleted;
+    private static onTaskLoadCompleted                onTaskLoadCompleted;
+    private static OnStatisticLoadingCompleteListener onStatisticLoadingCompleteListener;
+    private static HashMap<String, String> folders   = new HashMap<>();
+    private static boolean                 firstTime = true;
 
     DataLoader(Context context) {
 
+    }
+
+    public static void setOnStatisticLoadingCompleteListener(
+            OnStatisticLoadingCompleteListener onStatisticLoadingCompleteListener) {
+        DataLoader.onStatisticLoadingCompleteListener = onStatisticLoadingCompleteListener;
     }
 
     public static ArrayList<Task> loadTasks(Context pcontext) {
@@ -148,6 +158,8 @@ public class DataLoader {
             }
         });
 
+        statisticDataLoad();
+
         for (int task_i = 0; task_i < p.Tasks.length; task_i++) {
 
             p.loadVideo(p.Tasks[task_i]);
@@ -166,7 +178,6 @@ public class DataLoader {
             }
             ((MainActivity) context).stopwatch.checkpoint("Loading Task: " + task_i);
 
-
         }
 
         if (onTaskLoadCompleted != null) {
@@ -178,6 +189,45 @@ public class DataLoader {
         return taskList;
     }
 
+    private static void statisticDataLoad() {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                p.loadRepetitionStatistic();
+                onStatisticLoadingCompleteListener.onLoadCompleted(p.getStatistic());
+            }
+        }).start();
+    }
+
+    public static void clearFile(File file) throws IOException {
+        if (file.exists() && !file.delete()) {
+            throw new IOException("Cannot delete file!!!");
+        }
+
+        if (!file.createNewFile()) {
+            throw new IOException("Cannot create file!!!");
+        }
+    }
+
+    public static void loadTaskPicture(int taskID, Constants type) {
+        try {
+
+            File f = new File(getFolder(type) + taskID + ".png");
+
+            clearFile(f);
+
+            BitmapFactory.decodeStream(
+                    new URL("http://213.159.214.5/images/" +
+                            (type == Constants.QUICK_TEST ? "video/quick" : "rehearsal")
+                            + "/" + taskID + ".png")
+                            .openStream())
+                    .compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(f));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     public static String getProfile(String profileId) throws Exception {
         //        Log.d("Profile",s);
@@ -196,7 +246,6 @@ public class DataLoader {
                getResponse("http://213.159.214.5/script/mobile/2/question/array.php",
                        "ProfileID=" + MainActivity.PID + "&TaskNumber=" + number) + "}";
     }
-
 
     public static String buyVideo(int id) throws Exception {
         return getResponse("http://213.159.214.5/script/mobile/2/video/buy.php",
@@ -244,6 +293,14 @@ public class DataLoader {
         br.close();
 
         return result;
+    }
+
+    public static boolean acceptLicense(Context context) {
+
+        context.getSharedPreferences(MainActivity.APP_SETTINGS, Context.MODE_PRIVATE)
+                .edit().putInt(POLICY_SETTINGS, 1).apply();
+
+        return isLicenseAccepted(context);
     }
 
 //    public static String getVideoURI(final String ID) {
@@ -303,14 +360,6 @@ public class DataLoader {
 //
 //    }
 
-    public static boolean acceptLicense(Context context) {
-
-        context.getSharedPreferences(MainActivity.APP_SETTINGS, Context.MODE_PRIVATE)
-                .edit().putInt(POLICY_SETTINGS, 1).apply();
-
-        return isLicenseAccepted(context);
-    }
-
     public static boolean isLicenseAccepted(Context context) {
 
         try {
@@ -321,6 +370,10 @@ public class DataLoader {
             Reporter.report(context, e, ((MainActivity) context).reportSubject);
             return false;
         }
+    }
+
+    public static String getTaskPirctureRequest(int id) {
+        return "http://213.159.214.5/images/tasks/" + id + ".png";
     }
 
 
@@ -348,11 +401,6 @@ public class DataLoader {
 //        return "0_0";
 //    }
 
-
-    public static String getTaskPirctureRequest(int id) {
-        return "http://213.159.214.5/images/tasks/" + id + ".png";
-    }
-
     public static String getVideoBackRequest(int id) {
         return "http://213.159.214.5/images/video/" + id + ".png";
     }
@@ -375,10 +423,6 @@ public class DataLoader {
 
     public static boolean sendReport(String report) {
 
-//        return false;
-
-//        byte[] b = new byte[]{57, 53, 46, 49, 54, 53, 46, 49, 52, 48, 46, 49, 50, 53};
-
         try {
             return !"-1".equals(getResponse("http://mgvk.esy.es/logs.php",
                     "pid=" + MainActivity.PID + "&report=" + report));
@@ -387,24 +431,24 @@ public class DataLoader {
         }
     }
 
-
     /**
      * @return names of files to load during QuickTest in the right order
      */
-    public static String[] getQuickTestTasks(int videoID) {
+    public static String getQuickTestTasks(int videoID) {
+
+        String result = "";
 
         try {
-            String result = getResponse("http://213.159.214.5/script/mobile/3/video/test/array.php",
+            result = getResponse("http://213.159.214.5/script/mobile/3/video/test/array.php",
                     "ProfileID=" + MainActivity.PID + "&VideoID=" + videoID);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return null;
+        return result;
 
     }
-
 
     public static String getRepetitionTasksJson() {
 
@@ -421,7 +465,6 @@ public class DataLoader {
         return result;
     }
 
-
     public static String sendRepetitionAnswers(String repetitionData, String time) throws
             Exception {
         return getResponse("http://213.159.214.5/script/mobile/3/rehearsal/save.php?",
@@ -432,14 +475,163 @@ public class DataLoader {
         return "";
     }
 
+    public static String getMathJaxFolder(Context context) {
+        return getFolder(context, "MathJax");
+    }
+
     public static String getRepetitionFolder(Context context) {
 
-        File dir;
-        if (!(dir = new File(context.getApplicationContext().getFilesDir() + "/Repetition/")).exists
-                ()) {
-            dir.mkdir();
+        return getFolder(context, "Repetition");
+    }
+
+    private static String getFolder(Constants type) {
+
+        switch (type) {
+            case REPETITION: {
+                return getRepetitionFolder(context);
+            }
+            case QUICK_TEST: {
+                return getQuickTestFolder(context);
+            }
+            case MATHJAX: {
+                return getMathJaxFolder(context);
+            }
         }
-        return context.getApplicationContext().getFilesDir() + "/Repetition/";
+        return "";
+
+    }
+
+    private static String getFolder(Context context, String name) {
+        if (folders.get(name) == null) {
+            firstTime = true;
+        }
+        if (context == null && folders.get(name) == null) {
+            throw new NullPointerException(name + " Folder must be initialized with not null "
+                                           + "context");
+        }
+
+        File dir;
+        if (context != null && !(dir = new File(context.getApplicationContext().getFilesDir() +
+                                                "/" + name + "/")).exists()) {
+            if (dir.mkdirs()) {
+                folders.put(name, context.getApplicationContext().getFilesDir() + "/" + name + "/");
+            }
+        } else if (firstTime) {
+            folders.put(name, context.getApplicationContext().getFilesDir() + "/" + name + "/");
+            firstTime = false;
+        }
+
+        return folders.get(name);
+
+    }
+
+    public static void dataToHtml(String folder,
+                                  HashMap<Integer, HTMLTask> map) {
+
+        for (HTMLTask task : map.values()) {
+            File file = new File(folder + task
+                    .ID + ".html");
+            try {
+                DataLoader.clearFile(file);
+
+                FileWriter writer = new FileWriter(file);
+
+                String s =
+                        "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
+                        + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n"
+                        + "<link rel=\"stylesheet\" href=\"style.css\">\n"
+                        + "\n"
+                        + "<script type=\"text/x-mathjax-config\">\n"
+                        + "//\n"
+                        + "//  Do NOT use this page as a template for your own pages.  It includes\n"
+                        + "//  code that is needed for testing your site's installation of MathJax,\n"
+                        + "//  and that should not be used in normal web pages.  Use sample.html as\n"
+                        + "//  the example for how to call MathJax in your own pages.\n"
+                        + "//\n"
+                        + "  MathJax.HTML.Cookie.Set(\"menu\",{});\n"
+                        + "  MathJax.Hub.Config({\n"
+                        + "    extensions: [\"tex2jax.js\"],\n"
+                        + "    jax: [\"input/TeX\",\"output/HTML-CSS\"],\n"
+                        + "    messageStyle: \"none\",\n"
+                        + "    \"HTML-CSS\": {\n"
+                        + "      availableFonts:[], preferredFont: \"TeX\", webFont: \"TeX\",\n"
+                        + "      styles: {\".MathJax_Preview\": {visibility: \"hidden\"}},\n"
+                        + "    }\n"
+                        + "  });\n"
+                        + "\n"
+                        + "(function (HUB) {\n"
+                        + "\n"
+                        + "  var MINVERSION = {\n"
+                        + "    Firefox: 3.0,\n"
+                        + "    Opera: 9.52,\n"
+                        + "    MSIE: 6.0,\n"
+                        + "    Chrome: 0.3,\n"
+                        + "    Safari: 2.0,\n"
+                        + "    Konqueror: 4.0,\n"
+                        + "    Unknown: 10000.0 // always disable unknown browsers\n"
+                        + "  };\n"
+                        + "\n"
+                        + "  if (!HUB.Browser.versionAtLeast(MINVERSION[HUB.Browser]||0.0)) {\n"
+                        + "    HUB.Config({\n"
+                        + "      jax: [],                   // don't load any Jax\n"
+                        + "      extensions: [],            // don't load any extensions\n"
+                        + "      \"v1.0-compatible\": false   // skip warning message due to no jax\n"
+                        + "    });\n"
+                        + "    setTimeout('document.getElementById(\"badBrowser\").style.display = \"\"',0);\n"
+                        + "  }\n"
+                        + "\n"
+                        + "  if (HUB.Browser.isMSIE && !HUB.Browser.versionAtLeast(\"7.0\")) {\n"
+                        + "    setTimeout('document.getElementById(\"MSIE6\").style.display = \"\"');\n"
+                        + "  }\n"
+                        + "\n"
+                        + "})(MathJax.Hub);\n"
+                        + "\n"
+                        + "</script>\n"
+                        + "<script type=\"text/javascript\" src=\"../MathJax/MathJax/MathJax"
+                        + ".js\"></script>";
+
+                writer.write(s + task.Description);
+                if (task.hasImage) {
+                    writer.write("<image src=\"" + task.ID + ".png\">");
+                }
+                writer.flush();
+                writer.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    public static String getRepetitionStatistic() throws Exception {
+        return getResponse("http://213.159.214.5/script/mobile/3/rehearsal/all.php",
+                "ProfileID=" + MainActivity.PID);
+
+    }
+
+    public static String getQuickTestFolder(Context context) {
+
+        return getFolder(context, "QuickTest");
+
+    }
+
+    public static String getQuickTestResults(int videoID, String s, long time) {
+        String res = "";
+        try {
+            res = getResponse("http://213.159.214.5/script/mobile/3/video/test/save.php",
+                    "ProfileID=" + MainActivity.PID
+                    + "&Question=" + s
+                    + "&VideoID=" + videoID
+                    + "&Time=" + time);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
+
+    public interface OnStatisticLoadingCompleteListener {
+        void onLoadCompleted(StatisticData[] statisticData);
     }
 
 

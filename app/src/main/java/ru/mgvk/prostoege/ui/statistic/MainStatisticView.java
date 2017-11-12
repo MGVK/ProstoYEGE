@@ -10,6 +10,7 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.*;
+import ru.mgvk.prostoege.DataLoader;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
 import ru.mgvk.prostoege.fragments.RepetitionFragmentLeft;
@@ -60,14 +61,37 @@ public class MainStatisticView extends LinearLayout {
     }
 
     void init() {
+
         context = getContext();
         initViews();
 
-        initTestData();
-
+//        initTestData();
+        initData();
 
         setCurrentPoints(0);
         setDesiredPoints(0);
+
+    }
+
+    private void initData() {
+        DataLoader.setOnStatisticLoadingCompleteListener(
+                new DataLoader.OnStatisticLoadingCompleteListener() {
+                    @Override
+                    public void onLoadCompleted(StatisticData[] statisticData) {
+                        try {
+                            Thread.currentThread().sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        for (int i = statisticData.length - 1; i >= 0; i--) {
+                            addResult(new RepetitionFragmentLeft.Result(statisticData[i]));
+                        }
+
+//                        for (StatisticData statisticDatum : statisticData) {
+//                            addResult(new RepetitionFragmentLeft.Result(statisticDatum));
+//                        }
+                    }
+                });
     }
 
     private void initTestData() {
@@ -97,7 +121,7 @@ public class MainStatisticView extends LinearLayout {
         setTitle();
         setPoints();
         setPlot();
-        setTestButton();
+//        setTestButton();
         setChangeScaleButton();
         setRepetitionBtn();
         setTaskLabel();
@@ -182,23 +206,24 @@ public class MainStatisticView extends LinearLayout {
         repetitionButton = new Button(context);
         repetitionButton.setText(R.string.statistic_main_repbtn);
         int p = UI.calcSize(10);
-        repetitionButton.setPadding(p, 0, p, 0);
+//        repetitionButton.setPadding(p, 0, p, 0);
         repetitionButton.setGravity(Gravity.CENTER);
         repetitionButton.setBackgroundResource(R.drawable.task_back_1);
         repetitionButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "старт перетиции егэ", Toast.LENGTH_SHORT).show();
                 ((MainActivity) context).ui.openRepetitionFragment();
 
             }
         });
         addView(repetitionButton);
 
-        LayoutParams lp = (LayoutParams) repetitionButton.getLayoutParams();
+//        LayoutParams lp = (LayoutParams) repetitionButton.getLayoutParams();
+        LinearLayout.LayoutParams lp = new LayoutParams(-2, -2);
         lp.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
-        lp.width = -2;
-        lp.height = -2;
+        lp.setMargins(p, 0, p, 0);
+//        lp.width = -2;
+//        lp.height = -2;
         repetitionButton.setLayoutParams(lp);
     }
 

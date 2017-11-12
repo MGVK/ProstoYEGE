@@ -350,6 +350,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
             super(context);
 
             getSettings().setJavaScriptEnabled(true);
+            getSettings().setSupportZoom(true);
             setDrawingCacheEnabled(true);
             getSettings().setAppCacheEnabled(true);
 

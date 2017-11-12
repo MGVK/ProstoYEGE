@@ -33,7 +33,7 @@ public class MathJaxPreparer {
 
     public static void prepare(Context context) throws Exception {
 
-        String outputDir = DataLoader.getRepetitionFolder(context);
+        String outputDir = DataLoader.getMathJaxFolder(context);
         File   file      = new File(outputDir + "MathJax.zip");
 
         /*TESTTESTTEST*/
