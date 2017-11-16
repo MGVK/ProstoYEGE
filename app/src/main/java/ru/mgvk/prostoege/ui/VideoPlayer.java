@@ -109,7 +109,7 @@ public class VideoPlayer {
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
             fullScreen = true;
             currDisplay = fullScreenDisplay;
-            UI.enterFullScreen(context);
+//            UI.enterFullScreen(context);
         }
     }
 

@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,19 +26,19 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
 
 
     private MainActivity mainActivity;
-    private Context context;
+    private Context      context;
     private int taskId = 0;
     private ImageButton backButton, homeButton;
     private TextView videosButton, titleTextView, exercisesButton;
-    private View container;
-    private Task currentTask;
-    private LinearLayout excercisesListLayout;
+    private View           container;
+    private Task           currentTask;
+    private LinearLayout   excercisesListLayout;
     //    private FrameLayout exerciseWindowScroll;
-    private ScrollView exerciseWindowScroll;
-    private ImageView rings;
-    private LinearLayout mainExercisesListLayout;
+    private ScrollView     exerciseWindowScroll;
+    private ImageView      rings;
+    private LinearLayout   mainExercisesListLayout;
     private ExerciseWindow exerciseWindow;
-    private ScrollView exercisesListScroll;
+    private ScrollView     exercisesListScroll;
 
     @SuppressLint("ValidFragment")
     public ExercisesListFragment() {
@@ -56,9 +55,9 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
         }
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_exerciseslist, container, false);
         this.container = container;
         mainActivity = (MainActivity) (this.context = inflater.getContext());
@@ -69,7 +68,7 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
         this.currentTask = currentTask;
         if (titleTextView != null) {
             titleTextView.setText(context.getString(R.string.exercises_list_title)
-                    + " " + currentTask.getNumber());
+                                  + " " + currentTask.getNumber());
         }
 
     }
@@ -123,7 +122,8 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
 
         mainExercisesListLayout = (LinearLayout) container.findViewById(R.id.main_exercises_layout);
         rings = (ImageView) container.findViewById(R.id.rings_ex);
-        if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+        if (context.getResources().getConfiguration().orientation
+            == Configuration.ORIENTATION_PORTRAIT) {
             setPortraitMode();
         }
 

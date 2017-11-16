@@ -2,10 +2,7 @@ package ru.mgvk.prostoege.ui;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.app.ProgressDialog;
+import android.app.*;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
@@ -61,9 +58,9 @@ public class UI {
 
         realDPI = mainActivity.getResources().getDisplayMetrics().densityDpi;
 
-        if (!DataLoader.isLicenseAccepted(context)) {
-            openPolicyWindow();
-        }
+//        if (!DataLoader.isLicenseAccepted(context)) {
+//            openPolicyWindow();
+//        }
 
         initFolders();
 
@@ -96,7 +93,7 @@ public class UI {
 
     public static void enterFullScreen(Context context) {
 
-        ((MainActivity) context).findViewById(R.id.root_0)
+        ((Activity) context).findViewById(R.id.root_0)
                 .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN

@@ -40,6 +40,7 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
     public volatile Profile   profile;
     public          Pays      pays;
     public          String    reportSubject;
+    int startOrientation;
     private         Context   context;
     private ArrayList<OnConfigurationUpdateListener> configurationUpdatesList = new ArrayList<>();
     private boolean                                  restoring                = false;
@@ -47,7 +48,6 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
     //    private Stack<Runnable> backStack = new Stack<>();
     private boolean                            profileIsLoading    = false;
     private ArrayList<Profile.OnLoadCompleted> onLoadCompletedList = new ArrayList<>();
-
     // TODO: 10.08.16 user-friendly ошибки
     private boolean pressAgain = true;
 
@@ -141,16 +141,6 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
         return result;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d("ActivityState", "onStart");
-
-//        setBootScreen();
-
-
-    }
-
 //    void setBootScreen() {
 //        int h = getResources().getDisplayMetrics().heightPixels;
 //        int w = getResources().getDisplayMetrics().widthPixels;
@@ -178,6 +168,16 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
 //        }
 //
 //    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("ActivityState", "onStart");
+
+//        setBootScreen();
+
+
+    }
 
     private void setAccountInfo() {
 
@@ -410,7 +410,7 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
     @Override
     protected void onPause() {
         super.onPause();
-
+//        startOrientation = getResources().getConfiguration().orientation;
         Log.d("ActivityState", "onPause");
     }
 
@@ -454,6 +454,11 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
     protected void onResume() {
         super.onResume();
         Log.d("ActivityState", "onResume");
+
+        Object o;
+        if ((o = InstanceController.getObject("Orientation")) != null) {
+            setRequestedOrientation((Integer) o);
+        }
 
     }
 

@@ -34,7 +34,7 @@ public class VideoLayout extends LinearLayout {
     private ArrayList<VideoCard>       currentVideosList = new ArrayList<>();
     private HashMap<Integer, Drawable> videoBackgrounds  = new HashMap<>();
     private ArrayList<VideoCard>       cardsList         = new ArrayList<>();
-    private VideoPlayer playingVideo;
+    private ExoPlayer playingVideo;
 
     public VideoLayout(Context context) {
         this(context, 0);
@@ -156,7 +156,7 @@ public class VideoLayout extends LinearLayout {
         private int    YOUTUBE_BTN_TAG   = 2;
         private String youtubeID         = "";
         private String description       = "";
-        private VideoPlayer player;
+        private ExoPlayer player;
         private boolean buyed  = false;
         private int     number = 1;
         private int     price  = 0;
@@ -286,7 +286,7 @@ public class VideoLayout extends LinearLayout {
         public void updateSizes(int w, int h) {
             if (player != null) {
 
-                player.getSmallDisplay().setLayoutParams(new LinearLayout.LayoutParams(
+                player.getPictureView().setLayoutParams(new LinearLayout.LayoutParams(
                         (int) (0.75 * w), h = (int) ((9 / 16.0) * 0.75 * w)));
             }
 
@@ -313,40 +313,57 @@ public class VideoLayout extends LinearLayout {
             return currentTask;
         }
 
-        void initPlayer() {
+        void setVideoPicture() {
 
+
+        }
+
+
+        //init player
+//        void initPlayer() {
+//
+//            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
+//
+//            player = new ExoPlayer(context);
+//            player.getSmallDisplay().setLayoutParams(lp);
+//
+//            player.setPicture(context.getResources().getDrawable(R.drawable.video_back));
+//
+//            player.setOnVideoStateChangeListener(new ExoPlayer.OnVideoStateChangeListener() {
+//                @Override
+//                public void onPlay(ExoPlayer v) {
+//                    if (playingVideo != null && playingVideo != v) {
+//                        Log.d("onPlay", "stopVideo");
+//                        playingVideo.stop();
+//                    }
+//                    playingVideo = v;
+//                }
+//
+//                @Override
+//                public void onPause(ExoPlayer v) {
+//
+//                }
+//
+//                @Override
+//                public void onStop(ExoPlayer v) {
+//
+//                }
+//
+//                @Override
+//                public void onFullScreen(ExoPlayer v) {
+//
+//                }
+//            });
+//
+//        }
+
+        void initPlayer() {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
 
-            player = new VideoPlayer(context);
-            player.getSmallDisplay().setLayoutParams(lp);
+            player = new ExoPlayer(context);
+            player.getPictureView().setLayoutParams(lp);
 
             player.setPicture(context.getResources().getDrawable(R.drawable.video_back));
-
-            player.setOnVideoStateChangeListener(new VideoPlayer.OnVideoStateChangeListener() {
-                @Override
-                public void onPlay(VideoPlayer v) {
-                    if (playingVideo != null && playingVideo != v) {
-                        Log.d("onPlay", "stopVideo");
-                        playingVideo.stop();
-                    }
-                    playingVideo = v;
-                }
-
-                @Override
-                public void onPause(VideoPlayer v) {
-
-                }
-
-                @Override
-                public void onStop(VideoPlayer v) {
-
-                }
-
-                @Override
-                public void onFullScreen(VideoPlayer v) {
-
-                }
-            });
 
         }
 
@@ -354,7 +371,7 @@ public class VideoLayout extends LinearLayout {
 
 //            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
 //
-//            player = new VideoPlayer(context);
+//            player = new ExoPlayer(context);
 //            player.getSmallDisplay().setLayoutParams(lp);
             player.stop();
 
@@ -401,11 +418,11 @@ public class VideoLayout extends LinearLayout {
             numberLayout.addView(buyingIndicator);
             numberLayout.addView(number);
 
-            videoLayout.addView(player.getSmallDisplay());
+            videoLayout.addView(player.getPictureView());
             videoLayout.addView(numberLayout);
 
             mainLayout.addView(videoLayout);
-            player.updateParent(videoLayout);
+//            player.updateParent(videoLayout);
 
             this.setBackgroundResource(R.drawable.white_background_shadow);
             this.setLayoutParams(new ViewGroup.LayoutParams(-1, -2));
@@ -430,7 +447,7 @@ public class VideoLayout extends LinearLayout {
 
         void setOnClickListener() {
             if ((currentTask.getNumber() != 1 && currentTask.getNumber() != 2)) {
-                player.getSmallDisplay().setOnClickListener(new OnClickListener() {
+                player.getPictureView().setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         ((MainActivity) context).ui.openVideoPurchaseDialog(VideoCard.this);

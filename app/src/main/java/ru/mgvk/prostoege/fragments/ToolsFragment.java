@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,18 +31,18 @@ import ru.mgvk.util.StateTags;
  */
 public class ToolsFragment extends Fragment implements OnClickListener {
 
-    public PaintView paintView;
+    public PaintView  paintView;
     public PenResizer penResizer;
     MainActivity mainActivity;
-    Context context;
+    Context      context;
     View[] toolViews = new View[4];
-    private ViewGroup container;
-    private Task currentTask;
+    private ViewGroup    container;
+    private Task         currentTask;
     private ColorChooser colorChooser;
-    private ImageView rings;
-    private FrameLayout mainToolsListLayout;
+    private ImageView    rings;
+    private FrameLayout  mainToolsListLayout;
     private LinearLayout toolsTitle;
-    private TextView toolsButton;
+    private TextView     toolsButton;
 
     @SuppressLint("ValidFragment")
     public ToolsFragment() {
@@ -56,9 +55,9 @@ public class ToolsFragment extends Fragment implements OnClickListener {
         Log.d("ex", "s");
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_tools, container, false);
         this.container = container;
         mainActivity = (MainActivity) (this.context = inflater.getContext());
@@ -77,7 +76,8 @@ public class ToolsFragment extends Fragment implements OnClickListener {
         toolsTitle = (LinearLayout) container.findViewById(R.id.tools_title);
         (toolsButton = (TextView) container.findViewById(R.id.btn_tools)).setOnClickListener(this);
         rings = (ImageView) container.findViewById(R.id.rings_tools);
-        if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+        if (context.getResources().getConfiguration().orientation
+            == Configuration.ORIENTATION_PORTRAIT) {
             setPortraitMode();
         }
 
@@ -110,7 +110,8 @@ public class ToolsFragment extends Fragment implements OnClickListener {
             rings.setVisibility(View.GONE);
         }
         if (mainToolsListLayout != null && toolsTitle != null) {
-            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainToolsListLayout.getLayoutParams());
+            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainToolsListLayout
+                    .getLayoutParams());
             lp.leftMargin = 0;
             mainToolsListLayout.setLayoutParams(lp);
             lp = (FrameLayout.LayoutParams) toolsTitle.getLayoutParams();
@@ -126,7 +127,8 @@ public class ToolsFragment extends Fragment implements OnClickListener {
             rings.setVisibility(View.VISIBLE);
         }
         if (mainToolsListLayout != null && toolsTitle != null) {
-            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainToolsListLayout.getLayoutParams());
+            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainToolsListLayout
+                    .getLayoutParams());
             lp.leftMargin = UI.calcSize(32);
             mainToolsListLayout.setLayoutParams(lp);
             lp = (FrameLayout.LayoutParams) toolsTitle.getLayoutParams();
@@ -136,7 +138,7 @@ public class ToolsFragment extends Fragment implements OnClickListener {
 
     }
 
-    void setPressed(View v){
+    void setPressed(View v) {
         for (View toolView : toolViews) {
             toolView.setAlpha((float) 0.5);
         }
@@ -144,7 +146,7 @@ public class ToolsFragment extends Fragment implements OnClickListener {
     }
 
     void toggleViewsVisibility(View v) {
-        if(v==null){
+        if (v == null) {
             penResizer.setVisibility(View.GONE);
             colorChooser.setVisibility(View.GONE);
             return;
@@ -225,7 +227,7 @@ public class ToolsFragment extends Fragment implements OnClickListener {
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                        toolsTitle.setVisibility(View.GONE);
+                    toolsTitle.setVisibility(View.GONE);
                 }
 
                 @Override

@@ -5,17 +5,16 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import ru.mgvk.prostoege.*;
+import ru.mgvk.prostoege.ui.ExoPlayer;
 import ru.mgvk.prostoege.ui.MainScrollView;
 import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.prostoege.ui.VideoLayout;
-import ru.mgvk.prostoege.ui.VideoPlayer;
 import ru.mgvk.util.Reporter;
 import ru.mgvk.util.StateTags;
 
@@ -23,18 +22,18 @@ import ru.mgvk.util.StateTags;
  * Created by mihail on 13.08.16.
  */
 public class VideoListFragment extends Fragment implements View.OnClickListener,
-        VideoPlayer.OnVideoStateChangeListener, MainScrollView.OnScreenSwitchedListener {
+        ExoPlayer.OnVideoStateChangeListener, MainScrollView.OnScreenSwitchedListener {
 
     private MainActivity mainActivity;
-    private Context context;
-    private VideoLayout videoLayout;
+    private Context      context;
+    private VideoLayout  videoLayout;
     private int taskId = 0;
     private ImageButton backButton;
-    private TextView tasksButton, titleText, descriptionText;
-    private ViewGroup container;
-    private Task currentTask;
-    private ScrollView videoScroll;
-    private ImageView rings;
+    private TextView    tasksButton, titleText, descriptionText;
+    private ViewGroup    container;
+    private Task         currentTask;
+    private ScrollView   videoScroll;
+    private ImageView    rings;
     private LinearLayout mainVideoListLayout;
     private boolean isAnyVideoPlaying = false;
 
@@ -49,9 +48,9 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
         mainActivity = (MainActivity) (this.context = context);
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_videolist, container, false);
         this.container = container;
         mainActivity = (MainActivity) (this.context = inflater.getContext());
@@ -79,7 +78,8 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
             rings.setVisibility(View.GONE);
         }
         if (mainVideoListLayout != null) {
-            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainVideoListLayout.getLayoutParams());
+            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainVideoListLayout
+                    .getLayoutParams());
             lp.leftMargin = 0;
             mainVideoListLayout.setLayoutParams(lp);
         }
@@ -92,7 +92,8 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
             rings.setVisibility(View.VISIBLE);
         }
         if (mainVideoListLayout != null) {
-            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainVideoListLayout.getLayoutParams());
+            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainVideoListLayout
+                    .getLayoutParams());
             lp.leftMargin = UI.calcSize(32);
             mainVideoListLayout.setLayoutParams(lp);
         }
@@ -123,7 +124,8 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
     private void initViews() {
         mainVideoListLayout = (LinearLayout) container.findViewById(R.id.main_videolist_layout);
         rings = (ImageView) container.findViewById(R.id.rings_video);
-        if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+        if (context.getResources().getConfiguration().orientation
+            == Configuration.ORIENTATION_PORTRAIT) {
             setPortraitMode();
         }
 //        videoLayout = (LinearLayout) container.findViewById(R.id.layout_videolist);
@@ -194,7 +196,8 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
 
                                 try {
 
-                                    for (VideoLayout.VideoCard video : videoLayout.getCurrentVideosList()) {
+                                    for (VideoLayout.VideoCard video : videoLayout
+                                            .getCurrentVideosList()) {
                                         video.updateSizes(videoLayout.getWidth(), 0);
                                     }
                                 } catch (Exception e) {
@@ -248,10 +251,12 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
                                         mainActivity.ui.mainScroll.toRight();
                                     }
                                 } catch (Exception e) {
-                                    Reporter.report(context, e, ((MainActivity) context).reportSubject);
+                                    Reporter.report(context, e,
+                                            ((MainActivity) context).reportSubject);
                                 }
                                 try {
-                                    for (VideoLayout.VideoCard video : videoLayout.getCurrentVideosList()) {
+                                    for (VideoLayout.VideoCard video : videoLayout
+                                            .getCurrentVideosList()) {
                                         video.updateSizes(videoLayout.getWidth(), 0);
                                     }
                                 } catch (Exception ignored) {
@@ -373,7 +378,7 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
     }
 
     @Override
-    public void onPlay(VideoPlayer v) {
+    public void onPlay(ExoPlayer v) {
         try {
             isAnyVideoPlaying = v.isPlaying();
         } catch (Exception e) {
@@ -382,22 +387,12 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
     }
 
     @Override
-    public void onPause(VideoPlayer v) {
+    public void onPause(ExoPlayer v) {
         try {
             stopVideos();
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void onStop(VideoPlayer v) {
-
-    }
-
-    @Override
-    public void onFullScreen(VideoPlayer v) {
-
     }
 
     public boolean isAnyVideoPlaying() {
