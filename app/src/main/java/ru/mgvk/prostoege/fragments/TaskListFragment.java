@@ -30,10 +30,9 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
     private MainActivity mainActivity;
     private Context      context;
     private Task         currentTask;
-    private ImageButton  menuButton, forwardButton;
-    private TextView balanceView;
+    private ImageButton  menuButton;
+    private TextView     balanceView;
     private ArrayList<Task> taskList = new ArrayList<>();
-    private ImageView         rings;
     private MainStatisticView mainStatisticView;
 
     @SuppressLint("ValidFragment")
@@ -65,11 +64,10 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
                 .findViewById(R.id.coordinator_layout);
         (menuButton = (ImageButton) mainActivity.findViewById(R.id.btn_menu))
                 .setOnClickListener(this);
-        (forwardButton = (ImageButton) mainActivity.findViewById(R.id.btn_forward_task))
-                .setOnClickListener(this);
+
         (balanceView = (TextView) mainActivity.findViewById(R.id.btn_coins))
                 .setOnClickListener(this);
-        rings = (ImageView) mainActivity.findViewById(R.id.rings);
+//        rings = (ImageView) mainActivity.findViewById(R.id.rings);
         mainTaskListLayout = (LinearLayout) mainActivity.findViewById(R.id.main_tasklist_layout);
         mainStatisticView = (MainStatisticView) mainActivity.findViewById(R.id.main_statistic_view);
 
@@ -92,9 +90,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 
     @SuppressWarnings("WeakerAccess")
     public void setPortraitMode() {
-        if (rings != null) {
-            rings.setVisibility(View.GONE);
-        }
+
         if (mainTaskListLayout != null) {
             FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainTaskListLayout
                     .getLayoutParams());
@@ -108,13 +104,10 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
     @SuppressWarnings("WeakerAccess")
     public void setLandscapeMode() {
 
-        if (rings != null) {
-            rings.setVisibility(View.VISIBLE);
-        }
         if (mainTaskListLayout != null) {
             FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainTaskListLayout
                     .getLayoutParams());
-            lp.rightMargin = UI.calcSize(32);
+//            lp.rightMargin = UI.calcSize(32);
             mainTaskListLayout.setLayoutParams(lp);
         }
 
@@ -313,11 +306,6 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
             switch (v.getId()) {
                 case R.id.btn_menu: {
                     mainActivity.ui.openMenu(mainActivity.ui.mainMenu);
-                    break;
-                }
-                case R.id.btn_forward_task: {
-//                mainActivity.ui.openTaskOrVideoFragment(false);
-                    mainActivity.ui.openVideoListFragment(currentTask);
                     break;
                 }
                 case R.id.btn_coins: {
