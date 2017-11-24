@@ -7,21 +7,21 @@
 
             <gradient
                 android:angle="135"
-                android:centerX="0.3"
-                android:centerY="0.3"
                 android:endColor="#ffc002"
-                android:startColor="#ff676b">
+                android:centerColor="#ff676b"
+                android:startColor="#ff676b"
+                android:type="linear">
             </gradient>
 
         </shape>
 
     </item>
-    <item android:gravity="bottom">
+    <item>
 
         <rotate
             android:fromDegrees="99"
-            android:pivotX="0%"
-            android:pivotY="91%">
+            android:pivotX="25%"
+            android:pivotY="70%">
 
             <shape
                 android:shape="rectangle">

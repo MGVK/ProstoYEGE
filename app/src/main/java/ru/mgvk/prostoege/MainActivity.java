@@ -41,7 +41,7 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
     public          Pays      pays;
     public          String    reportSubject;
     int startOrientation;
-    private         Context   context;
+    private Context context;
     private ArrayList<OnConfigurationUpdateListener> configurationUpdatesList = new ArrayList<>();
     private boolean                                  restoring                = false;
     private BackStack backStack;
@@ -49,7 +49,7 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
     private boolean                            profileIsLoading    = false;
     private ArrayList<Profile.OnLoadCompleted> onLoadCompletedList = new ArrayList<>();
     // TODO: 10.08.16 user-friendly ошибки
-    private boolean pressAgain = true;
+    private boolean                            pressAgain          = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +74,8 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
             final int p = UI.calcSize(5);
             findViewById(R.id.main_linear).setPadding(0, getStatusBarHeight(), 0, 0);
             context = this;
-//        loadingBackground = new ImageView(this);
+
+            //        loadingBackground = new ImageView(this);
 //        loadingImage = new ImageView(this);
 //        loadingBackground.setImageResource(R.drawable.loading_b);
 //        loadingImage.setImageResource(R.drawable.loading_i);

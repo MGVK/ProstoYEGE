@@ -53,13 +53,12 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
 
         this.data = taskData;
 //        taskWidth = ((MainActivity) context).ui.rootView1.getWidth();
-
-
         setOrientation(LinearLayout.HORIZONTAL);
         setLayoutParams(new LayoutParams(-1, UI.calcSize(taskHeight + 2 * m)));
-        setBackgroundDrawable(context.getResources().getDrawable((R.drawable.task_back_1)));
+//        setBackgroundDrawable(context.getResources().getDrawable((R.drawable.task_back_1)));
 //        getChildLayout().setBackgroundDrawable(context.getResources().getDrawable(R.drawable.white_background));
-        getChildLayout().setBackgroundColor(Color.parseColor("#f7f7f7"));
+//        getChildLayout().setBackgroundColor(Color.parseColor("#f7f7f7"));
+        getChildLayout().setBackgroundColor(Color.WHITE);
         this.setOnClickListener(this);
 
 
@@ -140,6 +139,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
     void setImage() {
         if (image == null) {
             image = new ImageView(context);
+
 //            image.setImageURI(Uri.parse(DataLoader.getTaskPirctureRequest(index)));
 //            image.setImageResource(resId);
 

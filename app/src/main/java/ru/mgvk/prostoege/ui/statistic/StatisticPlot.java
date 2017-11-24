@@ -35,7 +35,7 @@ public class StatisticPlot extends LinearLayout
         super(context);
 
         this.context = context;
-        setBackgroundColor(Color.WHITE);
+        setBackgroundColor(Color.TRANSPARENT);
         setLayoutParams(new LayoutParams(width, height));
         setOrientation(HORIZONTAL);
         surface = new Surface(context, height);
@@ -61,8 +61,11 @@ public class StatisticPlot extends LinearLayout
     private static class Surface extends View {
 
 
-        private final int COLUMN_UNCHOOSED_COLOR = Color.parseColor("#ffbfbfbf");
+        private final int COLUMN_UNCHOOSED_COLOR = Color.WHITE;
         private final int COLUMN_CHOOSED_COLOR   = Color.parseColor("#FFFFFD72");
+        private final int BACKGROUND_COLOR       = Color.TRANSPARENT;
+        private final int AXIS_COLOR             = Color.parseColor("#77ffffff"); //todo 50% alpha
+
 
         String[]          month              =
                 {"Янв", "Фев", "Мар", "Апр", "Мая", "Июн",
@@ -96,9 +99,11 @@ public class StatisticPlot extends LinearLayout
         private Context context;
         private float   thresholdCommon;
         private Paint   columnPaintChoosed;
+        private Paint   backgroundPaint;
 
         public Surface(Context context, int height) {
             super(context);
+
             this.plotHeight = (int) (heightRatio * (this.height = height));
             this.context = context;
             init();
@@ -107,6 +112,8 @@ public class StatisticPlot extends LinearLayout
         void init() {
             symbols.setMonths(month);
 
+
+            setBackgroundColor(BACKGROUND_COLOR);
 
             initSizes();
 
@@ -167,13 +174,15 @@ public class StatisticPlot extends LinearLayout
             columnPaintUnchoosed = new Paint();
             columnPaintChoosed = new Paint();
             columnLabelPaint = new Paint();
+            backgroundPaint = new Paint();
 
-            axisPaint.setColor(COLUMN_UNCHOOSED_COLOR);
-            axis0Paint.setColor(Color.BLACK);
-            axisLabelPaint.setColor(Color.BLACK);
+            axisPaint.setColor(AXIS_COLOR);
+            axis0Paint.setColor(Color.WHITE);
+            axisLabelPaint.setColor(Color.WHITE);
             columnPaintUnchoosed.setColor(COLUMN_UNCHOOSED_COLOR);
             columnPaintChoosed.setColor(COLUMN_CHOOSED_COLOR);
-            columnLabelPaint.setColor(Color.BLACK);
+            columnLabelPaint.setColor(Color.WHITE);
+            backgroundPaint.setColor(BACKGROUND_COLOR);
 
             axis0Paint.setStrokeWidth(2);
             axisLabelPaint.setTextSize(18);
@@ -182,10 +191,13 @@ public class StatisticPlot extends LinearLayout
             columnPaintChoosed.setStrokeWidth(columnWidth);
             columnLabelPaint.setTextSize(18);
             columnLabelPaint.setTextAlign(Paint.Align.CENTER);
+            backgroundPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
+
+            drawBackground(canvas);
 
             initSizesForced();
 
@@ -193,6 +205,12 @@ public class StatisticPlot extends LinearLayout
 
             drawColumns(canvas);
 
+        }
+
+        private void drawBackground(Canvas canvas) {
+//            canvas.drawColor(BACKGROUND_COLOR, PorterDuff.Mode.OVERLAY);
+//            canvas.drawCircle(50,50,100,backgroundPaint);
+//            canvas.draw
         }
 
         private void drawColumns(Canvas canvas) {

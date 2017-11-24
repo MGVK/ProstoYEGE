@@ -16,22 +16,29 @@
         >
 
         <LinearLayout
-            android:id="@+id/main_linear"
+
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="horizontal">
 
-            <FrameLayout
-                android:id="@+id/root_1"
+            <LinearLayout
+                android:id="@+id/main_linear"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_marginTop="0dp"
+                android:background="@drawable/bg_gradient">
 
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="385dp"
-                    android:background="@drawable/bg_gradient"/>
+                <FrameLayout
+                    android:id="@+id/root_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="0dp">
 
-            </FrameLayout>
+
+                </FrameLayout>
+
+            </LinearLayout>
+
 
             <FrameLayout
                 android:id="@+id/root_2"

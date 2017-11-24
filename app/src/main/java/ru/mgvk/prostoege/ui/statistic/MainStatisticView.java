@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -21,6 +22,7 @@ import ru.mgvk.prostoege.ui.UI;
  */
 public class MainStatisticView extends LinearLayout {
 
+    private static final int COLOR_TEXT = Color.BLACK;
     private static OnScaleButtonClickListener onScaleButtonClickListener;
     private final int titleTextSize = 22;
     StatisticPlot plot;
@@ -122,15 +124,25 @@ public class MainStatisticView extends LinearLayout {
         setPoints();
         setPlot();
 //        setTestButton();
-        setChangeScaleButton();
         setRepetitionBtn();
+        setChangeScaleButton();
         setTaskLabel();
     }
 
     private void setChangeScaleButton() {
         scaleButton = new Button(context);
         scaleButton.setText("Показать все");
-        scaleButton.setLayoutParams(new LayoutParams(-1, UI.calcSize(50)));
+        scaleButton.setTextSize(18);
+        scaleButton.setTransformationMethod(null);
+        scaleButton.setBackgroundResource(R.drawable.bg_repetition_btn);
+
+        int                       p  = 4;
+        LinearLayout.LayoutParams lp = new LayoutParams(-2, UI.calcSize(40));
+        lp.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
+        lp.setMargins(0, p, 0, 0);
+
+        scaleButton.setLayoutParams(lp);
+
         scaleButton.setTag(false); // commonView=false;
         addView(scaleButton);
         scaleButton.setOnClickListener(new OnClickListener() {
@@ -205,38 +217,36 @@ public class MainStatisticView extends LinearLayout {
     private void setRepetitionBtn() {
         repetitionButton = new Button(context);
         repetitionButton.setText(R.string.statistic_main_repbtn);
-        int p = UI.calcSize(10);
 //        repetitionButton.setPadding(p, 0, p, 0);
         repetitionButton.setGravity(Gravity.CENTER);
-        repetitionButton.setBackgroundResource(R.drawable.task_back_1);
+        repetitionButton.setBackgroundResource(R.drawable.bg_repetition_btn);
+        repetitionButton.setTransformationMethod(null);
         repetitionButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((MainActivity) context).ui.openRepetitionFragment();
-
             }
         });
-        addView(repetitionButton);
-
-//        LayoutParams lp = (LayoutParams) repetitionButton.getLayoutParams();
-        LinearLayout.LayoutParams lp = new LayoutParams(-2, -2);
-        lp.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
-        lp.setMargins(p, 0, p, 0);
-//        lp.width = -2;
-//        lp.height = -2;
+        LinearLayout.LayoutParams lp = new LayoutParams(-1, UI.calcSize(40));
+//        lp.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
+//        lp.setMargins(0, p, 0, 0);
         repetitionButton.setLayoutParams(lp);
+
+        addView(repetitionButton);
     }
 
     private void setPoints() {
         desiredPointsText = new TextView(context);
         desiredPointsText.setText(R.string.statistic_main_desired);
         desiredPointsText.setTextSize(pointsTextSize);
-        desiredPointsText.setGravity(Gravity.CENTER);
+        desiredPointsText.setGravity(Gravity.LEFT);
+        desiredPointsText.setTextColor(COLOR_TEXT);
 
         currentPointsText = new TextView(context);
         currentPointsText.setText(R.string.statistic_main_current);
         currentPointsText.setTextSize(pointsTextSize);
-        currentPointsText.setGravity(Gravity.CENTER);
+        currentPointsText.setGravity(Gravity.LEFT);
+        currentPointsText.setTextColor(COLOR_TEXT);
 
         addView(desiredPointsText);
         addView(currentPointsText);
@@ -245,8 +255,9 @@ public class MainStatisticView extends LinearLayout {
     private void setTitle() {
         statisticTitle = new TextView(context);
         statisticTitle.setText(R.string.statistic_main_title);
-        statisticTitle.setTextColor(Color.BLACK);
+        statisticTitle.setTextColor(COLOR_TEXT);
         statisticTitle.setTextSize(titleTextSize);
+        statisticTitle.setTypeface(statisticTitle.getTypeface(), Typeface.BOLD);
         addView(statisticTitle);
         LayoutParams p = (LayoutParams) statisticTitle.getLayoutParams();
         p.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
@@ -258,6 +269,8 @@ public class MainStatisticView extends LinearLayout {
         taskLabel.setText(R.string.statistic_main_tasklabel);
         taskLabel.setTextColor(Color.BLACK);
         taskLabel.setTextSize(titleTextSize);
+        taskLabel.setTypeface(taskLabel.getTypeface(), Typeface.BOLD);
+
         addView(taskLabel);
         LayoutParams p = (LayoutParams) taskLabel.getLayoutParams();
         p.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
