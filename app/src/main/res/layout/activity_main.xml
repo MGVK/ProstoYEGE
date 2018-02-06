@@ -12,8 +12,7 @@
     <ru.mgvk.prostoege.ui.MainScrollView
         android:id="@+id/mainScroll"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
         <LinearLayout
 
@@ -26,7 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginTop="0dp"
-                android:background="@drawable/bg_gradient">
+                android:background="@drawable/main1_bg_gradient">
 
                 <FrameLayout
                     android:id="@+id/root_1"
@@ -39,14 +38,23 @@
 
             </LinearLayout>
 
-
-            <FrameLayout
-                android:id="@+id/root_2"
+            <LinearLayout
+                android:id="@+id/main_linear2"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_marginTop="0dp"
+                android:background="@color/back_white_color"
+                android:orientation="vertical">
 
 
-            </FrameLayout>
+                <FrameLayout
+                    android:id="@+id/root_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="0dp">
+
+                </FrameLayout>
+            </LinearLayout>
 
         </LinearLayout>
 

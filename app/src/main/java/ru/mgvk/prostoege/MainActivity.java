@@ -72,8 +72,13 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
             stopwatch.start("MainActivity_onCreate");
 
             final int p = UI.calcSize(5);
-            findViewById(R.id.main_linear).setPadding(0, getStatusBarHeight(), 0, 0);
+            int       h = getStatusBarHeight();
+            UI.setStatusBarHeight(h);
+
+            findViewById(R.id.main_linear).setPadding(0, h, 0, 0);
+//            findViewById(R.id.statusbar_bg).setLayoutParams(new LinearLayout.LayoutParams(-1, h));
             context = this;
+
 
             //        loadingBackground = new ImageView(this);
 //        loadingImage = new ImageView(this);

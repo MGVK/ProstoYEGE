@@ -6,14 +6,7 @@ import android.graphics.Color;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Space;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
 import ru.mgvk.prostoege.DataLoader;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
@@ -153,6 +146,8 @@ public class BalanceWindow extends DialogWindow implements View.OnClickListener 
 
         private void setLabel() {
             TextView label = new TextView(context);
+
+
             label.setText(R.string.balance_label);
             label.setTextSize(16);
             label.setGravity(Gravity.RIGHT);

@@ -231,7 +231,7 @@ public class DataLoader {
 
     public static String getProfile(String profileId) throws Exception {
         //        Log.d("Profile",s);
-        return getResponse("http://213.159.214.5/script/mobile/2/profile.php",
+        return getResponse("http://213.159.214.5/script/mobile/2_3/profile.php",
                 "ProfileID=" + profileId);
     }
 

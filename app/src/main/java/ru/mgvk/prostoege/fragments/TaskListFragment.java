@@ -212,7 +212,7 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
     private void showTask(Task task) {
         try {
             Space sp = new Space(context);
-            sp.setLayoutParams(new LinearLayout.LayoutParams(-1, UI.calcSize(4)));
+            sp.setLayoutParams(new LinearLayout.LayoutParams(-1, UI.calcSize(10)));
             taskListLayout.addView(sp);
             taskListLayout.addView(task);
         } catch (Exception e) {

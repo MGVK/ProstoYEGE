@@ -1,0 +1,11 @@
+*.iml
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+build.gradle
+Будет удалено src/main/java/ru/mgvk/prostoege/ru/
+Будет удалено src/main/res/color/

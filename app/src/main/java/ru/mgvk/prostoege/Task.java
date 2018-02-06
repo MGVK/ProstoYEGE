@@ -1,7 +1,9 @@
 package ru.mgvk.prostoege;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -27,51 +29,56 @@ import java.util.ArrayList;
  */
 public class Task extends SwipedLinearLayout implements View.OnClickListener {
 
-    Context context;
-    ImageView image;
-    TextView title;
-    TextView description;
-    TextView points;
+    private static final String TAG = Task.class.getSimpleName();
+    private Context   context;
+    private ImageView image;
+    private TextView  title;
+    private TextView  description;
+    private TextView  points;
 
-    int index = 0;
+    private int index = 0;
 
-    ArrayList<Exercise> exercisesList = new ArrayList<>();
+    private ArrayList<Exercise> exercisesList = new ArrayList<>();
 
-    boolean choosed = false;
-    private byte m = 2;
-    private int imageSize = 65;
-    private int taskHeight = 65 + 2 * (m + 5);
-    private int taskWidth = 0;
-    private Profile.TaskData data;
+    private boolean choosed    = false;
+    private byte    m          = 2;
+    private int     imageSize  = 64;
+    private int     taskHeight = 64;
+    private int     taskWidth  = 0;
+    private Profile.TaskData                     data;
+    private ProgressBar                          progressBar;
+    private int                                  firstTimeExercises;
+    private OnFirstTimeExerciseIncrementListener onFirstTimeExerciseIncrementListener;
 
     /**
      * @param context
      */
-    public Task(Context context, Profile.TaskData taskData) {
+    Task(Context context, Profile.TaskData taskData) {
         this(context);
         this.context = context;
 
         this.data = taskData;
 //        taskWidth = ((MainActivity) context).ui.rootView1.getWidth();
         setOrientation(LinearLayout.HORIZONTAL);
-        setLayoutParams(new LayoutParams(-1, UI.calcSize(taskHeight + 2 * m)));
+        setLayoutParams(new LayoutParams(-1, UI.calcSize(taskHeight)));
 //        setBackgroundDrawable(context.getResources().getDrawable((R.drawable.task_back_1)));
 //        getChildLayout().setBackgroundDrawable(context.getResources().getDrawable(R.drawable.white_background));
 //        getChildLayout().setBackgroundColor(Color.parseColor("#f7f7f7"));
         getChildLayout().setBackgroundColor(Color.WHITE);
         this.setOnClickListener(this);
 
-
         // TODO: 10.08.16 установка параметров
         try {
 
             setIndex(taskData.Number - 1);
-            setTaskNumber(taskData.Number);
+//            setTaskNumberView(taskData.Number);
+
             setImage();
 
-
-            setDescription(taskData.Description);
+            setDescription(taskData.Number, taskData.Description);
             setPoints(taskData.Points);
+            setProgressBar(taskData.Progress);
+
 //            setVideos(taskData.Videos.Video);
             setExcersize(taskData.Questions.Questions);
 
@@ -89,10 +96,19 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         super(context);
     }
 
+    private void setProgressBar(int progress) {
+        if (progressBar == null) {
+            progressBar = new ProgressBar(context);
+        }
+        progressBar.setMax(100);
+        Log.d(TAG, "setProgressBar: " + progress);
+        progressBar.setProgress(progress);
+    }
+
     @Deprecated
     private void setVideos(Profile.TaskData.VideoData data[]) {
 
-        int number=1;
+        int number = 1;
         for (Profile.TaskData.VideoData aData : data) {
             try {
 
@@ -110,7 +126,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         onReturn();
     }
 
-    void setExcersize(Profile.TaskData.ExercizesData data[]) {
+    private void setExcersize(Profile.TaskData.ExercizesData data[]) {
 
         for (Profile.TaskData.ExercizesData aData : data) {
             try {
@@ -130,13 +146,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         return exercisesList == null ? new ArrayList<Exercise>() : exercisesList;
     }
 
-//    @Deprecated
-//    public ArrayList<VideoLayout.VideoCard> getVideoList() {
-//        return videoList == null ? new ArrayList<VideoLayout.VideoCard>() : videoList;
-////        return videoList2 == null ? new ArrayList<Video>() : (ArrayList<Video>) videoList2.values();
-//    }
-
-    void setImage() {
+    private void setImage() {
         if (image == null) {
             image = new ImageView(context);
 
@@ -149,13 +159,19 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
                     UI.calcSize(imageSize),
                     UI.calcSize(imageSize));
 
-            lp.setMargins(UI.calcSize(m), UI.calcSize(m),
-                    UI.calcSize(m), UI.calcSize(m));
+//            lp.setMargins(UI.calcSize(m), UI.calcSize(m),
+//                    UI.calcSize(m), UI.calcSize(m));
             lp.gravity = Gravity.CENTER;
             image.setLayoutParams(lp);
         }
 
     }
+
+//    @Deprecated
+//    public ArrayList<VideoLayout.VideoCard> getVideoList() {
+//        return videoList == null ? new ArrayList<VideoLayout.VideoCard>() : videoList;
+////        return videoList2 == null ? new ArrayList<Video>() : (ArrayList<Video>) videoList2.values();
+//    }
 
     private void setImageDrawable() {
         new Thread(new Runnable() {
@@ -183,18 +199,14 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         }).start();
     }
 
-    void setTaskNumber(int number) {
-        setTitle(context.getResources().getString(R.string.task_title) + " " + number);
+    private void setTaskNumberView(int number) {
+        setTitle(context.getResources().getString(R.string.task_title) + number);
     }
-
-//    Video loadVideo(String id) {
-//        return videoList2.returnTo(id);
-//    }
 
     void setTitle(String text) {
         if (title == null) {
             title = new TextView(context);
-            LayoutParams lp = new LayoutParams(-1, -2);
+            LayoutParams lp = new LayoutParams(-2, -2);
             lp.gravity = Gravity.START | Gravity.CENTER_VERTICAL;
             title.setLayoutParams(lp);
             title.setTextSize(20);
@@ -208,21 +220,38 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         }
     }
 
+//    Video loadVideo(String id) {
+//        return videoList2.returnTo(id);
+//    }
+
     @SuppressLint("SetTextI18n")
-    void setPoints(int p) {
+    private void setPoints(int p) {
         if (points == null) {
             points = new TextView(context);
-            LayoutParams lp = new LayoutParams(-2, -2);
-            lp.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-            points.setGravity(Gravity.BOTTOM | Gravity.END);
-            points.setLayoutParams(lp);
-            points.setTextSize(15);
-            points.setText(p + getPointsCaption(p));
-            points.setTextColor(context.getResources().getColor(R.color.task_points));
+        }
+        LayoutParams lp = new LayoutParams(-1, UI.calcSize(23));
+        lp.gravity = Gravity.BOTTOM | Gravity.END;
+        lp.setMargins(UI.calcSize(5), 0, 0, UI.calcSize(2));
+        points.setLayoutParams(lp);
+        points.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+        points.setTextSize(16);
+        points.setText(p + getPointsCaption(p));
+        points.setTextColor(context.getResources().getColor(R.color.task_points));
+    }
+
+    public void incrementFirstTimeExercise() {
+        firstTimeExercises++;
+        if (onFirstTimeExerciseIncrementListener != null) {
+            onFirstTimeExerciseIncrementListener.onIncrement(getFirstTimeExercises());
         }
     }
 
-    String getPointsCaption(int p) {
+    public void setOnFirstTimeExerciseIncrementListener(
+            OnFirstTimeExerciseIncrementListener onFirstTimeExerciseIncrementListener) {
+        this.onFirstTimeExerciseIncrementListener = onFirstTimeExerciseIncrementListener;
+    }
+
+    private String getPointsCaption(int p) {
         if (p == 1) {
             return " балл";
         }
@@ -232,40 +261,32 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         return " баллов";
     }
 
-    void setViews() {
+    private void setViews() {
 
-        FrameLayout l = new FrameLayout(context);
-        l.setLayoutParams(new LayoutParams(UI.calcSize(taskHeight), UI.calcSize(taskHeight)));
+//        FrameLayout l = new FrameLayout(context);
+//        l.setLayoutParams(new LayoutParams(UI.calcSize(taskHeight), UI.calcSize(taskHeight)));
+//        l.addView(image);
+        this.addView(image);
 
-        FrameLayout l2 = new FrameLayout(context);
-        l2.setLayoutParams(new LayoutParams(UI.calcSize(imageSize + 2 * m), UI.calcSize(imageSize + 2 * m)));
-        ((LayoutParams) l2.getLayoutParams()).setMargins(UI.calcSize(m), UI.calcSize(m),
-                UI.calcSize(m), UI.calcSize(m));
-        l2.addView(image);
-        l2.setBackgroundResource(R.color.task_imag_backgroung);
-        l.addView(l2);
-        this.addView(l);
-
-        LinearLayout layout = new LinearLayout(context);
-
-        layout.setOrientation(LinearLayout.VERTICAL);
-        LayoutParams lp = new LayoutParams(-1, -2);
-        lp.setMargins(5, 5, 0, 5);
-        lp.gravity = Gravity.TOP;
-        layout.setGravity(Gravity.CENTER);
-        layout.setLayoutParams(lp);
-        layout.addView(title);
+        FrameLayout layout = new FrameLayout(context);
+        layout.setLayoutParams(new LinearLayout.LayoutParams(-1, -1));
         layout.addView(description);
-//        layout.addView(points);
-        this.addView(layout);
+        layout.addView(points);
+        layout.addView(progressBar);
 
-        this.addView(points);
+        this.addView(layout);
     }
 
     @Override
     public void onSwipe() {
         super.onSwipe();
 
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        progressBar.setParentWidth(View.MeasureSpec.getSize(widthMeasureSpec));
     }
 
     @Override
@@ -297,23 +318,17 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         super.setBackgroundColor(color);
     }
 
-    public boolean isChoosed() {
+    private boolean isChoosed() {
         return choosed;
     }
 
     public void setChoosed(boolean choosed) {
         this.choosed = choosed;
-        if (choosed) {
-            setBackgroundResource(R.drawable.task_back_2);
-//            for (Exercise exercise : exercisesList) {
-//                try {
-//                    exercise.loadDescription();
-//                } catch (Exception ignored) {
-//                }
-//            }
-        } else {
-            setBackgroundResource(R.drawable.task_back_1);
-        }
+//        if (choosed) {
+//            setBackgroundResource(R.drawable.task_back_2);
+//        } else {
+//            setBackgroundResource(R.drawable.task_back_1);
+//        }
     }
 
     public int getNumber() {
@@ -324,7 +339,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         return index;
     }
 
-    public void setIndex(int id) {
+    private void setIndex(int id) {
         this.index = id;
     }
 
@@ -332,15 +347,18 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         return data.Description;
     }
 
-    void setDescription(String text) {
+    private void setDescription(int number, String text) {
         if (description == null) {
             description = new TextView(context);
         }
-        LayoutParams lp = new LayoutParams(-1, -2, 1);
-        lp.setMargins(15, 0, 0, 0);
+        LayoutParams lp = new LayoutParams(-1, UI.calcSize(42));
+        lp.gravity = Gravity.TOP | Gravity.END;
+        lp.setMargins(UI.calcSize(5), 0, 0, 0);
         description.setLayoutParams(lp);
-        description.setText(text);
-        description.setTextSize(17);
+        description.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+        description.setText(getResources().getString(R.string.task_title) + number + " " + text);
+        description.setTextSize(18);
+        description.setLineSpacing(UI.calcSize(5), 0.5f);
         try {
             description.setTypeface(DataLoader.getFont(context, "comic"));
         } catch (Exception e) {
@@ -349,7 +367,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         description.setTextColor(context.getResources().getColor(R.color.task_text));
     }
 
-    public Exercise getNextExercise(Exercise exercise) {
+    private Exercise getNextExercise(Exercise exercise) {
         try {
             return exercisesList.get(exercisesList.indexOf(exercise) + 1);
         } catch (Exception e) {
@@ -359,6 +377,26 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
 
     public Profile.TaskData.VideoData[] getVideoData() {
         return data.Videos.Video;
+    }
+
+    public int getFirstTimeExercises() {
+        return firstTimeExercises;
+    }
+
+    public void setFirstTimeExercises(int firstTimeExercises) {
+        this.firstTimeExercises = firstTimeExercises;
+    }
+
+    public int getMinExercises() {
+        return data.MinQuestion;
+    }
+
+    public int getCompleteExercises() {
+        return data.CompletQuestion;
+    }
+
+    public interface OnFirstTimeExerciseIncrementListener {
+        void onIncrement(int currentValue);
     }
 
 //    public class Video {
@@ -637,18 +675,94 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
 //        }
 //    }
 
+    static class ProgressBar extends View {
+
+        boolean confChanged = true;
+        private LayoutParams lp;
+        private double max              = 0;
+        private double oneDivisionWidth = 0;
+        private double progress         = 0;
+        private int    parentWidth      = 0;
+
+        public ProgressBar(Context context) {
+            super(context);
+            lp = new LayoutParams(-1, UI.calcSize(2));
+            lp.gravity = Gravity.BOTTOM | Gravity.START;
+            setLayoutParams(lp);
+            setBackgroundResource(R.color.task_progress);
+        }
+
+        public void setMax(double max) {
+            this.max = max;
+            updateSizes();
+        }
+
+        public void setOneDivisionWidth(double dw) {
+            this.oneDivisionWidth = dw;
+        }
+
+        public void setProgress(double progress) {
+            this.progress = progress;
+            Log.d("ProgressBar", "setProgress: " + progress);
+            updateSizes();
+        }
+
+        private void updateSizes() {
+            if (oneDivisionWidth != 0) {
+                //КОСТЫЛЬ МАТЬ ЕГО. НЕ ТРОГАТЬ!!!
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        ((Activity) getContext()).runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                lp = new LayoutParams((int) (oneDivisionWidth * progress),
+                                        UI.calcSize(2));
+
+                                Log.d("ProgressBar", "run: " + lp.width);
+
+                                lp.gravity = Gravity.BOTTOM | Gravity.START;
+                                setLayoutParams(lp);
+                            }
+                        });
+                    }
+                }).start();
+            }
+        }
+
+        @Override
+        protected void onConfigurationChanged(Configuration newConfig) {
+            super.onConfigurationChanged(newConfig);
+            confChanged = true;
+        }
+
+        public void setParentWidth(int width) {
+            if (confChanged) {
+                parentWidth = width;
+                setOneDivisionWidth(width / max);
+                updateSizes();
+                confChanged = false;
+            }
+        }
+    }
+
     public class Exercise extends FrameLayout implements OnClickListener {
 
 
         int Status = ExerciseWindow.NOT_DECIDED;
 
-        private String tmpText="";
+        private String tmpText = "";
 
         private int Number = 0;
         private Profile.TaskData.ExercizesData data;
 
 
-        public Exercise(Profile.TaskData.ExercizesData data, Context context) {
+        Exercise(Profile.TaskData.ExercizesData data, Context context) {
             super(context);
             this.data = data;
             Status = data.Status;
@@ -679,6 +793,10 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
             lp.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
             v.setLayoutParams(lp);
             this.addView(v);
+        }
+
+        public Task getTask() {
+            return Task.this;
         }
 
         void setTitle() {
@@ -790,7 +908,5 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         }
 
     }
-
-
 }
 

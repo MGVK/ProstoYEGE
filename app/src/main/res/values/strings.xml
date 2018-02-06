@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Просто(Й) ЕГЭ</string>
-    <string name="task_title">Задание</string>
+    <string name="task_title">№</string>
     <string name="task_description">Задачи на арифметику</string>
     <string name="task_points">балл</string>
     <string name="task_list_title">ЕГЭ 2018 профиль</string>
@@ -38,4 +38,6 @@
     <string name="toast_repetition_finish">Репетиция ЕГЭ завершена</string>
     <string name="run_quick_test">Пройти Quick-Тест</string>
     <string name="open_on_youtube">Посмотреть на YouTube</string>
+    <string name="scale_show_all">все</string>
+    <string name="scale_show_last">последние</string>
 </resources>

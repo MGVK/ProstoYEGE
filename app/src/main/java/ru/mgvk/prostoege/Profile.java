@@ -1,5 +1,6 @@
 package ru.mgvk.prostoege;
 
+import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import ru.mgvk.prostoege.ui.statistic.StatisticData;
@@ -8,7 +9,8 @@ import ru.mgvk.prostoege.ui.statistic.StatisticData;
  * Created by mihail on 14.09.16.
  */
 public class Profile {
-    public int Coins = 0;
+    private static final String TAG   = "Profile";
+    public               int    Coins = 0;
     public String ID;
     public int Repost = 0;
     public TaskData Tasks[];
@@ -104,6 +106,18 @@ public class Profile {
             }
         }
 
+        if (task.CompletQuestion <= task.MinQuestion) {
+            task.Progress = (int) ((task.CompletQuestion / (double) task.MinQuestion) * 100);
+        } else {
+            task.Progress = 100;
+        }
+
+        Log.d(TAG, "prepareData: "
+                   + task.CompletQuestion
+                   + " "
+                   + task.MinQuestion
+                   + " "
+                   + task.Progress);
     }
 
     public void setOnMaxVideosCountIncreased(OnMaxVideosCountIncreased onMaxVideosCountIncreased) {
@@ -131,9 +145,13 @@ public class Profile {
     public class TaskData {
         public Videos    Videos;
         public Questions Questions;
+        public int Progress = 50;
         String Description = "Описание";
         int    Points      = 2;
         int Number;
+        int MinQuestion     = 0;
+        int CountQuestion   = 0;
+        int CompletQuestion = 0;
 
         public int getPictureID() {
             return R.drawable.ti_1;

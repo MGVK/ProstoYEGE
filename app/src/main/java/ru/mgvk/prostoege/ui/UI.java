@@ -43,11 +43,12 @@ public class UI {
     public RepetitionFragmentLeft  repetitionFragmentLeft;
     public RepetitionFragmentRight repetitionFragmentRight;
     private boolean added = true;
-    private Context             context;
-    private MainActivity        mainActivity;
-    private FragmentTransaction tr;
-    private FragmentManager     manager;
-    private BalanceWindow       balanceWindow;
+    private        Context             context;
+    private        MainActivity        mainActivity;
+    private        FragmentTransaction tr;
+    private        FragmentManager     manager;
+    private        BalanceWindow       balanceWindow;
+    private static int                 statusBarHeight;
 
     public UI(Context context, boolean restoring) {
 
@@ -160,6 +161,14 @@ public class UI {
         dialog.setMessage(s);
         dialog.show();
         return dialog;
+    }
+
+    public static int getStatusBarHeight() {
+        return statusBarHeight;
+    }
+
+    public static void setStatusBarHeight(int statusBarHeight) {
+        UI.statusBarHeight = statusBarHeight;
     }
 
     private void initFolders() {

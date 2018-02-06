@@ -121,30 +121,31 @@ public class MainStatisticView extends LinearLayout {
     private void initViews() {
 
         setTitle();
-        setPoints();
+        setPointsAndScaleBtn();
         setPlot();
 //        setTestButton();
         setRepetitionBtn();
-        setChangeScaleButton();
+//        setChangeScaleButton();
         setTaskLabel();
     }
 
-    private void setChangeScaleButton() {
+    private void setChangeScaleButton(LinearLayout ll) {
         scaleButton = new Button(context);
-        scaleButton.setText("Показать все");
-        scaleButton.setTextSize(18);
+        scaleButton.setText(R.string.scale_show_all);
+//        scaleButton.setTextSize(18);
         scaleButton.setTransformationMethod(null);
         scaleButton.setBackgroundResource(R.drawable.bg_repetition_btn);
+        scaleButton.setTextColor(Color.BLACK);
+        scaleButton.setPadding(0, 0, 0, 0);
 
         int                       p  = 4;
-        LinearLayout.LayoutParams lp = new LayoutParams(-2, UI.calcSize(40));
-        lp.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
-        lp.setMargins(0, p, 0, 0);
-
+        LinearLayout.LayoutParams lp = new LayoutParams(-1, UI.calcSize(40), 2);
+        lp.gravity = Gravity.CENTER;
+//        lp.setMargins(0, p, 0, 0);
         scaleButton.setLayoutParams(lp);
 
-        scaleButton.setTag(false); // commonView=false;
-        addView(scaleButton);
+        scaleButton.setTag(false); // showAll=false;
+        ll.addView(scaleButton);
         scaleButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -166,10 +167,10 @@ public class MainStatisticView extends LinearLayout {
     private void changeScaleButtonLabel() {
         if (scaleButton.getTag() instanceof Boolean) {
             if ((Boolean) scaleButton.getTag()) {
-                //commonView == true => making it false
-                scaleButton.setText("Показать последние");
+                //showLast == true => making it false
+                scaleButton.setText(R.string.scale_show_all);
             } else {
-                scaleButton.setText("Показать все");
+                scaleButton.setText(R.string.scale_show_last);
             }
             scaleButton.setTag(!(Boolean) scaleButton.getTag());
         }
@@ -218,7 +219,9 @@ public class MainStatisticView extends LinearLayout {
         repetitionButton = new Button(context);
         repetitionButton.setText(R.string.statistic_main_repbtn);
 //        repetitionButton.setPadding(p, 0, p, 0);
-        repetitionButton.setGravity(Gravity.CENTER);
+//        repetitionButton.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL);
+        repetitionButton.setTextSize(20);
+        repetitionButton.setPadding(0, 0, 0, 0);
         repetitionButton.setBackgroundResource(R.drawable.bg_repetition_btn);
         repetitionButton.setTransformationMethod(null);
         repetitionButton.setOnClickListener(new OnClickListener() {
@@ -235,7 +238,7 @@ public class MainStatisticView extends LinearLayout {
         addView(repetitionButton);
     }
 
-    private void setPoints() {
+    private void setPointsAndScaleBtn() {
         desiredPointsText = new TextView(context);
         desiredPointsText.setText(R.string.statistic_main_desired);
         desiredPointsText.setTextSize(pointsTextSize);
@@ -248,8 +251,21 @@ public class MainStatisticView extends LinearLayout {
         currentPointsText.setGravity(Gravity.LEFT);
         currentPointsText.setTextColor(COLOR_TEXT);
 
-        addView(desiredPointsText);
-        addView(currentPointsText);
+
+        LinearLayout l = new LinearLayout(context);
+        l.setOrientation(VERTICAL);
+        l.addView(desiredPointsText);
+        l.addView(currentPointsText);
+        l.setLayoutParams(new LayoutParams(-1, -2, 1));
+
+        LinearLayout ll = new LinearLayout(context);
+        ll.setOrientation(HORIZONTAL);
+        ll.setLayoutParams(new LayoutParams(-1, -2));
+        ll.addView(l);
+
+        setChangeScaleButton(ll);
+
+        addView(ll);
     }
 
     private void setTitle() {

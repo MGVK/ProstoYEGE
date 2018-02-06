@@ -211,6 +211,10 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
 //            // TODO: 05.02.17 исправить статусы!
 //        }
 
+        if (status == DECIDED_FIRSTLY) {
+            currentExercise.getTask().incrementFirstTimeExercise();
+        }
+
         this.status = status;
         setIndicatorColor(ExerciseWindow.indicators[status]);
         currentExercise.setStatus(status);
