@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -148,10 +149,10 @@ public class VideoLayout extends LinearLayout {
 
         int  videoID = 0;
         byte m       = (byte) UI.calcSize(5);
-        LinearLayout    mainLayout;
-        FrameLayout     numberLayout;
-        VideoCardLayout videoLayout;
-        ImageView       buyingIndicator;
+        LinearLayout mainLayout;
+        FrameLayout  numberLayout;
+        //        VideoCardLayout videoLayout;
+        ImageView    buyingIndicator;
         private int    QUICKTEST_BTN_TAG = 1;
         private int    YOUTUBE_BTN_TAG   = 2;
         private String youtubeID         = "";
@@ -161,6 +162,7 @@ public class VideoLayout extends LinearLayout {
         private int     number = 1;
         private int     price  = 0;
         private TextView descriptionView;
+        private View     backgroundView;
 
         /**
          *
@@ -190,7 +192,6 @@ public class VideoLayout extends LinearLayout {
         private void setButtons() {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
             lp.setMargins(0, UI.calcSize(5), UI.calcSize(7), 0);
-            int c = Color.parseColor("#ffff9634");
 
             Button quickTestBtn = new Button(context);
             quickTestBtn.setOnClickListener(this);
@@ -198,7 +199,7 @@ public class VideoLayout extends LinearLayout {
             quickTestBtn.setText(context.getString(R.string.run_quick_test));
             quickTestBtn.setTextColor(Color.WHITE);
             quickTestBtn.setTextSize(16);
-            quickTestBtn.setBackgroundColor(c);
+            quickTestBtn.setBackgroundResource(R.drawable.video_btns_back);
             quickTestBtn.setTransformationMethod(null);
 
             Button youtubeBtn = new Button(context);
@@ -208,7 +209,7 @@ public class VideoLayout extends LinearLayout {
             youtubeBtn.setText(context.getString(R.string.open_on_youtube));
             youtubeBtn.setTextColor(Color.WHITE);
             youtubeBtn.setTextSize(16);
-            youtubeBtn.setBackgroundColor(c);
+            youtubeBtn.setBackgroundResource(R.drawable.video_btns_back);
             youtubeBtn.setTransformationMethod(null);
 
             mainLayout.addView(quickTestBtn);
@@ -286,8 +287,21 @@ public class VideoLayout extends LinearLayout {
         public void updateSizes(int w, int h) {
             if (player != null) {
 
-                player.getPictureView().setLayoutParams(new LinearLayout.LayoutParams(
-                        (int) (0.75 * w), h = (int) ((9 / 16.0) * 0.75 * w)));
+                //width adjusment
+                double k      = 1;
+                int    margin = UI.calcSize(10);
+                w = ((int) k * mainLayout.getWidth()) - 2 * margin;
+                h = (int) ((9 / 16.0) * w);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(w, h);
+//                lp.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+                lp.gravity = Gravity.LEFT;
+//                lp.setMargins(margin, 0, margin, 0);
+//                player.getPictureView().setLayoutParams(lp);
+                player.setPictureLayoutParams(lp);
+
+                LayoutParams lp2 = (LayoutParams) backgroundView.getLayoutParams();
+                lp2.setMargins(lp2.leftMargin, (int) (h * 0.7), lp2.rightMargin, 0);
+                backgroundView.setLayoutParams(lp2);
             }
 
 //            numberLayout.setLayoutParams(new LinearLayout.LayoutParams((int) (0.15 * w), h));
@@ -319,7 +333,7 @@ public class VideoLayout extends LinearLayout {
         }
 
 
-        //init player
+        //setTask player
 //        void initPlayer() {
 //
 //            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
@@ -358,8 +372,13 @@ public class VideoLayout extends LinearLayout {
 //        }
 
         void initPlayer() {
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
+            int w = UI.calcSize(328);
+            int h = UI.calcSize(185);
 
+            LinearLayout.LayoutParams lp
+                    = new LinearLayout.LayoutParams(-1, -2);
+//            lp.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+            lp.gravity = Gravity.CENTER;
             player = new ExoPlayer(context);
             player.getPictureView().setLayoutParams(lp);
 
@@ -389,43 +408,32 @@ public class VideoLayout extends LinearLayout {
             mainLayout = new LinearLayout(context);
             mainLayout.setLayoutParams(new LayoutParams(-1, -2));
             ((LayoutParams) mainLayout.getLayoutParams()).setMargins(m, m, m, m);
-            mainLayout.setPadding(4 * m, 3 * m, 0, 2 * m);
+            mainLayout.setPadding(2 * m, 3 * m, 0, 2 * m);
             mainLayout.setOrientation(LinearLayout.VERTICAL);
 
-            videoLayout = new VideoCardLayout(context);
+            mainLayout.addView(player.getPictureView());
 
-            ViewGroup.LayoutParams lp = new LinearLayout.LayoutParams(-1, -1);
-            numberLayout = new FrameLayout(context);
-            numberLayout.setLayoutParams(lp);
+            TextView numberText = new TextView(context);
+            numberText.setText("Видео " + number);
+            numberText.setTextColor(Color.BLACK);
+            numberText.setTextSize(20);
+            numberText.setTypeface(Typeface.MONOSPACE, Typeface.BOLD);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, -2);
+            lp.gravity = Gravity.LEFT;
+            lp.setMargins(0, UI.calcSize(10), 0, 0);
+            numberText.setLayoutParams(lp);
+            mainLayout.addView(numberText);
 
-            buyingIndicator = new ImageView(context);
-            lp = new LayoutParams(UI.calcSize(20), UI.calcSize(20));
-            ((LayoutParams) lp).gravity = Gravity.CENTER;
-            buyingIndicator.setLayoutParams(lp);
-            buyingIndicator.setBackgroundDrawable(context.getResources().getDrawable(
-                    isBuyed() ? R.drawable.button_green : R.drawable.button_red));
+            backgroundView = new View(context);
+            LayoutParams lp2 = new LayoutParams(-1, -1);
+            lp2.gravity = Gravity.BOTTOM;
+            lp2.setMargins(
+                    m, UI.calcSize(140), m, 0);
+            backgroundView.setLayoutParams(lp2);
+            backgroundView.setBackgroundResource(R.drawable.video_white_back);
 
-            TextView number = new TextView(context);
-            lp = new LayoutParams(-2, -2);
-            ((LayoutParams) lp).gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-            ((LayoutParams) lp).setMargins(0, 0, 0, UI.calcSize(15));
-            number.setLayoutParams(lp);
-            number.setText("#" + (this.number) /*+ "\n" + this.videoID*/);
-            number.setTextSize(18);
-            number.setTextColor(Color.parseColor("#05025d"));
-            number.setGravity(Gravity.CENTER);
-
-            numberLayout.addView(buyingIndicator);
-            numberLayout.addView(number);
-
-            videoLayout.addView(player.getPictureView());
-            videoLayout.addView(numberLayout);
-
-            mainLayout.addView(videoLayout);
-//            player.updateParent(videoLayout);
-
-            this.setBackgroundResource(R.drawable.white_background_shadow);
             this.setLayoutParams(new ViewGroup.LayoutParams(-1, -2));
+            this.addView(backgroundView);
             this.addView(mainLayout);
 
         }
@@ -501,15 +509,10 @@ public class VideoLayout extends LinearLayout {
             descriptionView.setText(description);
             descriptionView.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
             ((LinearLayout.LayoutParams) descriptionView.getLayoutParams())
-                    .setMargins(0, 0, UI.calcSize(10), 0);
-            descriptionView.setTextColor(Color.parseColor("#05025d"));
-            descriptionView.setTextSize(15);
+                    .setMargins(0, UI.calcSize(10), UI.calcSize(10), 0);
+            descriptionView.setTextColor(Color.BLACK);
+            descriptionView.setTextSize(16);
             descriptionView.setGravity(Gravity.TOP);
-            try {
-                descriptionView.setTypeface(DataLoader.getFont(context, "comic"));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
             mainLayout.addView(descriptionView);
         }
 

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -29,6 +30,8 @@ public class ExoPlayer {
     private       boolean                    buyed;
     private       OnVideoStateChangeListener onVideoStateChangeListener;
     private       boolean                    playing;
+    private       int                        pictureWidth;
+    private       int                        pictureHeight;
 
     public ExoPlayer(Context context) {
 
@@ -60,25 +63,6 @@ public class ExoPlayer {
 
     void initPictureView() {
         pictureView = new ImageView(context);
-        pictureView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (ID != null && ID.length() > 0) {
-                    prepare();
-                    try {
-                        InstanceController.putObject("VideoPlayer_" + ID, player);
-                    } catch (InstanceController.NotInitializedError notInitializedError) {
-                        notInitializedError.printStackTrace();
-                    }
-
-                    start();
-                    context.startActivity(
-                            new Intent(context, VideoActivity.class).putExtra("ID", ID));
-                }
-            }
-        });
-
     }
 
     SimpleExoPlayerView getPlayerView() {
@@ -114,6 +98,24 @@ public class ExoPlayer {
     public void setBuyed(Drawable drawable) {
         buyed = true;
         setPicture(drawable);
+        pictureView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (ID != null && ID.length() > 0) {
+                    prepare();
+                    try {
+                        InstanceController.putObject("VideoPlayer_" + ID, player);
+                    } catch (InstanceController.NotInitializedError notInitializedError) {
+                        notInitializedError.printStackTrace();
+                    }
+
+                    start();
+                    context.startActivity(
+                            new Intent(context, VideoActivity.class).putExtra("ID", ID));
+                }
+            }
+        });
     }
 
     public void setPicture(Drawable drawable) {
@@ -132,6 +134,22 @@ public class ExoPlayer {
     public void start() {
         player.setPlayWhenReady(true);
         playing = true;
+    }
+
+    public void setPictureLayoutParams(LinearLayout.LayoutParams lp) {
+        if (pictureView != null && lp != null) {
+            pictureWidth = lp.width;
+            pictureHeight = lp.height;
+            pictureView.setLayoutParams(lp);
+        }
+    }
+
+    public int getPictureWidth() {
+        return pictureWidth;
+    }
+
+    public int getPictureHeight() {
+        return pictureHeight;
     }
 
     public interface OnVideoStateChangeListener {

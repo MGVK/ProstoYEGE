@@ -33,11 +33,12 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
     private TextView  tasksButton, titleText, descriptionText;
     private ViewGroup    container;
     private Task         currentTask;
-    private ScrollView   videoScroll;
+    private ScrollView   videoScrollView;
     //    private ImageView    rings;
     private LinearLayout mainVideoListLayout;
     private boolean isAnyVideoPlaying = false;
     private VideoStatisticView videoStatisticView;
+    private LinearLayout       mainLayout;
 
 
     @SuppressLint("ValidFragment")
@@ -75,32 +76,31 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
     }
 
     public void setPortraitMode() {
-        if (mainVideoListLayout != null) {
-            LinearLayout.LayoutParams lp = ((LinearLayout.LayoutParams) mainVideoListLayout
-                    .getLayoutParams());
-            lp.leftMargin = 0;
-            mainVideoListLayout.setLayoutParams(lp);
-        }
+//        if (mainVideoListLayout != null) {
+//            LinearLayout.LayoutParams lp = ((LinearLayout.LayoutParams) mainVideoListLayout
+//                    .getLayoutParams());
+//            lp.leftMargin = 0;
+//            mainVideoListLayout.setLayoutParams(lp);
+//        }
+        //stub!
 
 
     }
 
     public void setLandscapeMode() {
 
-        if (mainVideoListLayout != null) {
-            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainVideoListLayout
-                    .getLayoutParams());
-            lp.leftMargin = UI.calcSize(32);
-            mainVideoListLayout.setLayoutParams(lp);
-        }
-
+//        if (mainVideoListLayout != null) {
+//            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams) mainVideoListLayout
+//                    .getLayoutParams());
+//            lp.leftMargin = UI.calcSize(32);
+//            mainVideoListLayout.setLayoutParams(lp);
+//        }
+        //stub!
     }
 
 
     public void setScrollViewEnabled(boolean enabled) {
-        if (videoScroll != null) {
-            videoScroll.setEnabled(enabled);
-        }
+        //STUB!
     }
 
     @Override
@@ -118,11 +118,15 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
     }
 
     private void initViews() {
-        mainVideoListLayout = (LinearLayout) container.findViewById(R.id.main_videolist_layout);
+
+        mainLayout = (LinearLayout) container.findViewById(R.id.layout);
+
         if (context.getResources().getConfiguration().orientation
             == Configuration.ORIENTATION_PORTRAIT) {
             setPortraitMode();
         }
+
+        videoScrollView = (ScrollView) container.findViewById(R.id.video_scroll);
 //        videoLayout = (LinearLayout) container.findViewById(R.id.layout_videolist);
         container.findViewById(R.id.statusbar_view).setLayoutParams(new FrameLayout.LayoutParams
                 (ViewGroup.LayoutParams.MATCH_PARENT, UI.getStatusBarHeight()));
@@ -139,15 +143,16 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
                 .setOnClickListener(this);
         (tasksButton = (TextView) container.findViewById(R.id.btn_exercises))
                 .setOnClickListener(this);
-        videoScroll = (ScrollView) container.findViewById(R.id.video_scroll);
 
         if ((videoLayout = (VideoLayout) InstanceController.getObject("VideoLayout")) == null) {
             videoLayout = new VideoLayout(context);
         }
-        if (videoScroll.getChildCount() != 0) {
-            videoScroll.removeAllViews();
+
+        int i = 0;
+        if ((i = mainLayout.getChildCount()) != 0
+            && mainLayout.getChildAt(i - 1) != videoLayout) {
+            mainLayout.addView(videoLayout);
         }
-        videoScroll.addView(videoLayout);
 
         titleText = (TextView) container.findViewById(R.id.videolist_title);
         try {
@@ -157,12 +162,6 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
         }
 
         descriptionText = (TextView) container.findViewById(R.id.videolist_title_description);
-
-        try {
-            descriptionText.setTypeface(DataLoader.getFont(context, "comic"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         mainActivity.ui.mainScroll.addOnScreenSwitchedListener(this);
 
@@ -349,7 +348,7 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
             updateSizes();
 
             try {
-                videoScroll.fullScroll(View.FOCUS_UP);
+                videoScrollView.fullScroll(View.FOCUS_UP);
             } catch (Exception ignored) {
             }
 
