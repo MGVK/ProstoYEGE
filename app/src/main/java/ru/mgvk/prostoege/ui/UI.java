@@ -7,10 +7,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -29,10 +31,9 @@ import java.text.SimpleDateFormat;
 public class UI {
 
     private static int realDPI;
-
+    private static int statusBarHeight;
     public int deviceWidth = 0, deviceHeight = 0;
     public View rootView0, rootView1, rootView2;
-
     public MainScrollView          mainScroll;
     public MainMenu                mainMenu;
     public TaskListFragment        taskListFragment;
@@ -43,12 +44,11 @@ public class UI {
     public RepetitionFragmentLeft  repetitionFragmentLeft;
     public RepetitionFragmentRight repetitionFragmentRight;
     private boolean added = true;
-    private        Context             context;
-    private        MainActivity        mainActivity;
-    private        FragmentTransaction tr;
-    private        FragmentManager     manager;
-    private        BalanceWindow       balanceWindow;
-    private static int                 statusBarHeight;
+    private Context             context;
+    private MainActivity        mainActivity;
+    private FragmentTransaction tr;
+    private FragmentManager     manager;
+    private BalanceWindow       balanceWindow;
 
     public UI(Context context, boolean restoring) {
 
@@ -350,7 +350,16 @@ public class UI {
 
     }
 
+
+    public void openMenu(Context context) {
+
+        new NewMenuPanel(context).open();
+
+    }
+
+    @Deprecated
     public void openMenu(MenuPanel menu) {
+
         if (menu != null) {
             doMenuAppearAnimation(menu);
 //            menu.setX(0);
@@ -932,5 +941,28 @@ public class UI {
 //        window.layout.setLayoutParams(window.layout.getLayoutParams());
         window.open();
 
+    }
+
+    public void requestOpenRepetitionFragment() {
+        new Dialog(context) {
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                requestWindowFeature(Window.FEATURE_NO_TITLE);
+                setContentView(R.layout.repetition_request_dialog);
+                findViewById(R.id.btn_yes).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        openRepetitionFragment();
+                    }
+                });
+                findViewById(R.id.btn_no).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dismiss();
+                    }
+                });
+            }
+        }.show();
     }
 }

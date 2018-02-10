@@ -120,12 +120,6 @@ public class MainMenu extends MenuPanel implements OnClickListener {
         if (v == shareBtn) {
             try {
                 //Рабочий вариант
-//                Intent intent = new Intent(Intent.ACTION_SEND);
-//                intent.setType("text/plain");
-////                intent.setPackage("com.vkontakte.android");
-//                intent.putExtra(Intent.EXTRA_TEXT, context.getString(R.string.share_description));
-//                context.startActivity(intent);
-
                 String text = context.getString(R.string.share_description);
                 File sharefile = new File(context.getApplicationContext().getExternalCacheDir(),
                         "share_image.png");

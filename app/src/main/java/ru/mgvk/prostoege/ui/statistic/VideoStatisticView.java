@@ -62,7 +62,7 @@ public class VideoStatisticView extends FrameLayout
     private void setTaskCompleteDiagram() {
         taskCompleteDiagram = new ProcessDiagram(getContext());
         LayoutParams lp = new LayoutParams(h, h);
-        lp.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
+        lp.gravity = Gravity.RIGHT | Gravity.TOP;
         taskCompleteDiagram.setLayoutParams(lp);
         taskCompleteDiagram.setTextType(ProcessDiagram.PERCENT);
         addView(taskCompleteDiagram);
@@ -72,7 +72,7 @@ public class VideoStatisticView extends FrameLayout
     private void setFirstTimeExercisesDiagram() {
         firstExercisesDiagram = new ProcessDiagram(getContext());
         LayoutParams lp = new LayoutParams(h, h);
-        lp.gravity = Gravity.CENTER | Gravity.CENTER_VERTICAL;
+        lp.gravity = Gravity.CENTER | Gravity.TOP;
         firstExercisesDiagram.setLayoutParams(lp);
         firstExercisesDiagram.setTextType(ProcessDiagram.SLASH);
         addView(firstExercisesDiagram);
@@ -81,7 +81,7 @@ public class VideoStatisticView extends FrameLayout
     private void setVideoUnderstandDiagram() {
         videoUnderstandDiagram = new ProcessDiagram(getContext());
         LayoutParams lp = new LayoutParams(h, h);
-        lp.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
+        lp.gravity = Gravity.LEFT | Gravity.TOP;
         videoUnderstandDiagram.setLayoutParams(lp);
         videoUnderstandDiagram.setTextType(ProcessDiagram.SLASH);
         addView(videoUnderstandDiagram);

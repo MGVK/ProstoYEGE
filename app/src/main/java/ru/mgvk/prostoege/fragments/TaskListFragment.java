@@ -305,7 +305,8 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 
             switch (v.getId()) {
                 case R.id.btn_menu: {
-                    mainActivity.ui.openMenu(mainActivity.ui.mainMenu);
+//                    mainActivity.ui.openMenu(mainActivity.ui.mainMenu);
+                    mainActivity.ui.openMenu(context);
                     break;
                 }
                 case R.id.btn_coins: {

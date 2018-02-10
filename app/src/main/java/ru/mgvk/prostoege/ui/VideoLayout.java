@@ -430,7 +430,7 @@ public class VideoLayout extends LinearLayout {
             lp2.setMargins(
                     m, UI.calcSize(140), m, 0);
             backgroundView.setLayoutParams(lp2);
-            backgroundView.setBackgroundResource(R.drawable.video_white_back);
+            backgroundView.setBackgroundResource(R.drawable.white_back_3d);
 
             this.setLayoutParams(new ViewGroup.LayoutParams(-1, -2));
             this.addView(backgroundView);

@@ -40,4 +40,5 @@
     <string name="open_on_youtube">Посмотреть на YouTube</string>
     <string name="scale_show_all">все</string>
     <string name="scale_show_last">последние</string>
+    <string name="setting_label">Настройки</string>
 </resources>

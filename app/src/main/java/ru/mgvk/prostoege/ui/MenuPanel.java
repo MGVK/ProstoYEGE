@@ -17,11 +17,11 @@ import ru.mgvk.prostoege.R;
  */
 public class MenuPanel extends FrameLayout {
 
-    private MainActivity mainActivity;
-    private Context context;
-    private ItemsLayout itemsLayout;
-    private VerticalScrollView scroll;
-    private ImageButton backBtn;
+    private MainActivity        mainActivity;
+    private Context             context;
+    private ItemsLayout         itemsLayout;
+    private VerticalScrollView  scroll;
+    private ImageButton         backBtn;
     private OnBackClickListener listener;
 
 
@@ -34,9 +34,10 @@ public class MenuPanel extends FrameLayout {
     @Override
     public void setLayoutParams(ViewGroup.LayoutParams params) {
         super.setLayoutParams(params);
-        try{
+        try {
             scroll.setLayoutParams(new LayoutParams(mainActivity.ui.rootView1.getWidth() / 2, -1));
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
     }
 
     private void initViews() {
@@ -45,7 +46,8 @@ public class MenuPanel extends FrameLayout {
         setBackBtn();
 
 
-        final LayoutParams lp = new LayoutParams(context.getResources().getDisplayMetrics().widthPixels, -1);
+        final LayoutParams lp = new LayoutParams(
+                context.getResources().getDisplayMetrics().widthPixels, -1);
         lp.gravity = Gravity.LEFT;
         setLayoutParams(lp);
 
@@ -59,26 +61,28 @@ public class MenuPanel extends FrameLayout {
         });
     }
 
-    private void initItemsLayout(){
+    private void initItemsLayout() {
         itemsLayout = new ItemsLayout(context);
         itemsLayout.setLayoutParams(new ViewGroup.LayoutParams(-1, -1));
         itemsLayout.setGravity(Gravity.CENTER);
         scroll.addView(itemsLayout);
     }
 
-    private void initScroll(){
+    private void initScroll() {
         scroll = new VerticalScrollView(context);
         scroll.setBackgroundColor(Color.parseColor("#C60D0D0D"));
-        scroll.setLayoutParams(new LayoutParams(context.getResources().getDisplayMetrics().widthPixels / 2, -1));
+        scroll.setLayoutParams(
+                new LayoutParams(context.getResources().getDisplayMetrics().widthPixels / 2, -1));
         this.addView(scroll);
     }
 
-    private void setBackBtn(){
+    private void setBackBtn() {
         backBtn = new ImageButton(context);
-        FrameLayout.LayoutParams lp = new LayoutParams(-2,-2);
-        lp.gravity = Gravity.LEFT|Gravity.TOP;
+        FrameLayout.LayoutParams lp = new LayoutParams(-2, -2);
+        lp.gravity = Gravity.LEFT | Gravity.TOP;
         backBtn.setLayoutParams(lp);
-        backBtn.setImageDrawable(context.getResources().getDrawable(R.drawable.button_answer_clear));
+        backBtn.setImageDrawable(
+                context.getResources().getDrawable(R.drawable.button_answer_clear));
         backBtn.setBackgroundColor(Color.argb(0, 0, 0, 0));
         backBtn.setOnClickListener(new OnClickListener() {
             @Override
@@ -100,7 +104,8 @@ public class MenuPanel extends FrameLayout {
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
-        itemsLayout.getSpace().setLayoutParams(new LinearLayout.LayoutParams(-1,backBtn.getHeight()));
+        itemsLayout.getSpace()
+                .setLayoutParams(new LinearLayout.LayoutParams(-1, backBtn.getHeight()));
     }
 
     @Override
@@ -111,17 +116,24 @@ public class MenuPanel extends FrameLayout {
 
     /**
      * вызывается при клике кнопки возврата или свободной области экрана
+     *
      * @param l
      */
 
-    public void setOnBackClickListener(OnBackClickListener l){
+    public void setOnBackClickListener(OnBackClickListener l) {
         listener = l;
     }
 
-    public void addItem(MenuItem item){
+    public void addItem(MenuItem item) {
         itemsLayout.addView(item);
     }
 
+
+    public interface OnBackClickListener {
+
+        void onClick(MenuPanel menu);
+
+    }
 
     private class ItemsLayout extends LinearLayout {
 
@@ -131,13 +143,13 @@ public class MenuPanel extends FrameLayout {
         public ItemsLayout(Context context) {
             super(context);
             setOrientation(VERTICAL);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1,-1);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -1);
 //            lp.setMargins(0, (int) UI.calcSize(40), 0, 0);
             setLayoutParams(lp);
             addSpace();
         }
 
-        private void addSpace(){
+        private void addSpace() {
             space = new Space(context);
             space.setLayoutParams(new FrameLayout.LayoutParams(-1, UI.calcSize(40)));
             super.addView(space);
@@ -146,7 +158,8 @@ public class MenuPanel extends FrameLayout {
         @Override
         public void addView(View child) {
             super.addView(child);
-            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(child.getLayoutParams().width,
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+                    child.getLayoutParams().width,
                     child.getLayoutParams().height, 1);
             lp.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
 
@@ -161,18 +174,11 @@ public class MenuPanel extends FrameLayout {
         }
 
         public Space getSpace() {
-            if(space==null){
+            if (space == null) {
                 addSpace();
             }
             return space;
         }
-    }
-
-
-    public interface OnBackClickListener{
-
-        void onClick(MenuPanel menu);
-
     }
 
 

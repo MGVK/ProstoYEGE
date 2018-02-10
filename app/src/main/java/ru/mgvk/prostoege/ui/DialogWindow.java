@@ -36,6 +36,7 @@ public class DialogWindow extends RelativeLayout implements View.OnClickListener
         (rootView = ((ViewGroup) ((Activity) context).getWindow().getDecorView().getRootView()))
                 .addView(this);
         animateAlpha(APPEAR);
+
         ((MainActivity) context).addToBackStack(new Runnable() {
             @Override
             public void run() {
