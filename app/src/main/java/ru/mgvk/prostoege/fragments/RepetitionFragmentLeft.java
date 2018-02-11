@@ -13,10 +13,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -39,6 +36,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 
+import static java.lang.Thread.sleep;
 import static ru.mgvk.prostoege.DataLoader.dataToHtml;
 
 /**
@@ -111,9 +109,28 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         }
 
 
-        openStartDialog();
-
+//        openStartDialog();
         setStopped(false);
+        MainActivity.stopwatch.checkpoint("repetition fragment ready");
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                ((MainActivity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        startRepetition();
+                    }
+                });
+            }
+
+        }).start();
 
         super.onStart();
 
@@ -176,25 +193,35 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
                 try {
                     s = DataLoader
                             .sendRepetitionAnswers(completeAnswers(), repetitionTimer.getTime());
+
+                    StatisticData data = new Gson().fromJson(s, StatisticData.class);
+
+                    JsonElement element = new JsonParser().parse(s);
+                    JsonObject object = element.getAsJsonObject().get("Answers")
+                            .getAsJsonObject();
+                    data.marks = new int[19];
+
+                    data.TimeSpent = repetitionTimer.getTime();
+                    data.Time = new SimpleDateFormat("HH:mm").format(new Date());
+
+                    for (int i = 0; i < 19; i++) {
+
+                        data.marks[i] = object.get((i + 1) + "").getAsInt();
+                    }
+
+                    return new Result(data);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    mainActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, "Произошла ошибка при загрузке данных!",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
 
-                StatisticData data = new Gson().fromJson(s, StatisticData.class);
-
-                JsonElement element = new JsonParser().parse(s);
-                JsonObject  object  = element.getAsJsonObject().get("Answers").getAsJsonObject();
-                data.marks = new int[19];
-
-                data.TimeSpent = repetitionTimer.getTime();
-                data.Time = new SimpleDateFormat("HH:mm").format(new Date());
-
-                for (int i = 0; i < 19; i++) {
-
-                    data.marks[i] = object.get((i + 1) + "").getAsInt();
-                }
-
-                return new Result(data);
+                return new Result(0);
 
             }
 
@@ -248,7 +275,6 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
                 .setPositiveButton("Старт", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startRepetition();
                     }
                 })
                 .setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
@@ -260,7 +286,6 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
                 .setCancelable(false)
                 .create().show();
 
-        MainActivity.stopwatch.checkpoint("repetition fragment ready");
 
     }
 

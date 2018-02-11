@@ -954,6 +954,7 @@ public class UI {
                     @Override
                     public void onClick(View view) {
                         openRepetitionFragment();
+                        dismiss();
                     }
                 });
                 findViewById(R.id.btn_no).setOnClickListener(new View.OnClickListener() {
