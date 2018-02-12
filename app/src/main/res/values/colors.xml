@@ -12,4 +12,5 @@
     <color name="empty">#00000000</color>
     <color name="task_progress">#ff676b</color>
     <color name="back_white_color">#f3f3f3</color>
+    <color name="stroke_3d">#2b000000</color>
 </resources>

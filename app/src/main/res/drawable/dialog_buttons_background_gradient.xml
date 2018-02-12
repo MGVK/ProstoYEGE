@@ -4,6 +4,11 @@
     <gradient
         android:endColor="#ff676b"
         android:startColor="#ffc001"
-        android:type="linear"/>
+        android:type="linear"
+        />
+
+    <corners
+        android:bottomLeftRadius="5dp"
+        android:bottomRightRadius="5dp"/>
 
 </shape>

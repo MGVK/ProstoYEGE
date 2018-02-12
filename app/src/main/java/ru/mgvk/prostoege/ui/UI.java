@@ -682,8 +682,8 @@ public class UI {
     }
 
     public void openBalanceDialog() {
-        balanceWindow = new BalanceWindow(context);
-        balanceWindow.open();
+        BalanceWindow.show(context);
+
     }
 
     public void openHintWindow(Task.Exercise currentExercise) {
