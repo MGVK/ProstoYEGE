@@ -36,7 +36,7 @@
             <ru.mgvk.prostoege.ui.statistic.VideoStatisticView
                 android:id="@+id/videostatistic"
                 android:layout_width="match_parent"
-                android:layout_height="140dp"
+                android:layout_height="120dp"
                 android:paddingEnd="10dp"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
