@@ -144,7 +144,7 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
         if (resID > 0) {
             result = getResources().getDimensionPixelSize(resID);
         }
-        return result;
+        return result; 
     }
 
 //    void setBootScreen() {

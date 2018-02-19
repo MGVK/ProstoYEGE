@@ -15,7 +15,6 @@ import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
 import ru.mgvk.prostoege.Task;
 import ru.mgvk.prostoege.ui.ExerciseWindow;
-import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.util.Reporter;
 import ru.mgvk.util.StateTags;
 
@@ -36,8 +35,7 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
     //    private FrameLayout exerciseWindowScroll;
     private ScrollView     exerciseWindowScroll;
     private ImageView      rings;
-    private LinearLayout   mainExercisesListLayout;
-    private ExerciseWindow exerciseWindow;
+    Space space;
     private ScrollView     exercisesListScroll;
 
     @SuppressLint("ValidFragment")
@@ -73,7 +71,6 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
 
     }
 
-
     @Override
     public void onStart() {
         super.onStart();
@@ -100,12 +97,17 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
         }
     }
 
+    //    private LinearLayout   mainExercisesListLayout;
+    private ExerciseWindow exerciseWindow;
+
     private void loadExcercises() {
         try {
             excercisesListLayout.removeAllViews();
         } catch (NullPointerException ignored) {
         }
 
+
+        excercisesListLayout.addView(space);
 
         for (Task.Exercise exercise : getTask().getExercisesList()) {
             excercisesListLayout.addView(exercise);
@@ -120,37 +122,38 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
         }
         exerciseWindowScroll.addView(exerciseWindow);
 
-        mainExercisesListLayout = (LinearLayout) container.findViewById(R.id.main_exercises_layout);
-        rings = (ImageView) container.findViewById(R.id.rings_ex);
-        if (context.getResources().getConfiguration().orientation
-            == Configuration.ORIENTATION_PORTRAIT) {
-            setPortraitMode();
-        }
-
-        (videosButton = (TextView) container.findViewById(R.id.btn_videos))
-                .setOnClickListener(this);
-
-        (homeButton = (ImageButton) container.findViewById(R.id.btn_home))
-                .setOnClickListener(this);
-        container.findViewById(R.id.btn_forward).setOnClickListener(this);
+//        mainExercisesListLayout = (LinearLayout) container.findViewById(R.id.main_exercises_layout);
+//        rings = (ImageView) container.findViewById(R.id.rings_ex);
+//        if (context.getResources().getConfiguration().orientation
+//            == Configuration.ORIENTATION_PORTRAIT) {
+//            setPortraitMode();
+//        }
+//
+//        (videosButton = (TextView) container.findViewById(R.id.btn_videos))
+//                .setOnClickListener(this);
+//
+//        (homeButton = (ImageButton) container.findViewById(R.id.btn_home))
+//                .setOnClickListener(this);
+//        container.findViewById(R.id.btn_forward).setOnClickListener(this);
 
         excercisesListLayout = (LinearLayout) container.findViewById(R.id.layout_exerciseslist);
         exercisesListScroll = (ScrollView) container.findViewById(R.id.exerciselist_scroll);
 
         (titleTextView = (TextView) container.findViewById(R.id.exerciselist_title))
                 .setOnClickListener(this);
-        (exercisesButton = (TextView) container.findViewById(R.id.btn_exercises))
-                .setOnClickListener(this);
+        space = new Space(context);
+//        (exercisesButton = (TextView) container.findViewById(R.id.btnexercises))
+//                .setOnClickListener(this);
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            setPortraitMode();
-        } else {
-            setLandscapeMode();
-        }
+//        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+//            setPortraitMode();
+//        } else {
+//            setLandscapeMode();
+//        }
     }
 
     public void scrollListUp() {
@@ -174,31 +177,31 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
         }).start();
     }
 
-    public void setPortraitMode() {
-        if (rings != null) {
-            rings.setVisibility(View.GONE);
-        }
-        if (mainExercisesListLayout != null) {
-            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams)
-                    mainExercisesListLayout.getLayoutParams());
-            lp.rightMargin = 0;
-            mainExercisesListLayout.setLayoutParams(lp);
-        }
-
-    }
-
-    public void setLandscapeMode() {
-        if (rings != null) {
-            rings.setVisibility(View.VISIBLE);
-        }
-        if (mainExercisesListLayout != null) {
-            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams)
-                    mainExercisesListLayout.getLayoutParams());
-            lp.rightMargin = UI.calcSize(32);
-            mainExercisesListLayout.setLayoutParams(lp);
-        }
-
-    }
+//    public void setPortraitMode() {
+//        if (rings != null) {
+//            rings.setVisibility(View.GONE);
+//        }
+//        if (mainExercisesListLayout != null) {
+//            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams)
+//                    mainExercisesListLayout.getLayoutParams());
+//            lp.rightMargin = 0;
+//            mainExercisesListLayout.setLayoutParams(lp);
+//        }
+//
+//    }
+//
+//    public void setLandscapeMode() {
+//        if (rings != null) {
+//            rings.setVisibility(View.VISIBLE);
+//        }
+//        if (mainExercisesListLayout != null) {
+//            FrameLayout.LayoutParams lp = ((FrameLayout.LayoutParams)
+//                    mainExercisesListLayout.getLayoutParams());
+//            lp.rightMargin = UI.calcSize(32);
+//            mainExercisesListLayout.setLayoutParams(lp);
+//        }
+//
+//    }
 
 
     public Task getTask() {
@@ -208,29 +211,29 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_videos: {
-//                mainActivity.ui.openVideoListFragment(getTask());
-//                if (exerciseWindow.isOpened()) {
-//                    mainActivity.onBackPressed();
-//                }
-//                mainActivity.onBackPressed();
-                mainActivity.getBackStack().returnToState(
-                        StateTags.VIDEO_LIST_FRAGMENT
-                );
-                break;
-            }
-            case R.id.btn_forward: {
-                mainActivity.ui.openToolsFragment();
-                break;
-            }
-            case R.id.btn_home: {
-//                mainActivity.ui.openTaskOrVideoFragment(true);
-//                mainActivity.clearBackStack();
-//                exerciseWindow.closeExercise();
-                mainActivity.getBackStack().returnToState(
-                        StateTags.TASK_LIST_FRAGMENT);
-                break;
-            }
+//            case R.id.btn_videos: {
+////                mainActivity.ui.openVideoListFragment(getTask());
+////                if (exerciseWindow.isOpened()) {
+////                    mainActivity.onBackPressed();
+////                }
+////                mainActivity.onBackPressed();
+//                mainActivity.getBackStack().returnToState(
+//                        StateTags.VIDEO_LIST_FRAGMENT
+//                );
+//                break;
+//            }
+//            case R.id.btn_forward: {
+//                mainActivity.ui.openToolsFragment();
+//                break;
+//            }
+//            case R.id.btn_home: {
+////                mainActivity.ui.openTaskOrVideoFragment(true);
+////                mainActivity.clearBackStack();
+////                exerciseWindow.closeExercise();
+//                mainActivity.getBackStack().returnToState(
+//                        StateTags.TASK_LIST_FRAGMENT);
+//                break;
+//            }
             case R.id.exerciselist_title: {
                 mainActivity.getBackStack().returnToState(
                         StateTags.EXERCISE_LIST_FRAGMENT);
