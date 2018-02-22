@@ -2,19 +2,22 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:left="92dp"
-        android:right="-92dp"
+        android:left="-20dp"
         android:top="-100dp">
+
         <rotate
-            android:fromDegrees="-55"
-            android:pivotX="0%"
+            android:fromDegrees="28"
+            android:pivotX="100%"
             android:pivotY="100%">
 
-            <shape android:shape="rectangle">
-                <solid android:color="#ffc001"/>
-            </shape>
-        </rotate>
-    </item>
+            <shape>
 
+                <solid android:color="#fffb00"/>
+
+            </shape>
+
+        </rotate>
+
+    </item>
 
 </layer-list>

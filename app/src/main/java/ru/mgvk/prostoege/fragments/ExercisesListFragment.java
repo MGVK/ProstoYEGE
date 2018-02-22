@@ -14,7 +14,7 @@ import ru.mgvk.prostoege.InstanceController;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.prostoege.R;
 import ru.mgvk.prostoege.Task;
-import ru.mgvk.prostoege.ui.ExerciseWindow;
+import ru.mgvk.prostoege.ui.exercises.ExerciseWindow;
 import ru.mgvk.util.Reporter;
 import ru.mgvk.util.StateTags;
 
@@ -24,6 +24,7 @@ import ru.mgvk.util.StateTags;
 public class ExercisesListFragment extends Fragment implements View.OnClickListener {
 
 
+    Space space;
     private MainActivity mainActivity;
     private Context      context;
     private int taskId = 0;
@@ -35,8 +36,9 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
     //    private FrameLayout exerciseWindowScroll;
     private ScrollView     exerciseWindowScroll;
     private ImageView      rings;
-    Space space;
     private ScrollView     exercisesListScroll;
+    //    private LinearLayout   mainExercisesListLayout;
+    private ExerciseWindow exerciseWindow;
 
     @SuppressLint("ValidFragment")
     public ExercisesListFragment() {
@@ -97,9 +99,6 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
         }
     }
 
-    //    private LinearLayout   mainExercisesListLayout;
-    private ExerciseWindow exerciseWindow;
-
     private void loadExcercises() {
         try {
             excercisesListLayout.removeAllViews();
@@ -117,7 +116,7 @@ public class ExercisesListFragment extends Fragment implements View.OnClickListe
     private void initViews() throws Exception {
 
         exerciseWindowScroll = (ScrollView) container.findViewById(R.id.exercisewindow_scroll);
-        if (exerciseWindow.getParent() != null) {
+        if (exerciseWindow != null && exerciseWindow.getParent() != null) {
             ((ViewGroup) exerciseWindow.getParent()).removeView(exerciseWindow);
         }
         exerciseWindowScroll.addView(exerciseWindow);

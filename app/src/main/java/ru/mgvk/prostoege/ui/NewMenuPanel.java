@@ -98,7 +98,7 @@ public class NewMenuPanel extends DialogWindow {
                     }
                     break;
                 }
-                case R.id.close_btn: {
+                case R.id.btn_close: {
                     close();
                     break;
                 }
@@ -121,7 +121,7 @@ public class NewMenuPanel extends DialogWindow {
         mainLayout.findViewById(R.id.rate).setOnClickListener(listener);
         mainLayout.findViewById(R.id.wifi).setOnClickListener(listener);
         mainLayout.findViewById(R.id.restore).setOnClickListener(listener);
-        mainLayout.findViewById(R.id.close_btn).setOnClickListener(listener);
+        mainLayout.findViewById(R.id.btn_close).setOnClickListener(listener);
         mainLayout.setOnClickListener(listener);
 
         setGravity(Gravity.BOTTOM);

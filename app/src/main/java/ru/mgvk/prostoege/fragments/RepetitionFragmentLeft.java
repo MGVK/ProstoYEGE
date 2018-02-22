@@ -19,9 +19,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import ru.mgvk.prostoege.*;
-import ru.mgvk.prostoege.ui.ExerciseWindow;
 import ru.mgvk.prostoege.ui.TimeButton;
 import ru.mgvk.prostoege.ui.UI;
+import ru.mgvk.prostoege.ui.exercises.AnswerLayout;
+import ru.mgvk.prostoege.ui.exercises.DescriptionWebView;
+import ru.mgvk.prostoege.ui.exercises.NumPad;
 import ru.mgvk.prostoege.ui.statistic.StatisticData;
 import ru.mgvk.util.RepetitionTimer;
 import ru.mgvk.util.Reporter;
@@ -48,23 +50,23 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     private static final int                      MAX_TASK_NUMBER   = 19;
     private static final int                      MIN_TASK_NUMBER   = 1;
     private static       ArrayList<OnTaskChanged> onTaskChangedList = new ArrayList<>();
-    private Context                     context;
-    private MainActivity                mainActivity;
-    private TimeButton                  timeButton;
-    private ViewGroup                   container;
-    private ImageButton                 rightButton;
-    private LinearLayout                mainLayout;
-    private TitleLayout                 titleLayout;
-    private ExerciseWindow.NumPad       numPad;
-    private ExerciseWindow.AnswerLayout answerLayout;
-    private RepetitionTimer             repetitionTimer;
+    private Context         context;
+    private MainActivity    mainActivity;
+    private TimeButton      timeButton;
+    private ViewGroup       container;
+    private ImageButton     rightButton;
+    private LinearLayout    mainLayout;
+    private TitleLayout     titleLayout;
+    private NumPad          numPad;
+    private AnswerLayout    answerLayout;
+    private RepetitionTimer repetitionTimer;
     private boolean stopped            = false;
     private boolean inited             = false;
     // duration in  seconds
     private int     repetitionDuration = (3/*hour*/ * 60 + 55)/*minutes*/ * 60;
-    private RepetitionData                    data;
-    private Result                            currentResult;
-    private ExerciseWindow.DescriptionWebView descriptionWebView;
+    private RepetitionData     data;
+    private Result             currentResult;
+    private DescriptionWebView descriptionWebView;
     private int               currentTaskNumber = 1;
     private ArrayList<String> answers           = new ArrayList<>();
 
@@ -374,7 +376,7 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     }
 
     private void setAnswerLayout() {
-        answerLayout = new ExerciseWindow.AnswerLayout(context, this);
+        answerLayout = new AnswerLayout(context, this);
         answerLayout.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
 
 
@@ -382,7 +384,7 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     }
 
     private void setNumPad() {
-        numPad = new ExerciseWindow.NumPad(context, this);
+        numPad = new NumPad(context, this);
 
         mainLayout.addView(numPad);
     }
@@ -470,7 +472,7 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
     private void setTaskDescription() {
 
-        descriptionWebView = new ExerciseWindow.DescriptionWebView
+        descriptionWebView = new DescriptionWebView
                 (context);
 //        descriptionWebView.loadUrl();
         descriptionWebView.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));

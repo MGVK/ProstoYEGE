@@ -58,6 +58,11 @@ public class TaskListFragment extends Fragment implements View.OnClickListener {
 
     private void initViews() {
 
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mainActivity
+                .findViewById(R.id.main_layout).getLayoutParams();
+        lp.setMargins(0, UI.getStatusBarHeight(), 0, 0);
+        mainActivity.findViewById(R.id.main_layout).setLayoutParams(lp);
+
         taskListLayout = (LinearLayout) mainActivity.findViewById(R.id.layout_tasklist);
         taskScroll = (VerticalScrollView) mainActivity.findViewById(R.id.task_scroll);
         myCoordinatorLayout = (MyCoordinatorLayout) mainActivity

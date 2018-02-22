@@ -76,7 +76,7 @@ public class BalanceWindow extends Dialog implements View.OnClickListener {
         price3Virt = (TextView) findViewById(R.id.price3_virt);
         price3Real = (TextView) findViewById(R.id.price3_real);
         codeBtn = (TextView) findViewById(R.id.code_btn);
-        closeBtn = (TextView) findViewById(R.id.close_btn);
+        closeBtn = (TextView) findViewById(R.id.btn_close);
 
         price1Btn.setOnClickListener(this);
         price2Btn.setOnClickListener(this);

@@ -20,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import ru.mgvk.prostoege.*;
 import ru.mgvk.prostoege.fragments.*;
+import ru.mgvk.prostoege.ui.exercises.ExerciseWindow;
 import ru.mgvk.util.Reporter;
 import ru.mgvk.util.StateTags;
 
@@ -922,7 +923,7 @@ public class UI {
                             @Override
                             public void run() {
                                 try {
-                                    openMenu(mainMenu);
+                                    openMenu(context);
                                 } catch (Exception e) {
                                     Reporter.report(context, e,
                                             ((MainActivity) context).reportSubject);

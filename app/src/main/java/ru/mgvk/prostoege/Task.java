@@ -14,10 +14,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import ru.mgvk.prostoege.ui.ExerciseNumberImage;
-import ru.mgvk.prostoege.ui.ExerciseWindow;
 import ru.mgvk.prostoege.ui.SwipedLinearLayout;
 import ru.mgvk.prostoege.ui.UI;
+import ru.mgvk.prostoege.ui.exercises.ExerciseWindow;
 import ru.mgvk.util.Reporter;
 
 import java.io.IOException;
@@ -751,14 +750,13 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         }
     }
 
-    public class Exercise extends FrameLayout implements OnClickListener {
+    public static class Exercise extends FrameLayout implements OnClickListener {
 
 
+        private final View indicator;
         int Status = ExerciseWindow.NOT_DECIDED;
-
+        TextView title;
         private String tmpText = "";
-
-        private int Number = 0;
         private Profile.TaskData.ExercizesData data;
 
 
@@ -766,68 +764,26 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
             super(context);
             this.data = data;
             Status = data.Status;
-            LayoutParams lp = new LayoutParams(-1, UI.calcSize(60));
-            lp.setMargins(UI.calcSize(20), 0, 0, 0);
-            this.setLayoutParams(lp);
-            setBackgroundResource((R.drawable.exercises_back));
+            inflate(context, R.layout.exercise_item, this);
+            this.title = (TextView) findViewById(R.id.title);
+            this.indicator = findViewById(R.id.indicator);
             setOnClickListener(this);
             setTag(-1);
-            setNumber(data.Number);
             setTitle();
-            setCircule();
+            setIndicator();
         }
 
-        /**
-         * Изображение с номером задания
-         *
-         * @param number >=0
-         */
-
-        void setNumber(int number) {
-            this.Number = number;
-            ExerciseNumberImage v = new ExerciseNumberImage(context);
-            v.setNumber(number);
-            LayoutParams lp = new LayoutParams(UI.calcSize(50),
-                    UI.calcSize(50));
-            lp.setMargins(UI.calcSize(5), 0, 0, 0);
-            lp.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
-            v.setLayoutParams(lp);
-            this.addView(v);
-        }
 
         public Task getTask() {
-            return Task.this;
+            return ((MainActivity) getContext()).ui.taskListFragment.getCurrentTask();
         }
 
         void setTitle() {
-            TextView title = new TextView(context);
-            title.setTextSize(20);
-
-            LayoutParams lp = new LayoutParams(-2, -2);
-//            lp.gravity = Gravity.CENTER_HORIZONTAL|Gravity.TOP;
-            lp.gravity = Gravity.CENTER;
-            title.setLayoutParams(lp);
-            title.setGravity(Gravity.CENTER);
-            title.setTextColor(context.getResources().getColor(R.color.task_text));
-            title.setText("Задача " + this.Number);
-
-            try {
-                title.setTypeface(DataLoader.getFont(context, "comic"));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            this.addView(title);
+            title.setText("Задача №" + data.Number);
         }
 
-        void setCircule() {
-            ImageView imageView = new ImageView(context);
-            imageView.setImageResource(ExerciseWindow.indicators[Status]);
-            LayoutParams lp = new LayoutParams(-2, UI.calcSize(25));
-            lp.gravity = Gravity.CENTER_VERTICAL | Gravity.RIGHT;
-            lp.setMargins(0, 0, UI.calcSize(10), 0);
-            imageView.setLayoutParams(lp);
-            this.addView(imageView);
+        void setIndicator() {
+            indicator.setBackgroundResource(ExerciseWindow.indicators[getStatus()]);
         }
 
         public String getTmpText() {
@@ -847,7 +803,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         }
 
         void setIndicatorColor(int resId) {
-            ((ImageView) getChildAt(2)).setImageResource(resId);
+            indicator.setBackgroundResource(resId);
         }
 
         public Profile.TaskData.ExercizesData getData() {
@@ -860,7 +816,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {
-            ((MainActivity) context).ui.exercisesListFragment
+            ((MainActivity) getContext()).ui.exercisesListFragment
                     .getExerciseWindow().openExercise(this);
 //            ((MainActivity) context).ui.exercisesListFragment.scrollListUp();
         }
@@ -887,7 +843,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
         }
 
         public Exercise getNextExercise() {
-            return Task.this.getNextExercise(this);
+            return getTask().getNextExercise(this);
         }
 
         public boolean isSolved() {

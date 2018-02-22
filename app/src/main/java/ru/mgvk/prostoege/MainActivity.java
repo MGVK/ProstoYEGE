@@ -75,8 +75,8 @@ public class MainActivity extends Activity implements MainScrollView.OnScreenSwi
             int       h = getStatusBarHeight();
             UI.setStatusBarHeight(h);
 
-            findViewById(R.id.main_linear).setPadding(0, h, 0, 0);
-//            findViewById(R.id.statusbar_bg).setLayoutParams(new LinearLayout.LayoutParams(-1, h));
+//            findViewById(R.id.main_linear).setPadding(0, h, 0, 0);
+//            findViewById(R.id.statusbar_bg).setLayoutParams   (new LinearLayout.LayoutParams(-1, h));
             context = this;
 
 
