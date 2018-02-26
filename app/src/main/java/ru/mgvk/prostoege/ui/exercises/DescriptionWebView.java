@@ -1,6 +1,8 @@
 package ru.mgvk.prostoege.ui.exercises;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.util.AttributeSet;
 import android.webkit.WebView;
 import ru.mgvk.prostoege.DataLoader;
@@ -13,29 +15,33 @@ public class DescriptionWebView extends WebView {
 
     public DescriptionWebView(Context context) {
         super(context);
+        this.context = context;
     }
 
     public DescriptionWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        this.context = context;
     }
 
     public DescriptionWebView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        this.context = context;
     }
 
     public DescriptionWebView(Context context, AttributeSet attrs, int defStyleAttr,
                               int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        this.context = context;
     }
 
     public DescriptionWebView(Context context, AttributeSet attrs, int defStyleAttr,
                               boolean privateBrowsing) {
         super(context, attrs, defStyleAttr, privateBrowsing);
+        this.context = context;
     }
 
-    void init() {
+    public void init() {
         setTag("DescriptionWebView");
-        context = getContext();
         getSettings().setJavaScriptEnabled(true);
         getSettings().setSupportZoom(true);
         setDrawingCacheEnabled(true);
@@ -44,6 +50,17 @@ public class DescriptionWebView extends WebView {
 
     public void loadHTMLFile(String path) {
         loadUrl("file://" + path);
+    }
+
+    private Activity getActivity() {
+        Context context = getContext();
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity) context;
+            }
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+        return null;
     }
 
     public void reloadDescription() {

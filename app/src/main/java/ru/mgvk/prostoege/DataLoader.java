@@ -591,9 +591,11 @@ public class DataLoader {
                         + ".js\"></script>";
 
                 writer.write(s + task.Description);
+
                 if (task.hasImage) {
-                    writer.write("<image src=\"" + task.ID + ".png\">");
+                    writer.write("<image style=\"max-width: 100%\" src=\"" + task.ID + ".png\">");
                 }
+
                 writer.flush();
                 writer.close();
 
