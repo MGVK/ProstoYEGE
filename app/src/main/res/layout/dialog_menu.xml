@@ -2,15 +2,17 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="385dp"
+    android:layout_height="395dp"
     android:layout_gravity="bottom"
-    android:background="@drawable/white_back_3d">
+    android:layout_margin="0dp"
+    android:background="@drawable/dialog_menu_margin"
+    android:paddingBottom="5dp">
 
     <View
         android:layout_width="92dp"
         android:layout_height="65dp"
-        android:layout_margin="1.5dp"
         android:layout_gravity="right|top"
+        android:layout_margin="1.5dp"
         android:background="@drawable/menu_corner"/>
 
     <TextView
@@ -37,7 +39,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="65dp"
+        android:layout_marginTop="60dp"
         android:orientation="vertical">
 
         <TextView
@@ -92,7 +94,7 @@
         <TextView
             android:id="@+id/restore"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="50dp"
             android:layout_marginTop="10dp"
             android:background="@drawable/white_btns_back_3d"
             android:gravity="center_vertical"

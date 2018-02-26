@@ -1,12 +1,12 @@
 package ru.mgvk.prostoege.ui;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
+import android.os.Bundle;
+import android.view.*;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -17,10 +17,10 @@ import ru.mgvk.prostoege.R;
 
 import java.io.File;
 
-public class NewMenuPanel extends DialogWindow {
+public class NewMenuPanel extends Dialog {
 
     private final FrameLayout mainLayout;
-    OnClickListener listener = new OnClickListener() {
+    View.OnClickListener listener = new View.OnClickListener() {
 
         @Override
         public void onClick(View v) {
@@ -99,7 +99,7 @@ public class NewMenuPanel extends DialogWindow {
                     break;
                 }
                 case R.id.btn_close: {
-                    close();
+                    dismiss();
                     break;
                 }
                 default: {
@@ -112,9 +112,13 @@ public class NewMenuPanel extends DialogWindow {
 
     public NewMenuPanel(Context context) {
         super(context);
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         mainLayout = (FrameLayout) LayoutInflater.from(context).inflate(R.layout
-                .activity_menu, null);
-        mainLayout.setLayoutParams(new RelativeLayout.LayoutParams(-1, UI.calcSize(385)));
+                .dialog_menu, null);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(-1, UI.calcSize(395));
+        lp.setMargins(0, 0, 0, 0);
+        mainLayout.setLayoutParams(lp);
         mainLayout.findViewById(R.id.balance).setOnClickListener(listener);
         mainLayout.findViewById(R.id.statistic).setOnClickListener(listener);
         mainLayout.findViewById(R.id.share).setOnClickListener(listener);
@@ -124,7 +128,26 @@ public class NewMenuPanel extends DialogWindow {
         mainLayout.findViewById(R.id.btn_close).setOnClickListener(listener);
         mainLayout.setOnClickListener(listener);
 
-        setGravity(Gravity.BOTTOM);
-        addView(mainLayout);
+        setContentView(mainLayout);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        getWindow().getAttributes().windowAnimations = R.style.MenuDialog;
+
+        Window                     window = getWindow();
+        WindowManager.LayoutParams wlp    = window.getAttributes();
+
+        wlp.gravity = Gravity.BOTTOM;
+        wlp.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+        wlp.verticalMargin = 0;
+        wlp.horizontalMargin = 0;
+        wlp.width = getContext().getApplicationContext().getResources().getDisplayMetrics()
+                .widthPixels;
+
+        window.setAttributes(wlp);
+
     }
 }

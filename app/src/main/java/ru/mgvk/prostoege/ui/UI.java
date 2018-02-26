@@ -36,10 +36,10 @@ public class UI {
     public int deviceWidth = 0, deviceHeight = 0;
     public View rootView0, rootView1, rootView2;
     public MainScrollView          mainScroll;
-    public MainMenu                mainMenu;
     public TaskListFragment        taskListFragment;
     public VideoListFragment       videoListFragment;
     public Fragment                currentFragment;
+    public MainMenu                mainMenu;
     public ExercisesListFragment   exercisesListFragment;
     public ToolsFragment           toolsFragment;
     public RepetitionFragmentLeft  repetitionFragmentLeft;
@@ -268,8 +268,6 @@ public class UI {
         mainScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
 
-        initMainMenu();
-
     }
 
     void initFragments(final boolean restoring) {
@@ -346,15 +344,15 @@ public class UI {
         }
     }
 
-    void initMainMenu() {
-        mainMenu = new MainMenu(context, (ViewGroup) rootView0);
-
-    }
+//    void initMainMenu() {
+//        mainMenu = new MainMenu(context, (ViewGroup) rootView0);
+//
+//    }
 
 
     public void openMenu(Context context) {
 
-        new NewMenuPanel(context).open();
+        new NewMenuPanel(context).show();
 
     }
 
@@ -441,8 +439,8 @@ public class UI {
         rootView1.setLayoutParams(new LinearLayout.LayoutParams((int) (k * deviceWidth), -1));
         rootView2.setLayoutParams(new LinearLayout.LayoutParams((int) (k * deviceWidth), -1));
 
-        mainMenu.setLayoutParams(new FrameLayout.LayoutParams((deviceWidth), -1));
-        mainMenu.updateSizes((int) (k * deviceWidth), deviceHeight);
+//        mainMenu.setLayoutParams(new FrameLayout.LayoutParams((deviceWidth), -1));
+//        mainMenu.updateSizes((int) (k * deviceWidth), deviceHeight);
 
 
     }
