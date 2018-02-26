@@ -9,7 +9,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import ru.mgvk.prostoege.*;
 import ru.mgvk.prostoege.ui.ExoPlayer;
 import ru.mgvk.prostoege.ui.MainScrollView;
@@ -128,8 +131,6 @@ public class VideoListFragment extends Fragment implements View.OnClickListener,
 
         videoScrollView = (ScrollView) container.findViewById(R.id.video_scroll);
 //        videoLayout = (LinearLayout) container.findViewById(R.id.layout_videolist);
-        container.findViewById(R.id.statusbar_view).setLayoutParams(new FrameLayout.LayoutParams
-                (ViewGroup.LayoutParams.MATCH_PARENT, UI.getStatusBarHeight()));
 
         videoStatisticView = (VideoStatisticView) container
                 .findViewById(R.id.videostatistic);

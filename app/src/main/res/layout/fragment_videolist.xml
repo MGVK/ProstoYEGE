@@ -138,12 +138,6 @@
             android:textStyle="bold"/>
     </LinearLayout>
 
-    <View
-        android:id="@+id/statusbar_view"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:background="#23000000"/>
-
 
     <!--ACRIONBAR_END-->
 
