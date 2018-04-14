@@ -41,4 +41,11 @@
     <string name="scale_show_all">все</string>
     <string name="scale_show_last">последние</string>
     <string name="setting_label">Настройки</string>
+    <string name="title_activity_repetition">RepetitionActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="repetition_close_request_title">Продолжить?</string>
+    <string name="repetition_close_request_text">Тут тоже как-то текст</string>
+    <string name="repetition_start_request_title">Начать репетицию?</string>
+    <string name="repetition_start_request_text">Вы действительно хотите начать?</string>
+
 </resources>

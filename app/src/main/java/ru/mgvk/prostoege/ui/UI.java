@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator;
 import android.app.*;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -31,9 +32,10 @@ import java.text.SimpleDateFormat;
  */
 public class UI {
 
-    private static int realDPI;
-    private static int statusBarHeight;
-    public int deviceWidth = 0, deviceHeight = 0;
+    private static int     realDPI;
+    private static int     statusBarHeight;
+    private static Context context;
+    public         int     deviceWidth = 0, deviceHeight = 0;
     public View rootView0, rootView1, rootView2;
     public MainScrollView          mainScroll;
     public TaskListFragment        taskListFragment;
@@ -45,7 +47,6 @@ public class UI {
     public RepetitionFragmentLeft  repetitionFragmentLeft;
     public RepetitionFragmentRight repetitionFragmentRight;
     private boolean added = true;
-    private Context             context;
     private MainActivity        mainActivity;
     private FragmentTransaction tr;
     private FragmentManager     manager;
@@ -172,6 +173,54 @@ public class UI {
         UI.statusBarHeight = statusBarHeight;
     }
 
+    public static void openRepetitionActivity() {
+        final ProgressDialog dialog = openProgressDialog(context, "Загрузка заданий");
+        RepetitionActivity.setOnStartedListener(new RepetitionActivity.OnStartedListener() {
+            @Override
+            public void onStart() {
+                dialog.dismiss();
+            }
+        });
+        context.startActivity(new Intent(context, RepetitionActivity.class));
+    }
+
+    public static void openRequestDialog(final String title, final String text,
+                                         final View.OnClickListener yesListener,
+                                         final View.OnClickListener noListener) {
+        if (UI.context == null) {
+            return;
+        }
+        new Dialog(UI.context) {
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                requestWindowFeature(Window.FEATURE_NO_TITLE);
+                setContentView(R.layout.request_dialog);
+                findViewById(R.id.btn_yes).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dismiss();
+                        if (yesListener != null) {
+                            yesListener.onClick(view);
+                        }
+                    }
+                });
+                findViewById(R.id.btn_no).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dismiss();
+                        if (noListener != null) {
+                            noListener.onClick(view);
+                        }
+                    }
+                });
+                ((TextView) findViewById(R.id.title)).setText(title);
+                ((TextView) findViewById(R.id.text)).setText(text);
+            }
+
+        }.show();
+    }
+
     private void initFolders() {
         DataLoader.getRepetitionFolder(context);
         DataLoader.getQuickTestFolder(context);
@@ -229,7 +278,7 @@ public class UI {
         });
 //        webView.setOnClickListener(new View.OnClickListener() {
 //            @Override
-//            public void onClick(View v) {}
+//            public void onKeyClicked(View v) {}
 //        });
 
         new AlertDialog.Builder(context)
@@ -254,6 +303,11 @@ public class UI {
 //        window.open();
 
     }
+
+//    void initMainMenu() {
+//        mainMenu = new MainMenu(context, (ViewGroup) rootView0);
+//
+//    }
 
     void initSizes() {
         deviceWidth = mainActivity.getResources().getDisplayMetrics().widthPixels;
@@ -344,12 +398,6 @@ public class UI {
         }
     }
 
-//    void initMainMenu() {
-//        mainMenu = new MainMenu(context, (ViewGroup) rootView0);
-//
-//    }
-
-
     public void openMenu(Context context) {
 
         new NewMenuPanel(context).show();
@@ -365,6 +413,23 @@ public class UI {
 //            menu.setVisibility(View.VISIBLE);
         }
     }
+
+//    private void addFragments() {
+//        FragmentManager     manager = mainActivity.getFragmentManager();
+//        FragmentTransaction tr      = manager.beginTransaction();
+//        tr.add(R.id.root_1, exercisesListFragment, "ExercisesListFragment");
+//        tr.add(R.id.root_2, toolsFragment, "ToolsFragment");
+//        tr.add(R.id.root_2, videoListFragment, "VideoListFragment");
+//        tr.add(R.id.root_1, taskListFragment, "TaskListFragment");
+//
+//        tr.hide(taskListFragment);
+//        tr.hide(exercisesListFragment);
+//        tr.hide(videoListFragment);
+//        tr.hide(toolsFragment);
+//        tr.commit();
+//
+//
+//    }
 
     public void closeMenu(MenuPanel menu) {
         if (menu != null) {
@@ -415,23 +480,6 @@ public class UI {
             }
         });
     }
-
-//    private void addFragments() {
-//        FragmentManager     manager = mainActivity.getFragmentManager();
-//        FragmentTransaction tr      = manager.beginTransaction();
-//        tr.add(R.id.root_1, exercisesListFragment, "ExercisesListFragment");
-//        tr.add(R.id.root_2, toolsFragment, "ToolsFragment");
-//        tr.add(R.id.root_2, videoListFragment, "VideoListFragment");
-//        tr.add(R.id.root_1, taskListFragment, "TaskListFragment");
-//
-//        tr.hide(taskListFragment);
-//        tr.hide(exercisesListFragment);
-//        tr.hide(videoListFragment);
-//        tr.hide(toolsFragment);
-//        tr.commit();
-//
-//
-//    }
 
     public void updateSizes(int orientation) {
         initSizes();
@@ -587,6 +635,12 @@ public class UI {
 
     }
 
+//    public void openPreviousFragment() {
+//        FragmentTransaction tr = mainActivity.getFragmentManager().beginTransaction();
+//        tr.hide(currentFragment);
+//        tr.commit();
+//    }
+
     public void openToolsFragment() {
         mainActivity.addToBackStack(new Runnable() {
             @Override
@@ -606,7 +660,7 @@ public class UI {
 //                .setTitle("Вы действительно хотите закончить репетицию ЕГЭ?")
 //                .setPositiveButton("Да!", new DialogInterface.OnClickListener() {
 //                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
+//                    public void onKeyClicked(DialogInterface dialog, int which) {
 //
 //                        if(result!=null) {
 //                            openRepetitionResultWindow(result);
@@ -634,16 +688,11 @@ public class UI {
         this.mainScroll.toRight();
     }
 
-//    public void openPreviousFragment() {
-//        FragmentTransaction tr = mainActivity.getFragmentManager().beginTransaction();
-//        tr.hide(currentFragment);
-//        tr.commit();
-//    }
-
     public void openLeftRepetitionComponent() {
         this.mainScroll.toLeft();
     }
 
+    @Deprecated
     public void openRepetitionFragment() {
         mainActivity.addToBackStack(new Runnable() {
             @Override
@@ -940,29 +989,5 @@ public class UI {
 //        window.layout.setLayoutParams(window.layout.getLayoutParams());
         window.open();
 
-    }
-
-    public void requestOpenRepetitionFragment() {
-        new Dialog(context) {
-            @Override
-            protected void onCreate(Bundle savedInstanceState) {
-                super.onCreate(savedInstanceState);
-                requestWindowFeature(Window.FEATURE_NO_TITLE);
-                setContentView(R.layout.repetition_request_dialog);
-                findViewById(R.id.btn_yes).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        openRepetitionFragment();
-                        dismiss();
-                    }
-                });
-                findViewById(R.id.btn_no).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dismiss();
-                    }
-                });
-            }
-        }.show();
     }
 }

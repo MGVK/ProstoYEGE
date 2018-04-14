@@ -18,7 +18,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import ru.mgvk.prostoege.*;
+import ru.mgvk.prostoege.DataLoader;
+import ru.mgvk.prostoege.MainActivity;
+import ru.mgvk.prostoege.R;
+import ru.mgvk.prostoege.RepetitionData;
 import ru.mgvk.prostoege.ui.TimeButton;
 import ru.mgvk.prostoege.ui.UI;
 import ru.mgvk.prostoege.ui.exercises.AnswerLayout;
@@ -35,11 +38,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 
 import static java.lang.Thread.sleep;
-import static ru.mgvk.prostoege.DataLoader.dataToHtml;
 
 /**
  * Created by mike on 28.07.17.
@@ -166,6 +167,7 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
 
         }
     }
+
 
     private void onRepetitionFinished() {
 
@@ -331,6 +333,7 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
         setInited(true);
 
     }
+
 
     private void onRepetitionStarted() {
         currentTaskNumber = 0;
@@ -564,94 +567,6 @@ public class RepetitionFragmentLeft extends Fragment implements View.OnClickList
     private static interface OnTaskChanged {
 
         void onChanged(int taskNumber);
-
-    }
-
-    public static class RepetitionData {
-
-        private static LinkedHashMap<Integer, HTMLTask> map = new LinkedHashMap<>();
-        private int repetitionDuration;
-
-
-        static RepetitionData fromFuckingJSON(Context context, String json) {
-
-            if (json.length() < 3) {
-                return null;
-            }
-
-            RepetitionData repetitionData = new RepetitionData();
-
-            try {
-
-                JsonElement element = new JsonParser().parse(json);
-
-
-                for (int j = 1; j <= 19; j++) {
-
-                    JsonObject o           = element.getAsJsonObject().getAsJsonObject(j + "");
-                    int        id          = o.get("ID").getAsInt();
-                    String     description = o.get("Description").getAsString();
-                    boolean    hasImage;
-                    try {
-                        hasImage = o.get("Image").getAsBoolean();
-                    } catch (Exception e) {
-                        hasImage = false;
-                    }
-
-                    map.put(j, new HTMLTask(id, description, hasImage, Constants.REPETITION));
-
-                }
-
-                repetitionData.setRepetitionDuration(element.getAsJsonObject().get("Time")
-                                                             .getAsInt() * 60);
-
-            } catch (Exception e) {
-                Reporter.report(context, e, MainActivity.PID);
-            }
-
-            repetitionData.setMap(map);
-            for (HTMLTask HTMLTask : map.values()) {
-                HTMLTask.Description = HTMLTask.Description.replace("\\\"", "\"");
-                HTMLTask.Description = HTMLTask.Description.replace("\\/", "");
-                HTMLTask.Description = HTMLTask.Description.replace("\\\\", "\\");
-            }
-
-            dataToHtml(DataLoader.getRepetitionFolder(context), map);
-
-            return repetitionData;
-        }
-
-
-        public LinkedHashMap<Integer, HTMLTask> getMap() {
-            return map;
-        }
-
-//        private static int increment(int i) {
-//            return i >= 4 ? 0 : ++i;
-//        }
-
-        public void setMap(
-                LinkedHashMap<Integer, HTMLTask> map) {
-            this.map = map;
-        }
-
-        public String getHtmlFilePath(int number) {
-            HTMLTask t = map.get(number);
-            if (t == null) {
-                return "test.html";
-            } else {
-                return t.ID + ".html";
-            }
-        }
-
-        public long getRepetitionDuration() {
-            return repetitionDuration;
-        }
-
-        public void setRepetitionDuration(int repetitionDuration) {
-            this.repetitionDuration = repetitionDuration;
-        }
-
 
     }
 

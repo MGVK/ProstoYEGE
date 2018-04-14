@@ -1,0 +1,44 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/white_back_3d"
+            android:padding="8dp"
+            tools:context="ru.mgvk.prostoege.fragments.RepetitionFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/task_number"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:gravity="center_vertical|left"
+            android:text="Задание №1"
+            android:textColor="@android:color/black"
+            android:textSize="34sp"
+            />
+
+
+        <ru.mgvk.prostoege.ui.exercises.DescriptionWebView
+            android:id="@+id/webview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+
+        <ru.mgvk.prostoege.ui.exercises.AnswerLayout
+            android:id="@+id/answerlayout"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"/>
+
+        <ru.mgvk.prostoege.ui.exercises.NumPad
+            android:id="@+id/numpad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+
+    </LinearLayout>
+
+</ScrollView>

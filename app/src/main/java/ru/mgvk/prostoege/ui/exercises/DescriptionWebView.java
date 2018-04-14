@@ -48,7 +48,7 @@ public class DescriptionWebView extends WebView {
         getSettings().setAppCacheEnabled(true);
     }
 
-    public void loadHTMLFile(String path) {
+    public void loadHTMLFile(final String path) {
         loadUrl("file://" + path);
     }
 

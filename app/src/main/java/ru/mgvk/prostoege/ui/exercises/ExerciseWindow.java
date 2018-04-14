@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -18,7 +19,8 @@ import ru.mgvk.util.StateTags;
 /**
  * Created by mihail on 16.10.16.
  */
-public class ExerciseWindow extends FrameLayout implements View.OnClickListener {
+public class ExerciseWindow extends FrameLayout
+        implements View.OnClickListener, NumPad.OnKeyClicked {
 
     public final static byte NOT_DECIDED = 0, WRONG_ANSWER = 1,
             PROMPTED                     = 2, DECIDED_FIRSTLY = 3,
@@ -200,7 +202,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
             }
         });
         answerLayout.setOnClickListener(this);
-        ((NumPad) findViewById(R.id.numpad)).init(this);
+        ((NumPad) findViewById(R.id.numpad)).init(this, answerLayout);
         title = (TextView) findViewById(R.id.title);
         title.setText("Задача №" + Number);
 
@@ -240,7 +242,7 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
     private void checkAnswer() {
 
         boolean result = answerLayout.getAnswerTextView().getText()
-                .toString().replace("|", "").equals(answer);
+                .toString().replace("  |", "").equals(answer);
 
         ((MainActivity) context).ui.openExerciseResultWindow(result,
                 status == WRONG_ANSWER ?
@@ -346,5 +348,10 @@ public class ExerciseWindow extends FrameLayout implements View.OnClickListener 
             }
         } catch (Exception ignored) {
         }
+    }
+
+    @Override
+    public void onKeyClicked(Button b, String s) {
+
     }
 }

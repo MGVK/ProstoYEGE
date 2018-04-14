@@ -227,7 +227,14 @@ public class MainStatisticView extends LinearLayout {
         repetitionButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) context).ui.requestOpenRepetitionFragment();
+                UI.openRequestDialog(context.getString(R.string.repetition_start_request_title),
+                        context.getString(R.string.repetition_start_request_text),
+                        new OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                UI.openRepetitionActivity();
+                            }
+                        }, null);
             }
         });
         LinearLayout.LayoutParams lp = new LayoutParams(-1, UI.calcSize(40));

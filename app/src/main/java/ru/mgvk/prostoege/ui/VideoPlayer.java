@@ -35,17 +35,17 @@ import java.util.concurrent.Executors;
 public class VideoPlayer {
 
 
-    Context context;
+    Context     context;
     MediaPlayer mediaPlayer;
-    Activity activity;
-    Display smallDisplay, fullScreenDisplay;
-    Display currDisplay;
+    Activity    activity;
+    Display     smallDisplay, fullScreenDisplay;
+    Display   currDisplay;
     ImageView picture;
-    private String videoID = "";
-    private boolean fullScreen = false;
+    private String                       videoID    = "";
+    private boolean                      fullScreen = false;
     private OnExceptionCorruptedListener listener;
-    private OnVideoStateChangeListener onVideoStateChangeListener;
-    private boolean touched = false;
+    private OnVideoStateChangeListener   onVideoStateChangeListener;
+    private boolean                      touched    = false;
 
 
     //    public void start(){
@@ -53,9 +53,9 @@ public class VideoPlayer {
 //            mediaPlayer.start();
 //        }
 //    }
-    private boolean buyed = false;
+    private boolean buyed     = false;
     private boolean wasStoped = false;
-    private String TAG = "VideoPlayer";
+    private String  TAG       = "VideoPlayer";
 
 
     public VideoPlayer(Context context) throws ClassCastException {
@@ -163,7 +163,7 @@ public class VideoPlayer {
                     public void surfaceChanged(SurfaceHolder holder,
                                                int format, int width, int height) {
                         Log.d(TAG, "surfaceChanged: changeDisplay: "
-                                + format + " " + width + " " + height);
+                                   + format + " " + width + " " + height);
 //                        holder.removeCallback(this);
                         mediaPlayer.setDisplay(holder);
                         if (continuePlaying) {
@@ -296,7 +296,8 @@ public class VideoPlayer {
                 }
 
                 @Override
-                public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                public void surfaceChanged(SurfaceHolder holder, int format, int width,
+                                           int height) {
                     Log.d(TAG, "surfaceChanged: initPlayer");
                 }
 
@@ -379,7 +380,8 @@ public class VideoPlayer {
 
     }
 
-    public void setOnVideoStateChangeListener(OnVideoStateChangeListener onVideoStateChangeListener) {
+    public void setOnVideoStateChangeListener(
+            OnVideoStateChangeListener onVideoStateChangeListener) {
         this.onVideoStateChangeListener = onVideoStateChangeListener;
     }
 
@@ -454,11 +456,11 @@ public class VideoPlayer {
         static String getVideoURL(String id) {
             String urlToRead = "http://www.youtube.com/get_video_info?video_id=" + id;
 
-            URL url;
+            URL               url;
             HttpURLConnection conn;
-            BufferedReader rd;
-            String line;
-            String result = "";
+            BufferedReader    rd;
+            String            line;
+            String            result = "";
             try {
                 url = new URL(urlToRead);
                 conn = (HttpURLConnection) url.openConnection();
@@ -508,11 +510,11 @@ public class VideoPlayer {
     public class Display extends FrameLayout implements View.OnClickListener {
 
         DisplaySurface display;
-        VideoSeek seekBar;
-        ImageButton playPauseButton, fullScreenButton;
+        VideoSeek      seekBar;
+        ImageButton    playPauseButton, fullScreenButton;
         ViewGroup parent;
-        int minWidth = UI.calcSize(55);
-        int minHeight = UI.calcSize(31);
+        int       minWidth  = UI.calcSize(55);
+        int       minHeight = UI.calcSize(31);
         private boolean fullScreenDisplay = false;
 
         public Display(Context context) {
@@ -529,8 +531,7 @@ public class VideoPlayer {
         public void setOnClickListener(OnClickListener l) {
             if (picture != null && indexOfChild(picture) != -1) {
                 picture.setOnClickListener(l);
-            }
-            else {
+            } else {
                 super.setOnClickListener(l);
             }
         }
@@ -699,8 +700,10 @@ public class VideoPlayer {
 
         void updateSizes(int width, int height) {
             try {
-                int h09 = (int) (isFullScreen() ? 0.1 * height : 0.15 * height); //размер кнопки полного экрана
-                int h2 = (int) (0.2 * height);
+                int h09 = (int) (isFullScreen() ?
+                        0.1 * height :
+                        0.15 * height); //размер кнопки полного экрана
+                int h2  = (int) (0.2 * height);
                 int h04 = (int) (0.04 * height);
 //            seekBar.setY(height - (h15 = (int) (0.15 * height)));
 //                seekBar.getLayoutParams().width = width - h09;

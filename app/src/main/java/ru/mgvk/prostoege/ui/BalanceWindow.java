@@ -56,7 +56,7 @@ public class BalanceWindow extends Dialog implements View.OnClickListener {
 
     //     view.setOnClickListener(new OnClickListener() {
 //                @Override
-//                public void onClick(View v) {
+//                public void onKeyClicked(View v) {
 //                    if (v.getTag() != null && ((Integer) v.getTag()) == 1 && (++count) == 20) {
 //                        Toast.makeText(context, "Made by MGVK: vk.com/mihailllo",
 //                                Toast.LENGTH_SHORT).show();

@@ -1,11 +1,9 @@
 package ru.mgvk.prostoege.ui;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
+import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.util.RepetitionTimer;
@@ -13,7 +11,7 @@ import ru.mgvk.util.RepetitionTimer;
 /**
  * Created by mike on 10.08.17.
  */
-public class TimeButton extends TextView implements View.OnClickListener {
+public class TimeButton extends AppCompatTextView implements View.OnClickListener {
 
 
     public static final int TIME_ALL       = 0;
@@ -39,12 +37,6 @@ public class TimeButton extends TextView implements View.OnClickListener {
         init();
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public TimeButton(Context context, AttributeSet attrs, int defStyleAttr,
-                      int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init();
-    }
 
     private void init() {
         super.setOnClickListener(this);

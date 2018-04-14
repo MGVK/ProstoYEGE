@@ -545,7 +545,7 @@ public class Task extends SwipedLinearLayout implements View.OnClickListener {
 //            if(!buyed&&(Task.this.getNumber()!=1&&Task.this.getNumber()!=2)) {
 //                player.getSmallDisplay().setOnClickListener(new OnClickListener() {
 //                    @Override
-//                    public void onClick(View v) {
+//                    public void onKeyClicked(View v) {
 //                        ((MainActivity) context).ui.openVideoPurchaseDialog(Video.this);
 //                    }
 //                });
