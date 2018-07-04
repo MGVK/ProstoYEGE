@@ -28,7 +28,7 @@ public class NewMenuPanel extends Dialog {
             switch (v.getId()) {
 
                 case R.id.balance: {
-                    ((MainActivity) getContext()).ui.openBalanceDialog();
+                    ((MainActivity) v.getContext()).ui.openBalanceDialog();
                     break;
                 }
                 case R.id.statistic: {
@@ -112,6 +112,7 @@ public class NewMenuPanel extends Dialog {
 
     public NewMenuPanel(Context context) {
         super(context);
+
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         mainLayout = (FrameLayout) LayoutInflater.from(context).inflate(R.layout

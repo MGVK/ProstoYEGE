@@ -48,6 +48,7 @@ public class RepetitionActivity extends AppCompatActivity
     private static       OnStartedListener             onStartedListener;
     private final        int                           checkRepetition    = 100;
     private              SectionsPagerAdapter          mSectionsPagerAdapter;
+
     private              ViewPager                     mViewPager;
     private              Context                       context;
     private              MainActivity                  mainActivity;
@@ -387,13 +388,12 @@ public class RepetitionActivity extends AppCompatActivity
 
         @Override
         public int getCount() {
-
             return taskCount;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return "Задача " + position;
+            return "Задача  " + position;
         }
 
     }
