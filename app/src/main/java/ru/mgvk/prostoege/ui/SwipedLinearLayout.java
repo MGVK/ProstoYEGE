@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import ru.mgvk.prostoege.MainActivity;
+import ru.mgvk.prostoege.R;
 
 /**
  * Created by mihail on 11.09.16.
@@ -22,7 +23,6 @@ public class SwipedLinearLayout extends FrameLayout {
     private ReturnButton      returnButton;
     private boolean canceled = false;
     private boolean first    = true;
-//    private Drawable bg=null;
 
     public SwipedLinearLayout(Context context) {
         super(context);
@@ -67,14 +67,6 @@ public class SwipedLinearLayout extends FrameLayout {
         }
     }
 
-    //
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-////        return childLayout.onTouchEvent(event);
-////        return onSuperTouchEvent(event);
-//        return super.onTouchEvent(event);
-//    }
-
 
     public boolean isSwiping() {
         return childLayout.isMoving();
@@ -82,13 +74,11 @@ public class SwipedLinearLayout extends FrameLayout {
 
     @Override
     public void setOnClickListener(OnClickListener l) {
-//        super.setOnClickListener(l);
         this.onClick = l;
     }
 
     @Override
     public void addView(View child) {
-//        super.addView(child);
         childLayout.addView(child);
     }
 
@@ -148,26 +138,21 @@ public class SwipedLinearLayout extends FrameLayout {
                 oldx = event.getX();
                 oldy = event.getY();
             } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                if (Math.abs(event.getY() - oldy) < Math.abs(event.getX() - oldx) || moving) {
+                if ((Math.abs(event.getY() / oldy) > 0.01)
+                    && (Math.abs(event.getX() / oldx) > 0.01)
+                    && (Math.abs(event.getY() - oldy) < Math.abs(event.getX() - oldx) || moving)) {
                     ((MainActivity) context).ui.mainScroll.setScrollEnabled(false);
                     move(event.getX() - oldx);
 
                     return true;
                 } else {
-                    setAlpha(1);
                     ((MainActivity) context).ui.taskListFragment.taskScroll.setScrollEnabled(true);
                 }
-//                else {
-//                    return onSuperTouchEvent(event);
-//                }
 
-//                if(moving){
-//                    move(event.getX()-oldx);
-//                }
             } else if (event.getAction() == MotionEvent.ACTION_UP) {
                 setAlpha(1);
                 if (!isMoving()) {
-//                    callOnClick();
+//                    call OnClick
                     onClick.onClick(this);
                 }
 
@@ -186,10 +171,7 @@ public class SwipedLinearLayout extends FrameLayout {
                 setAlpha(1);
             }
 
-//            return true;
-
             return onSuperTouchEvent(event);
-//            return super.onTouchEvent(event);
         }
 
         public boolean isMoving() {
@@ -273,6 +255,7 @@ public class SwipedLinearLayout extends FrameLayout {
         public ReturnButton(Context context) {
             super(context);
             setVisibility(INVISIBLE);
+            setBackground(getResources().getDrawable(R.drawable.btn_return));
             FrameLayout.LayoutParams lp = new LayoutParams(-1, -2);
             lp.gravity = Gravity.CENTER;
             lp.setMargins((int) UI.calcSize(20), 0, (int) UI.calcSize(20), 0);

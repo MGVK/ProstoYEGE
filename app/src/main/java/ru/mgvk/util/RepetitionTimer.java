@@ -9,15 +9,15 @@ import java.util.TimerTask;
  */
 public class RepetitionTimer extends TimerTask {
 
-    private Timer currentTimer;
+    private Timer                     currentTimer;
     private ArrayList<OnTimerTicking> tickings = new ArrayList<>();
     private long                      period   = 1000;  // 1s
     private long                      dealy    = 1000;   // 1s
-    private long pastTime;
-    private long startTime;
-    private long duration;
-    private boolean started  = false;
-    private boolean finished = false;
+    private long                      pastTime;
+    private long                      startTime;
+    private long                      duration;
+    private boolean                   started  = false;
+    private boolean                   finished = false;
 
     /**
      * @param duration - Duration of timer in seconds
@@ -105,6 +105,14 @@ public class RepetitionTimer extends TimerTask {
 
     public String getTime() {
         return pastTime / 60 + ":" + pastTime % 60;
+    }
+
+    public long getPastTime() {
+        return pastTime;
+    }
+
+    public long getRemaningTime() {
+        return duration - pastTime;
     }
 
 

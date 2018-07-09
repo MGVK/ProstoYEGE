@@ -1,5 +1,6 @@
 package ru.mgvk.prostoege;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -92,6 +93,7 @@ public class RepetitionActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         initMenu(navigationView.getMenu());
         mDrawerLayout = (DrawerLayout) findViewById(R.id.main_drawer);
+        timeButton = (TimeButton) findViewById(R.id.btn_time);
 
 //        mDrawerLayout.setPadding(0, UI.getStatusBarHeight(), 0, 0);
 
@@ -237,6 +239,7 @@ public class RepetitionActivity extends AppCompatActivity
         });
 
         timeButton.setTimer(repetitionTimer);
+        repetitionTimer.start();
 
         setInited(true);
 
@@ -246,6 +249,7 @@ public class RepetitionActivity extends AppCompatActivity
         this.inited = inited;
     }
 
+    @SuppressLint("StaticFieldLeak")
     private void onRepetitionFinished() {
 
 

@@ -1,11 +1,12 @@
 package ru.mgvk.prostoege.ui;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Toast;
-import ru.mgvk.prostoege.MainActivity;
 import ru.mgvk.util.RepetitionTimer;
 
 /**
@@ -18,7 +19,7 @@ public class TimeButton extends AppCompatTextView implements View.OnClickListene
     public static final int TIME_TO_FINISH = 1;
     public static final int EMPTY          = 2;
     RepetitionTimer currentTimer;
-    private int currentState = 0;
+    private int                            currentState = 0;
     private OnClickListener                externalListener;
     private RepetitionTimer.OnTimerTicking currentTicking;
 
@@ -49,6 +50,10 @@ public class TimeButton extends AppCompatTextView implements View.OnClickListene
     public void setTimer(
             RepetitionTimer currentTimer) {
         this.currentTimer = currentTimer;
+        disableTicking();
+        if (currentTimer != null) {
+            showTimeToFinish();
+        }
     }
 
     int incrementState() {
@@ -62,22 +67,25 @@ public class TimeButton extends AppCompatTextView implements View.OnClickListene
     }
 
     public void changeState(int newState) {
-        disableTicking();
-        switch (newState) {
-            case TIME_ALL: {
-                showPastTime();
-                break;
+        if (currentTimer != null) {
+            disableTicking();
+
+            switch (newState) {
+                case TIME_ALL: {
+                    showPastTime();
+                    break;
+                }
+                case TIME_TO_FINISH: {
+                    showTimeToFinish();
+                    break;
+                }
+                case EMPTY: {
+                    showEmptyButton();
+                    break;
+                }
             }
-            case TIME_TO_FINISH: {
-                showTimeToFinish();
-                break;
-            }
-            case EMPTY: {
-                showEmptyButton();
-                break;
-            }
+            currentState = newState;
         }
-        currentState = newState;
     }
 
     private void showEmptyButton() {
@@ -95,6 +103,19 @@ public class TimeButton extends AppCompatTextView implements View.OnClickListene
 
     private void showTimeToFinish() {
         Toast.makeText(getContext(), "TTL", Toast.LENGTH_SHORT).show();
+        final long remainingTime = currentTimer.getRemaningTime();
+        ((Activity) getContext()).runOnUiThread(new Runnable() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void run() {
+                setText(""
+                        + remainingTime / 3600
+                        + ":"
+                        + (remainingTime % 3600) / 60
+                        + ":"
+                        + remainingTime % 60);
+            }
+        });
         currentTimer.addOnTimerTicking(currentTicking = new RepetitionTimer
                 .OnTimerTicking() {
             @Override
@@ -114,14 +135,14 @@ public class TimeButton extends AppCompatTextView implements View.OnClickListene
 
             @Override
             public void onAnticlockwiseTick(long remainingTime) {
-                final String time = "осталось: "
+                final String time = ""
                                     + remainingTime / 3600
                                     + ":"
                                     + (remainingTime % 3600) / 60
                                     + ":"
                                     + remainingTime % 60;
 
-                ((MainActivity) getContext()).runOnUiThread(new Runnable() {
+                ((Activity) getContext()).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         setText(time);
@@ -133,6 +154,19 @@ public class TimeButton extends AppCompatTextView implements View.OnClickListene
 
     private void showPastTime() {
         Toast.makeText(getContext(), "PastTime", Toast.LENGTH_SHORT).show();
+        final long pastTime = currentTimer.getPastTime();
+        ((Activity) getContext()).runOnUiThread(new Runnable() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void run() {
+                setText(""
+                        + pastTime / 3600
+                        + ":"
+                        + (pastTime % 3600) / 60
+                        + ":"
+                        + pastTime % 60);
+            }
+        });
         currentTimer.addOnTimerTicking(currentTicking = new RepetitionTimer
                 .OnTimerTicking() {
             @Override
@@ -147,13 +181,13 @@ public class TimeButton extends AppCompatTextView implements View.OnClickListene
 
             @Override
             public void onClockwiseTick(final long pastTime) {
-                final String time = "прошло: "
+                final String time = ""
                                     + pastTime / 3600
                                     + ":"
                                     + (pastTime % 3600) / 60
                                     + ":"
                                     + pastTime % 60;
-                ((MainActivity) getContext()).runOnUiThread(new Runnable() {
+                ((Activity) getContext()).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         setText(time);
